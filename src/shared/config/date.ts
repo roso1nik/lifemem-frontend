@@ -1,0 +1,3 @@
+export const DATE_TIME_DEFAULT_FORMAT = 'DD.MM.YYYY - HH:mm:ss'
+export const DATE_BIRTHDAY_DEFAULT_FORMAT = 'DD.MM.YYYY'
+

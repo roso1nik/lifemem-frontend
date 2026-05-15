@@ -1,0 +1,58 @@
+{
+  "change-language-title": "Изменить язык",
+  "profile": "Профиль",
+  "select-language": "Выберите язык",
+  "admin-mode": "Администрирование",
+  "search-game": "Поиск игры...",
+  "main-page": "Главная",
+  "collections": "Коллекция",
+  "chats": "Чаты",
+  "level": "Уровень",
+  "game-companion": "Игровой компаньон",
+  "go-back": "Вернуться назад",
+  "overview": "Обзор",
+  "users-and-roles": "Пользователи и роли",
+  "settings": "Настройки",
+  "home-all-games": "Все игры",
+  "home-new-games": "Новые игры",  
+  "recommendations": "Рекомендации",
+  "games": {
+    "results_summary": "Показано {shown} из {total} игр",
+  "genres": {
+  "MOBA": "MOBA",
+  "Card & Board Game": "Карточные и настольные игры",
+  "Visual Novel": "Визуальная новелла",
+  "Arcade": "Аркады",
+  "Indie": "Инди",
+  "Adventure": "Приключения",
+  "Pinball": "Пинбол",
+  "Quiz/Trivia": "Викторины",
+  "Hack and slash/Beat 'em up": "Хаки и биты",
+  "Tactical": "Тактические",
+  "Turn-based strategy (TBS)": "Пошаговые стратегии",
+  "Strategy": "Стратегии",
+  "Sport": "Спортивные игры",
+  "Simulator": "Симуляторы",
+  "Role-playing (RPG)": "Ролевые игры",
+  "Real Time Strategy (RTS)": "Стратегия в реальном времени",
+  "Racing": "Гонки",
+  "Puzzle": "Пазлы",
+  "Platform": "Платформеры",
+  "Music": "Музыкальные игры",
+  "Point-and-click": "Кликеры",
+  "Fighting": "Боевые игры",
+  "Shooter": "Шутеры"
+          }
+  },
+  "logoutToats": "Вы успешно вышли из системы",
+  "loginToats": "Успешный вход",
+  "profileMode": {
+  "Public": "Публичный",
+  "Private": "Приватный",
+  "OnlyFriends": "Только для друзей"
+  },
+  "role": {
+  "Admin": "Администратор",
+  "User": "Пользователь"
+  }
+}

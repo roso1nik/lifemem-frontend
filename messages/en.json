@@ -1,0 +1,58 @@
+{
+  "change-language-title": "Change language",
+  "profile": "Profile",
+  "select-language": "Select language",
+  "admin-mode": "Admin mode",
+  "search-game": "Search game...",
+  "main-page": "Main page",
+  "collections": "Collections",
+  "chats": "Chats",
+  "level": "Level",
+  "game-companion": "Game companion",
+  "go-back": "Go back",
+  "overview": "Overview",
+  "users-and-roles": "Users and roles", 
+  "settings": "Settings",
+    "home-all-games": "All games",
+  "home-new-games": "new games",  
+  "recommendations": "Recommendations",
+  "games": {
+    "results_summary": "{shown} of {total} games shown",
+      "genres": {
+  "MOBA": "MOBA",
+  "Card & Board Game": "Card & Board Game", 
+  "Visual Novel": "Visual Novel",
+  "Arcade": "Arcade",
+  "Indie": "Indie",
+  "Adventure": "Adventure",
+  "Pinball": "Pinball",
+  "Quiz/Trivia": "Quiz/Trivia",
+  "Hack and slash/Beat 'em up": "Hack and slash/Beat 'em up",
+  "Tactical": "Tactical",
+  "Turn-based strategy (TBS)": "Turn-based strategy (TBS)",
+  "Strategy": "Strategy",
+  "Sport": "Sport",
+  "Simulator": "Simulator",
+  "Role-playing (RPG)": "Role-playing (RPG)",
+  "Real Time Strategy (RTS)": "Real Time Strategy (RTS)",
+  "Racing": "Racing",
+  "Puzzle": "Puzzle",
+  "Platform": "Platform",
+  "Music": "Music",
+  "Point-and-click": "Point-and-click",
+  "Fighting": "Fighting",
+  "Shooter": "Shooter"
+}
+  },
+   "logoutToats": "You have successfully logged out",
+   "loginToats": "Successful login",
+     "profileMode": {
+  "Public": "Public",
+  "Private": "Private",
+  "OnlyFriends": "Only for friends"
+  },
+  "role": {
+  "Admin": "Admin",
+  "User": "User"
+  }
+}
