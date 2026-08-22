@@ -26,8 +26,8 @@ export const ThemeSwitcher = () => {
     }
 
     return (
-        <ActionIcon variant="transparent" onClick={toggleTheme} size="xl" color="light">
-            {colorScheme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+        <ActionIcon variant="subtle" onClick={toggleTheme} size="lg" color="gray" aria-label="Toggle theme">
+            {colorScheme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
         </ActionIcon>
     )
 }

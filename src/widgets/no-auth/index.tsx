@@ -1,19 +1,21 @@
-import { ROUTES } from '@/shared/router'
-import { Button, Text } from '@mantine/core'
+'use client'
+
+import { APP_NAME } from '@/shared/config'
 import { Link } from '@/i18n/navigation'
+import { ROUTES } from '@/shared/router'
+import { Button } from '@mantine/core'
+import { useTranslations } from 'next-intl'
 
 export const NoAuthPage = () => {
+    const t = useTranslations('admin')
+
     return (
-        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-            <h1 className="text-xl font-bold">Доступ ограничен</h1>
-
-            <Text c="dimmed" size="sm">
-                Войдите в аккаунт, чтобы открыть настройки
-            </Text>
-
-            <Link href={ROUTES.LOGIN}>
-                <Button size="md">Войти</Button>
-            </Link>
+        <div className="bg-background flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center">
+            <p className="text-primary text-2xl font-semibold lowercase">{APP_NAME}</p>
+            <p className="text-muted-foreground max-w-sm text-sm">{t('noAccess')}</p>
+            <Button component={Link} href={ROUTES.HOME_PAGE} variant="light">
+                {t('back')}
+            </Button>
         </div>
     )
 }

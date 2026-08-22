@@ -1,42 +1,43 @@
-import { createTheme, MantineColorsTuple } from '@mantine/core'
+import { CSSVariablesResolver, MantineColorsTuple, createTheme } from '@mantine/core'
 
+/** Soft powder / sky blue — calm, easy on the eyes */
 const brandColors: MantineColorsTuple = [
-    '#e0fdf7',
-    '#c2faf0',
-    '#87f5e2',
-    '#4cf0d4',
-    '#12d7b5',
-    '#0ec4a3',
-    '#0bba95',
-    '#00a382',
-    '#009173',
-    '#007d63'
+    '#f0f7fb',
+    '#ddeef7',
+    '#b8dced',
+    '#8fc6e0',
+    '#6bb0d1',
+    '#549fc4',
+    '#4894bb',
+    '#3880a4',
+    '#2f7293',
+    '#1f5a76'
 ]
 
 const secondaryColors: MantineColorsTuple = [
-    '#fffbe0',
-    '#fff5cc',
-    '#fce99c',
-    '#fadd68',
-    '#f9d648',
-    '#f8cd1f',
-    '#f7ca0b',
-    '#dcb200',
-    '#c49e00',
-    '#a98800'
+    '#f4f6f8',
+    '#e8ecf0',
+    '#cfd7df',
+    '#b3bfcb',
+    '#9aabbb',
+    '#8b9faf',
+    '#8398aa',
+    '#708496',
+    '#637586',
+    '#526575'
 ]
 
 const cyanColors: MantineColorsTuple = [
-    '#defeff',
-    '#caf8ff',
-    '#99efff',
-    '#64e5ff',
-    '#3dddfe',
-    '#25d8fe',
-    '#00d4ff',
-    '#00bde4',
-    '#00a8cc',
-    '#0092b4'
+    '#e8f8fb',
+    '#d3eff5',
+    '#a6dee9',
+    '#75ccdc',
+    '#4fbdd0',
+    '#38b4c8',
+    '#28afc5',
+    '#1299ae',
+    '#00889c',
+    '#007687'
 ]
 
 const greenColors: MantineColorsTuple = [
@@ -88,9 +89,72 @@ export const theme = createTheme({
         red: redColors,
         white: whiteColors
     },
-    primaryShade: 8,
-    radius: { xs: '10px', lg: '12px', md: '14px', sm: '16px', xl: '20px' },
-    fontFamily: 'Inter, sans-serif',
+    primaryShade: 5,
+    radius: {
+        xs: '6px',
+        sm: '8px',
+        md: '12px',
+        lg: '16px',
+        xl: '22px'
+    },
+    fontFamily: 'var(--font), Inter, sans-serif',
+    headings: {
+        fontFamily: 'var(--font), Inter, sans-serif',
+        fontWeight: '600'
+    },
     autoContrast: true,
-    defaultRadius: 'md'
+    defaultRadius: 'md',
+    cursorType: 'pointer',
+    components: {
+        Button: {
+            defaultProps: {
+                radius: 'md'
+            }
+        },
+        TextInput: {
+            defaultProps: {
+                radius: 'md'
+            }
+        },
+        PasswordInput: {
+            defaultProps: {
+                radius: 'md'
+            }
+        },
+        Textarea: {
+            defaultProps: {
+                radius: 'md'
+            }
+        },
+        ActionIcon: {
+            defaultProps: {
+                radius: 'md'
+            }
+        },
+        Input: {
+            defaultProps: {
+                radius: 'md'
+            }
+        }
+    }
+})
+
+export const cssVariablesResolver: CSSVariablesResolver = () => ({
+    variables: {
+        '--app-shell-border-color': 'var(--border)'
+    },
+    light: {
+        '--mantine-color-body': 'var(--background)',
+        '--mantine-color-text': 'var(--foreground)',
+        '--mantine-color-anchor': 'var(--mantine-color-brandColors-6)',
+        '--mantine-color-default-border': 'var(--border)',
+        '--mantine-color-dimmed': 'var(--muted-foreground)'
+    },
+    dark: {
+        '--mantine-color-body': 'var(--background)',
+        '--mantine-color-text': 'var(--foreground)',
+        '--mantine-color-anchor': 'var(--mantine-color-brandColors-4)',
+        '--mantine-color-default-border': 'var(--border)',
+        '--mantine-color-dimmed': 'var(--muted-foreground)'
+    }
 })

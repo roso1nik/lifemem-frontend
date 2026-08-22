@@ -1,36 +1,30 @@
-
 'use client'
+
 import { ConfirmEmailRequest, confirmEmailSchema, useConfirmEmail } from '@/entities/user/api/use-confirm-email'
 import { useResendCode } from '@/entities/user/api/use-resend-code'
-import { useSelf } from '@/entities/user/api/use-self'
-import { Link, useRouter } from '@/i18n/navigation'
+import { Link } from '@/i18n/navigation'
 import { ROUTES } from '@/shared/router'
-import { LoadingPageNext } from '@/shared/ui'
 import { cn } from '@/shared/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Input } from '@mantine/core'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslations } from 'next-intl'
 
 const ConfirmEmailForm = () => {
-    const router = useRouter()
-    const [timeLeft, setTimeLeft] = useState(5)
+    const t = useTranslations('auth')
+    const [timeLeft, setTimeLeft] = useState(30)
+    const searchParams = useSearchParams()
+    const email = searchParams.get('email') ?? '—'
 
     useEffect(() => {
         if (timeLeft === 0) return
-        const interval = setInterval(() => {
-            setTimeLeft((prev) => prev - 1)
-        }, 1000)
-
+        const interval = setInterval(() => setTimeLeft((prev) => prev - 1), 1000)
         return () => clearInterval(interval)
-
     }, [timeLeft])
 
     const isDisabled = timeLeft > 0
-
-    const searchParams = useSearchParams()
-    const email = searchParams.get('email')
 
     const {
         handleSubmit,
@@ -38,49 +32,22 @@ const ConfirmEmailForm = () => {
         formState: { errors }
     } = useForm<ConfirmEmailRequest>({
         resolver: zodResolver(confirmEmailSchema),
-        defaultValues: {
-            code: ''
-        }
+        defaultValues: { code: '' }
     })
 
-    const { mutate: confirmEmail, isPending: isLoadingConfirm } = useConfirmEmail()
+    const { mutate: confirmEmail, isPending } = useConfirmEmail()
+    const { isPending: isLoadingResend, mutate: resendCode } = useResendCode()
 
-    const { isPending: isLoadingResendCode, mutate: resendCode } = useResendCode()
-    const { data: user, isLoading } = useSelf()
-
-    useEffect(() => {
-        if (user?.isEmailVerified === true) {
-            router.push(ROUTES.HOME_PAGE)
-        }
-    }, [router, user?.isEmailVerified])
-    if (isLoading || user?.isEmailVerified) return <LoadingPageNext />
-
-
-    const onSubmit = async (data: ConfirmEmailRequest) => {
-        confirmEmail({
-            code: Number(data.code)
-        } as any)
-    }
-
-
-    const onResendCode = () => {
-        if (isDisabled) return
-        resendCode()
-        setTimeLeft(5)
-    }
     return (
-
-        <div className="flex flex-col gap-3 items-center justify-center ">
-            <h1 className="mb-2 text-center text-2xl font-bold">Подтверждение email</h1>
-            <p className="text-center text-gray-600">
-                Введите код, отправленный на ваш email: {email}
-            </p>
-            <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex flex-col items-center gap-3">
+            <h1 className="mb-1 text-center text-xl font-semibold">{t('confirmTitle')}</h1>
+            <p className="text-muted-foreground mb-2 text-center text-sm">{t('confirmHint', { email })}</p>
+            <form className="w-full" onSubmit={handleSubmit((data) => confirmEmail(data))}>
                 <Controller
                     control={control}
-                    name='code'
+                    name="code"
                     render={({ field }) => (
-                        <Input.Wrapper label="Код" error={errors.code?.message}>
+                        <Input.Wrapper label={t('code')} error={errors.code?.message}>
                             <Input
                                 placeholder="------"
                                 maxLength={6}
@@ -90,50 +57,45 @@ const ConfirmEmailForm = () => {
                                 value={field.value}
                                 onBlur={field.onBlur}
                                 onChange={(e) => {
-                                    const value = e.target.value.replace(/[^0-9]/g, '');
-                                    field.onChange(value);
+                                    field.onChange(e.target.value.replace(/[^0-9]/g, ''))
                                 }}
                                 styles={{
                                     input: {
                                         textAlign: 'center',
-                                        fontSize: '24px',
+                                        fontSize: '22px',
                                         letterSpacing: '8px',
                                         fontWeight: 600,
                                         height: '48px'
                                     }
-
                                 }}
                             />
                         </Input.Wrapper>
                     )}
                 />
-
-                <Button
-                    type="submit"
-                    mt="md"
-                    fullWidth
-                    size="md"
-                    loading={isLoadingConfirm}
-
-                >
-                    Подтвердить email
+                <Button type="submit" mt="md" fullWidth size="md" loading={isPending}>
+                    {t('confirmSubmit')}
                 </Button>
-
                 <p
-                    className={cn("text-center mt-2", isDisabled ? 'cursor-not-allowed text-gray-400' : 'cursor-pointer text-gray-500')}
-                    onClick={isDisabled ? undefined : onResendCode}
+                    className={cn(
+                        'mt-3 text-center text-sm',
+                        isDisabled || isLoadingResend
+                            ? 'text-muted-foreground cursor-not-allowed'
+                            : 'text-primary cursor-pointer hover:underline'
+                    )}
+                    onClick={() => {
+                        if (isDisabled || isLoadingResend) return
+                        resendCode()
+                        setTimeLeft(30)
+                    }}
                 >
-                    {isDisabled ? `Повторная отправка через ${timeLeft} секунд` : 'Отправить код снова'}
+                    {isDisabled ? t('resendIn', { seconds: timeLeft }) : t('resend')}
                 </p>
             </form>
-            <div className="mt-4 text-center">
-                <Link href={ROUTES.LOGIN} className="text-blue-500 hover:underline">
-                    Вернуться к входу
-                </Link>
-            </div>
+            <Link href={ROUTES.LOGIN} className="text-primary mt-2 text-sm hover:underline">
+                {t('backToLogin')}
+            </Link>
         </div>
     )
 }
-
 
 export default ConfirmEmailForm

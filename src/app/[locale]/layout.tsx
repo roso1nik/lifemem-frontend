@@ -5,14 +5,15 @@ import '@mantine/dates/styles.css'
 import '../../shared/styles/index.css'
 import { cn } from '@/shared/utils'
 import { QueryProvider } from '@/shared/providers/query-client'
-import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core'
-import { theme } from '@/shared/styles/theme'
+import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core'
+import { MantineAppProvider } from '@/shared/providers/mantine-provider'
 import { ThemeProvider } from '@/shared/providers/theme-provider'
 import { Toaster } from 'react-hot-toast'
 import { locales } from '@/i18n/routing'
 import { notFound } from 'next/navigation'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
 import { setRequestLocale } from 'next-intl/server'
+import { APP_CONFIG } from '@/shared/config'
 
 const font_flobal = Inter({
     variable: '--font',
@@ -20,13 +21,10 @@ const font_flobal = Inter({
 })
 
 export const metadata: Metadata = {
-    title: 'Gravitino Code Admin',
-    description: 'Gravitino Code Admin Panel',
-    // TODO: icons
+    title: APP_CONFIG.NAME,
+    description: APP_CONFIG.DESCRIPTION,
     icons: {
-        icon: '/images/ss-logo-black.svg',
-        shortcut: '/images/ss-logo-black.svg',
-        apple: '/images/ss-logo-black.svg'
+        icon: '/favicon.ico'
     }
 }
 
@@ -62,14 +60,14 @@ export default async function RootLayout({
             </head>
             <body className={cn(`antialiased`, font_flobal.variable)}>
                 <NextIntlClientProvider locale={locale} messages={messages}>
-                    <MantineProvider theme={theme}>
+                    <MantineAppProvider>
                         <ThemeProvider>
                             <QueryProvider>
                                 {children}
                                 <Toaster />
                             </QueryProvider>
                         </ThemeProvider>
-                    </MantineProvider>
+                    </MantineAppProvider>
                 </NextIntlClientProvider>
             </body>
         </html>

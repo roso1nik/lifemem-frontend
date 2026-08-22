@@ -3,12 +3,10 @@
 import { useSelf } from '@/entities/user/api/use-self'
 import { ROUTES } from '@/shared/router'
 import { LoadingPageNext } from '@/shared/ui'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { FC, ReactNode, useEffect } from 'react'
-import Cookies from 'js-cookie'
-import { GLOBAL_DICTIONARY } from '@/shared/config'
-import { usePermissions } from '@/entities/permission/hooks/usePermission'
-import { PermissionValue } from '@/entities/permission/const/permission-map'
+import { usePermissions } from '@/entities/permissions/hooks/usePermission'
+import { PermissionValue } from '@/entities/permissions/const/permission-map'
 
 interface CheckAuthProviderProps {
     children: ReactNode
@@ -16,37 +14,25 @@ interface CheckAuthProviderProps {
 
 export const CheckAuthProvider: FC<CheckAuthProviderProps> = ({ children }) => {
     const router = useRouter()
-
-    const { isError, isLoading, isSuccess, data } = useSelf()
+    const { isLoading, isSuccess, data } = useSelf()
     const { hasPermission } = usePermissions()
-
-    const refreshToken = Cookies.get(GLOBAL_DICTIONARY.REFRESH_TOKEN)
-
-    if (!refreshToken) {
-        router.push(ROUTES.LOGIN)
-    }
 
     useEffect(() => {
         if (isLoading) return
-
-        if ((isError || !refreshToken) && !isLoading) {
-            router.push(ROUTES.LOGIN)
+        if (!isSuccess || !data) {
+            router.replace(ROUTES.LOGIN)
             return
         }
-
-        if (isSuccess && data && !hasPermission(PermissionValue.ADMIN_PANEL)) {
-            router.push(ROUTES.NOT_ADMIN)
-            return
+        if (!hasPermission(PermissionValue.ADMIN_PANEL)) {
+            router.replace(ROUTES.HOME_PAGE)
         }
-    }, [refreshToken, isError, isLoading, router, isSuccess, data, hasPermission])
+    }, [isLoading, isSuccess, data, hasPermission, router])
 
-    if (isLoading) {
-        return <LoadingPageNext />
-    }
+    if (isLoading) return <LoadingPageNext />
 
-    if (isSuccess && hasPermission(PermissionValue.ADMIN_PANEL)) {
+    if (isSuccess && data && hasPermission(PermissionValue.ADMIN_PANEL)) {
         return <>{children}</>
     }
 
-    return null
+    return <LoadingPageNext />
 }

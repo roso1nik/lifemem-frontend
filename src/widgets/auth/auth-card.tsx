@@ -1,45 +1,34 @@
 'use client'
-import Image from 'next/image'
-import { FC, ReactNode, useEffect, useState } from 'react'
+
+import { FC, ReactNode } from 'react'
 import { ThemeSwitcher } from '../theme'
 import { APP_NAME } from '@/shared/config'
-import { useMantineColorScheme } from '@mantine/core'
+import { useTranslations } from 'next-intl'
 
 interface AuthCardProps {
     children: ReactNode
 }
 
 export const AuthCard: FC<AuthCardProps> = ({ children }) => {
-    const { colorScheme } = useMantineColorScheme()
-    const [isMounted, setIsMounted] = useState(false)
-
-    useEffect(() => {
-        setIsMounted(true)
-    }, [])
-
-    const logoSrc = isMounted && colorScheme === 'dark'
-        ? '/images/emojis/ss-logo-white.svg'
-        : '/images/emojis/ss-logo-black.svg'
+    const t = useTranslations('auth')
 
     return (
         <>
-            <div className="absolute top-4 right-4">
+            <div className="absolute top-4 right-4 z-10">
                 <ThemeSwitcher />
             </div>
-            <div className="flex flex-col items-center gap-1">
-                <Image
-                    src={logoSrc}
-                    alt={`${APP_NAME} logo`}
-                    width={200}
-                    height={200}
-                    loading="eager"
-                />
+
+            <div className="mb-6 flex flex-col items-center gap-2 text-center">
+                <p className="text-primary text-3xl font-semibold tracking-tight lowercase">{APP_NAME}</p>
+                <p className="text-muted-foreground text-sm">{t('tagline')}</p>
             </div>
-            <div className="border-border bg-card flex w-full flex-col gap-3 rounded-3xl border p-6 lg:w-md">
+
+            <div className="border-border/80 bg-card/90 w-full max-w-md rounded-2xl border p-6 shadow-sm backdrop-blur-sm">
                 {children}
             </div>
-            <p className="text-muted-foreground absolute bottom-4 text-sm">
-                © {new Date().getFullYear()} {APP_NAME}. Все права защищены.
+
+            <p className="text-muted-foreground mt-8 text-sm">
+                © {new Date().getFullYear()} {APP_NAME}. {t('rights')}
             </p>
         </>
     )

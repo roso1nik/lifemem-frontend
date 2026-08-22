@@ -1,15 +1,16 @@
+import { APP_CONFIG } from '@/shared/config'
 import { ROUTES } from '@/shared/router'
 import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'GHUB',
-        short_name: 'GHUB',
-        description: 'GHUB',
+        name: APP_CONFIG.NAME,
+        short_name: APP_CONFIG.NAME,
+        description: APP_CONFIG.DESCRIPTION,
         start_url: ROUTES.HOME_PAGE,
         display: 'fullscreen',
-        background_color: '#0e0e12',
-        theme_color: '#9b57ff',
+        background_color: 'var(--background)',
+        theme_color: 'var(--primary)',
         orientation: 'any',
         icons: [
             {

@@ -1,18 +1,11 @@
-/* eslint-disable react-perf/jsx-no-new-function-as-prop */
-/* eslint-disable react-perf/jsx-no-new-object-as-prop */
 'use client'
 
-import { useLocale, useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, Group, Text, Button } from '@mantine/core'
-import { cn } from '@/shared/utils'
+import { ActionIcon, Menu } from '@mantine/core'
+import { Languages } from 'lucide-react'
 
-interface LanguageSwitcherProps {
-    className?: string
-}
-
-export const LanguageSwitcher = ({ className }: LanguageSwitcherProps) => {
-    const t = useTranslations()
+export const LanguageSwitcher = () => {
     const locale = useLocale()
     const pathname = usePathname()
     const router = useRouter()
@@ -20,48 +13,25 @@ export const LanguageSwitcher = ({ className }: LanguageSwitcherProps) => {
     const pathWithoutLocale = pathname?.replace(new RegExp(`^/${locale}`), '') || '/'
 
     const languages = [
-        { value: 'en', label: 'English', icon: '/images/emojis/flag-uk.svg' },
-        { value: 'ru', label: 'Русский', icon: '/images/emojis/flag-russia.svg' }
+        { value: 'en', label: 'EN' },
+        { value: 'ru', label: 'RU' }
     ]
 
-    const handleChange = (value: string) => {
-        router.push(`/${value}${pathWithoutLocale}`)
-    }
-
-    const currentLang = languages.find((lang) => lang.value === locale)
-
     return (
-        <Menu
-            shadow="md"
-            width={200}
-            position="bottom-end"
-            transitionProps={{ transition: 'pop-top-right' }}
-            withinPortal
-        >
+        <Menu shadow="md" width={120} position="top-end" withinPortal>
             <Menu.Target>
-                <Button
-                    variant="default"
-                    size="md"
-                    radius="md"
-                    title={t('change-language-title') || 'Change language'}
-                    className={cn(className, 'w-full!')}
-                >
-                    {currentLang?.label}
-                </Button>
+                <ActionIcon variant="subtle" color="gray" size="lg" aria-label="Language">
+                    <Languages size={18} />
+                </ActionIcon>
             </Menu.Target>
-
             <Menu.Dropdown>
-                <Menu.Label>{t('select-language') || 'Select language'}</Menu.Label>
                 {languages.map((lang) => (
                     <Menu.Item
                         key={lang.value}
-                        onClick={() => handleChange(lang.value)}
                         disabled={locale === lang.value}
+                        onClick={() => router.push(`/${lang.value}${pathWithoutLocale}`)}
                     >
-                        <Group>
-                            <Text>{lang.label}</Text>
-                            {locale === lang.value && <Text size="xs">✓</Text>}
-                        </Group>
+                        {lang.label}
                     </Menu.Item>
                 ))}
             </Menu.Dropdown>
