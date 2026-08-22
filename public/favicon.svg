@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Lifemem">
+  <style>
+    .mark { fill: #5B9FB0; }
+    .node { fill: #ffffff; }
+    .edge { stroke: #ffffff; stroke-width: 1.7; stroke-linecap: round; }
+    @media (prefers-color-scheme: dark) {
+      .mark { fill: #7BB8C6; }
+    }
+  </style>
+  <rect class="mark" width="32" height="32" rx="8" />
+  <line class="edge" x1="10" y1="12" x2="22" y2="12" />
+  <line class="edge" x1="10" y1="12" x2="16" y2="21.5" />
+  <line class="edge" x1="22" y1="12" x2="16" y2="21.5" />
+  <circle class="node" cx="10" cy="12" r="2.5" />
+  <circle class="node" cx="22" cy="12" r="2.5" />
+  <circle class="node" cx="16" cy="21.5" r="2.5" />
+</svg>

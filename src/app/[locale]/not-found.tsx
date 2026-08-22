@@ -1,5 +1,11 @@
 import { Container, Group, Text, Title } from '@mantine/core'
 import { BackButton } from '@/widgets/buttons'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+    title: '404',
+    robots: { index: false, follow: false }
+}
 
 export default function NotFoundPage() {
     return (

@@ -1,29 +1,42 @@
-import { APP_CONFIG } from '@/shared/config'
-import { ROUTES } from '@/shared/router'
 import { MetadataRoute } from 'next'
+import { BRAND, SITE_NAME, SITE_SHORT_NAME } from '@/shared/config/site'
+import { defaultLocale } from '@/i18n/routing'
 
 export default function manifest(): MetadataRoute.Manifest {
+    const startUrl = `/${defaultLocale}`
+
     return {
-        name: APP_CONFIG.NAME,
-        short_name: APP_CONFIG.NAME,
-        description: APP_CONFIG.DESCRIPTION,
-        start_url: ROUTES.HOME_PAGE,
-        display: 'fullscreen',
-        background_color: 'var(--background)',
-        theme_color: 'var(--primary)',
+        id: '/',
+        name: SITE_NAME,
+        short_name: SITE_SHORT_NAME,
+        description: 'Your life, as notes — with a graph that grows as you save.',
+        start_url: startUrl,
+        scope: '/',
+        display: 'standalone',
+        lang: defaultLocale,
+        dir: 'ltr',
         orientation: 'any',
+        background_color: BRAND.backgroundColor,
+        theme_color: BRAND.themeColor,
+        categories: ['lifestyle', 'productivity'],
         icons: [
             {
-                purpose: 'maskable',
-                sizes: '512x512',
-                src: '/images/app/icon512_maskable.png',
-                type: 'image/png'
+                src: '/icon-192.png',
+                sizes: '192x192',
+                type: 'image/png',
+                purpose: 'any'
             },
             {
-                purpose: 'any',
+                src: '/icon-512.png',
                 sizes: '512x512',
-                src: '/images/app/icon512_rounded.png',
-                type: 'image/png'
+                type: 'image/png',
+                purpose: 'any'
+            },
+            {
+                src: '/icon-maskable-512.png',
+                sizes: '512x512',
+                type: 'image/png',
+                purpose: 'maskable'
             }
         ]
     }

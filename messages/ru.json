@@ -109,5 +109,17 @@
     },
     "main-page": "Главная",
     "change-language-title": "Язык",
-    "select-language": "Выберите язык"
+    "select-language": "Выберите язык",
+    "seo": {
+        "appName": "Lifemem",
+        "title": "Lifemem — заметки, которые связывают жизнь",
+        "titleTemplate": "%s · Lifemem",
+        "description": "Сохраняйте заметки, фото, места и людей. Lifemem сам строит живой граф вашей жизни, чтобы находить моменты, видеть связи и понимать прожитое.",
+        "ogTitle": "Lifemem",
+        "ogDescription": "Ваша жизнь — как заметки, с графом, который растёт вместе с вами.",
+        "loginTitle": "Вход",
+        "loginDescription": "Войдите в Lifemem, чтобы продолжить заметки, граф и места.",
+        "registerTitle": "Регистрация",
+        "registerDescription": "Создайте аккаунт Lifemem, чтобы сохранять заметки и смотреть, как растёт граф жизни."
+    }
 }

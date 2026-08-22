@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import '@mantine/core/styles.css'
 import '@mantine/dates/styles.css'
@@ -13,19 +13,66 @@ import { Toaster } from 'react-hot-toast'
 import { locales } from '@/i18n/routing'
 import { notFound } from 'next/navigation'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
-import { setRequestLocale } from 'next-intl/server'
-import { APP_CONFIG } from '@/shared/config'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getSiteUrl, SITE_NAME } from '@/shared/config/site'
+import { getWebAppJsonLd, themeColorEntries } from '@/shared/config/seo'
 
 const font_flobal = Inter({
     variable: '--font',
     subsets: ['latin', 'cyrillic', 'cyrillic-ext', 'latin-ext']
 })
 
-export const metadata: Metadata = {
-    title: APP_CONFIG.NAME,
-    description: APP_CONFIG.DESCRIPTION,
-    icons: {
-        icon: '/favicon.ico'
+type LocaleLayoutProps = Readonly<{
+    children: React.ReactNode
+    params: Promise<{ locale: string }>
+}>
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    themeColor: [...themeColorEntries]
+}
+
+export async function generateMetadata({ params }: LocaleLayoutProps): Promise<Metadata> {
+    const { locale } = await params
+    const t = await getTranslations({ locale, namespace: 'seo' })
+    const siteUrl = getSiteUrl()
+
+    return {
+        metadataBase: new URL(siteUrl),
+        applicationName: t('appName'),
+        title: {
+            default: t('title'),
+            template: t('titleTemplate')
+        },
+        description: t('description'),
+        category: 'productivity',
+        icons: {
+            icon: [
+                { url: '/favicon.svg', type: 'image/svg+xml' },
+                { url: '/favicon.ico', sizes: '32x32' }
+            ],
+            apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }]
+        },
+        manifest: '/manifest.webmanifest',
+        openGraph: {
+            type: 'website',
+            siteName: t('appName'),
+            locale: locale === 'ru' ? 'ru_RU' : 'en_US'
+        },
+        twitter: {
+            card: 'summary_large_image'
+        },
+        appleWebApp: {
+            capable: true,
+            title: SITE_NAME,
+            statusBarStyle: 'default'
+        },
+        formatDetection: {
+            telephone: false,
+            email: false,
+            address: false
+        }
     }
 }
 
@@ -33,13 +80,7 @@ export function generateStaticParams() {
     return locales.map((locale) => ({ locale }))
 }
 
-export default async function RootLayout({
-    children,
-    params
-}: Readonly<{
-    children: React.ReactNode
-    params: Promise<{ locale: string }>
-}>) {
+export default async function RootLayout({ children, params }: LocaleLayoutProps) {
     const { locale } = await params
     if (!hasLocale(locales, locale)) {
         notFound()
@@ -53,6 +94,7 @@ export default async function RootLayout({
     }
 
     setRequestLocale(locale)
+    const jsonLd = await getWebAppJsonLd(locale)
 
     return (
         <html lang={locale} {...mantineHtmlProps}>
@@ -60,6 +102,10 @@ export default async function RootLayout({
                 <ColorSchemeScript />
             </head>
             <body className={cn(`antialiased`, font_flobal.variable)}>
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <MantineAppProvider>
                         <ThemeProvider>

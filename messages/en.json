@@ -109,5 +109,17 @@
     },
     "main-page": "Home",
     "change-language-title": "Language",
-    "select-language": "Select language"
+    "select-language": "Select language",
+    "seo": {
+        "appName": "Lifemem",
+        "title": "Lifemem — notes that connect your life",
+        "titleTemplate": "%s · Lifemem",
+        "description": "Save notes, photos, places, and people. Lifemem builds a living graph of your life — find any moment, see connections, and understand what you've lived.",
+        "ogTitle": "Lifemem",
+        "ogDescription": "Your life, as notes — with a graph that grows as you save.",
+        "loginTitle": "Sign in",
+        "loginDescription": "Sign in to Lifemem to continue your notes, graph, and places.",
+        "registerTitle": "Create account",
+        "registerDescription": "Create a Lifemem account to save notes and watch your life graph grow."
+    }
 }
