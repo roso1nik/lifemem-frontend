@@ -12,7 +12,7 @@ import { ThemeSwitcher } from '@/widgets/theme'
 import { LanguageSwitcher } from '@/widgets/language-switcher'
 import { CtaLink } from './cta-link'
 
-const ANCHORS = ['graph', 'search', 'privacy'] as const
+const ANCHORS = ['graph', 'search', 'ai', 'privacy'] as const
 
 export const LandingNav = () => {
     const t = useTranslations('landing')

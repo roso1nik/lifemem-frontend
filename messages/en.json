@@ -132,6 +132,7 @@
         "nav": {
             "graph": "Graph",
             "search": "Search",
+            "ai": "AI",
             "privacy": "Privacy",
             "menu": "Open menu",
             "close": "Close menu"
@@ -167,18 +168,25 @@
             "body": "Search finds the moment even if the words were never exact.",
             "query": "walked with Dasha last summer"
         },
+        "ai": {
+            "title": "Ask your life. Get your answer.",
+            "body": "The model finds facts and advises from your notes, not from a crowd. Keep every moment. Open any day later.",
+            "query": "When did I last walk with Dasha, and is it worth going again?",
+            "answer": "Saturday, after the rain. You wrote the park was almost empty and that you were glad she came. Weekend afternoons are when you two walk most. If you want that again, Saturday still fits.",
+            "fromNotes": "From your notes"
+        },
         "places": {
             "title": "Places stay on the map.",
             "body": "Geo tags and names of streets, parks, kitchens. Open a year and see where you were.",
             "caption": "The park after rain, a Saturday in August."
         },
         "privacy": {
-            "title": "Your thoughts stay yours.",
-            "body": "Notes live in your account. Export or delete them whenever you want.",
-            "indexTitle": "AI indexes. It does not coach.",
-            "indexBody": "Models help transcribe and find. They do not diagnose or advise.",
+            "title": "Your data is encrypted and stays yours.",
+            "body": "Notes are protected in transit and at rest. We do not sell them or send them to third parties.",
+            "indexTitle": "No third parties.",
+            "indexBody": "Your files and text are not handed to other companies for training or ads.",
             "leaveTitle": "Leave with your files.",
-            "leaveBody": "Export everything. Nothing has to stay behind."
+            "leaveBody": "Export or delete whenever you want."
         },
         "cta": {
             "title": "Start with one moment.",
