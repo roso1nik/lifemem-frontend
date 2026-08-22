@@ -128,11 +128,10 @@
         "skip": "Skip to content",
         "getStarted": "Get started",
         "signIn": "Sign in",
-        "whatIs": "What is Lifemem?",
         "nav": {
             "graph": "Graph",
-            "search": "Search",
-            "ai": "AI",
+            "ask": "Ask",
+            "places": "Places",
             "privacy": "Privacy",
             "menu": "Open menu",
             "close": "Close menu"
@@ -163,22 +162,17 @@
             "body": "People, places, and things link themselves. You do not file them.",
             "caption": "Notes, people, and places drawn from a few days of capture."
         },
-        "search": {
+        "ask": {
             "title": "Ask the way you remember.",
-            "body": "Search finds the moment even if the words were never exact.",
-            "query": "walked with Dasha last summer"
-        },
-        "ai": {
-            "title": "Ask your life. Get your answer.",
-            "body": "The model finds facts and advises from your notes, not from a crowd. Keep every moment. Open any day later.",
-            "query": "When did I last walk with Dasha, and is it worth going again?",
+            "body": "Search finds the moment. Answers come only from your notes.",
+            "query": "walked with Dasha last summer",
+            "prompt": "When did I last walk with Dasha, and is it worth going again?",
             "answer": "Saturday, after the rain. You wrote the park was almost empty and that you were glad she came. Weekend afternoons are when you two walk most. If you want that again, Saturday still fits.",
             "fromNotes": "From your notes"
         },
         "places": {
             "title": "Places stay on the map.",
-            "body": "Geo tags and names of streets, parks, kitchens. Open a year and see where you were.",
-            "caption": "The park after rain, a Saturday in August."
+            "body": "Geo tags and names of streets, parks, kitchens. Open a year and see where you were."
         },
         "privacy": {
             "title": "Your data is encrypted and stays yours.",
