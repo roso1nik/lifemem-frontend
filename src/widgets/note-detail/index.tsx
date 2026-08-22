@@ -14,7 +14,7 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
     const note = useNotesStore((s) => s.notes.find((n) => n.id === noteId))
 
     return (
-        <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8 md:px-6">
+        <div className="mx-auto flex w-full flex-1 flex-col px-4 py-8 md:w-4/5 md:px-6">
             <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
                 {note ? dayjsInstance(note.createdAt).format('D MMMM YYYY · HH:mm') : '—'}
             </p>

@@ -28,14 +28,12 @@ export const SectionPlaceholder = ({ section }: SectionPlaceholderProps) => {
     const Icon = ICONS[section]
 
     return (
-        <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-start px-4 py-10 md:px-6">
+        <div className="mx-auto flex w-full flex-1 flex-col items-start px-4 py-10 md:w-4/5 md:px-6">
             <span className="bg-accent text-primary flex size-11 items-center justify-center rounded-2xl">
                 <Icon size={22} />
             </span>
             <h1 className="mt-4 text-2xl font-semibold tracking-tight">{t(`tab.${section}`)}</h1>
-            <p className="text-muted-foreground mt-2 max-w-md text-sm leading-relaxed">
-                {t(BODY_KEYS[section])}
-            </p>
+            <p className="text-muted-foreground mt-2 max-w-md text-sm leading-relaxed">{t(BODY_KEYS[section])}</p>
             <Surface frost className="mt-8 w-full p-5">
                 <p className="text-muted-foreground text-sm">{t('sectionSoon')}</p>
             </Surface>
