@@ -18,7 +18,7 @@ export const OG_LOCALES: Record<(typeof locales)[number], string> = {
     ru: 'ru_RU'
 }
 
-export const INDEXABLE_PATHS = [ROUTES.HOME_PAGE, ROUTES.LOGIN, ROUTES.REGISTER] as const
+export const INDEXABLE_PATHS = [ROUTES.HOME_PAGE, ROUTES.WELCOME, ROUTES.LOGIN, ROUTES.REGISTER] as const
 
 const LOCALE_AGNOSTIC_DISALLOW = ['/api/'] as const
 

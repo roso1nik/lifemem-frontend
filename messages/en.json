@@ -120,6 +120,84 @@
         "loginTitle": "Sign in",
         "loginDescription": "Sign in to Lifemem to continue your notes, graph, and places.",
         "registerTitle": "Create account",
-        "registerDescription": "Create a Lifemem account to save notes and watch your life graph grow."
+        "registerDescription": "Create a Lifemem account to save notes and watch your life graph grow.",
+        "welcomeTitle": "Lifemem. Notes that connect your life",
+        "welcomeDescription": "Save notes, photos, places, and people. Lifemem builds a living graph of your life so you can find any moment later."
+    },
+    "landing": {
+        "skip": "Skip to content",
+        "getStarted": "Get started",
+        "signIn": "Sign in",
+        "whatIs": "What is Lifemem?",
+        "nav": {
+            "graph": "Graph",
+            "search": "Search",
+            "privacy": "Privacy",
+            "menu": "Open menu",
+            "close": "Close menu"
+        },
+        "hero": {
+            "title": "Your life, as notes.",
+            "sub": "Speak, shoot, or type. Lifemem links people, places, and notes into a graph you can search."
+        },
+        "stage": {
+            "today": "Today",
+            "notesCount": "{count, plural, one {# note} other {# notes}}",
+            "parkAlt": "A quiet park path after rain, cool light through the trees.",
+            "eveningAlt": "An evening table by the window: a cup, a notebook, dusk outside."
+        },
+        "capture": {
+            "title": "Capture in the moment.",
+            "body": "Voice, a photo, a pin on the map, or a line of text. One tap is enough.",
+            "voice": "Voice",
+            "voiceHint": "Thirty seconds on a walk. Kept as audio, read as text.",
+            "photo": "Photo",
+            "place": "Place",
+            "placeHint": "The park, the kitchen, a street you forget the name of.",
+            "text": "Text",
+            "textHint": "A sentence is already a note."
+        },
+        "graph": {
+            "title": "A living graph of what you saved.",
+            "body": "People, places, and things link themselves. You do not file them.",
+            "caption": "Notes, people, and places drawn from a few days of capture."
+        },
+        "search": {
+            "title": "Ask the way you remember.",
+            "body": "Search finds the moment even if the words were never exact.",
+            "query": "walked with Dasha last summer"
+        },
+        "places": {
+            "title": "Places stay on the map.",
+            "body": "Geo tags and names of streets, parks, kitchens. Open a year and see where you were.",
+            "caption": "The park after rain, a Saturday in August."
+        },
+        "privacy": {
+            "title": "Your thoughts stay yours.",
+            "body": "Notes live in your account. Export or delete them whenever you want.",
+            "indexTitle": "AI indexes. It does not coach.",
+            "indexBody": "Models help transcribe and find. They do not diagnose or advise.",
+            "leaveTitle": "Leave with your files.",
+            "leaveBody": "Export everything. Nothing has to stay behind."
+        },
+        "cta": {
+            "title": "Start with one moment.",
+            "body": "A sentence, a voice memo, a photo from today."
+        },
+        "footer": {
+            "rights": "All rights reserved."
+        },
+        "notes": {
+            "park": "Walked with Dasha. The park was almost empty after the rain.",
+            "evening": "Came home late. Quiet table, the window still blue.",
+            "kyoto": "Kyoto in October. Need to ask Keiko about ryokans."
+        },
+        "nodes": {
+            "park": "Park walk",
+            "dasha": "Dasha",
+            "kyoto": "Kyoto",
+            "evening": "Evening table",
+            "coffee": "Coffee"
+        }
     }
 }

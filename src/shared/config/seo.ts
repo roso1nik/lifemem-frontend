@@ -54,8 +54,8 @@ export async function getPublicPageMetadata({
 }: {
     locale: string
     path: string
-    titleKey?: 'loginTitle' | 'registerTitle'
-    descriptionKey?: 'loginDescription' | 'registerDescription'
+    titleKey?: 'loginTitle' | 'registerTitle' | 'welcomeTitle'
+    descriptionKey?: 'loginDescription' | 'registerDescription' | 'welcomeDescription'
 }): Promise<Metadata> {
     const t = await getTranslations({ locale, namespace: 'seo' })
     const title = titleKey ? t(titleKey) : t('title')

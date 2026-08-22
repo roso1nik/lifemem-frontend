@@ -1,5 +1,6 @@
 export const ROUTES = {
     HOME_PAGE: '/',
+    WELCOME: '/welcome',
     LOGIN: '/login',
     REGISTER: '/register',
     CONFIRM_PAGE: '/confirm',
@@ -24,6 +25,7 @@ export const SECTION_ROUTES: Record<AppSection, string> = {
 
 export const ROUTES_NAMES = {
     [ROUTES.HOME_PAGE]: 'Home',
+    [ROUTES.WELCOME]: 'Welcome',
     [ROUTES.LOGIN]: 'Login',
     [ROUTES.REGISTER]: 'Register',
     [ROUTES.CONFIRM_PAGE]: 'Confirm',
