@@ -4,6 +4,7 @@ import { FC, ReactNode } from 'react'
 import { ThemeSwitcher } from '../theme'
 import { APP_NAME } from '@/shared/config'
 import { useTranslations } from 'next-intl'
+import { Surface } from '@/shared/ui'
 
 interface AuthCardProps {
     children: ReactNode
@@ -23,9 +24,7 @@ export const AuthCard: FC<AuthCardProps> = ({ children }) => {
                 <p className="text-muted-foreground text-sm">{t('tagline')}</p>
             </div>
 
-            <div className="border-border/80 bg-card/90 w-full max-w-md rounded-2xl border p-6 shadow-sm backdrop-blur-sm">
-                {children}
-            </div>
+            <Surface className="w-full max-w-md p-6">{children}</Surface>
 
             <p className="text-muted-foreground mt-8 text-sm">
                 © {new Date().getFullYear()} {APP_NAME}. {t('rights')}

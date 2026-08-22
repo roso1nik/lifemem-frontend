@@ -22,11 +22,19 @@ export const ThemeSwitcher = () => {
     }, [])
 
     if (!isMounted) {
-        return <div className="hidden">Light</div>
+        return <div className="size-11" />
     }
 
     return (
-        <ActionIcon variant="subtle" onClick={toggleTheme} size="lg" color="gray" aria-label="Toggle theme">
+        <ActionIcon
+            variant="subtle"
+            onClick={toggleTheme}
+            size={44}
+            color="gray"
+            radius="md"
+            aria-label="Toggle theme"
+            className="text-muted-foreground hover:text-foreground active:scale-[0.97]"
+        >
             {colorScheme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
         </ActionIcon>
     )

@@ -2,13 +2,13 @@
 
 import { useLogin, LoginRequest, loginSchema } from '@/entities/user/api/use-login'
 import { ROUTES } from '@/shared/router'
-import { AuthTabs } from '@/shared/ui'
-import { Button, Input, LoadingOverlay, PasswordInput } from '@mantine/core'
+import { AuthTabs, Button, PasswordInput, TextInput } from '@/shared/ui'
 import { Lock, Mail } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
+import { LoadingOverlay } from '@mantine/core'
 
 const LoginForm = () => {
     const t = useTranslations('auth')
@@ -30,32 +30,32 @@ const LoginForm = () => {
                     control={control}
                     name="email"
                     render={({ field }) => (
-                        <Input.Wrapper label={t('email')} required error={errors.email?.message} size="sm">
-                            <Input
-                                type="email"
-                                size="md"
-                                {...field}
-                                placeholder={t('emailPlaceholder')}
-                                leftSection={<Mail size={16} />}
-                            />
-                        </Input.Wrapper>
+                        <TextInput
+                            {...field}
+                            label={t('email')}
+                            required
+                            error={errors.email?.message}
+                            type="email"
+                            placeholder={t('emailPlaceholder')}
+                            leftSection={<Mail size={16} />}
+                        />
                     )}
                 />
                 <Controller
                     control={control}
                     name="password"
                     render={({ field }) => (
-                        <Input.Wrapper label={t('password')} required error={errors.password?.message} size="sm">
-                            <PasswordInput
-                                {...field}
-                                size="md"
-                                placeholder={t('passwordPlaceholder')}
-                                leftSection={<Lock size={16} />}
-                            />
-                        </Input.Wrapper>
+                        <PasswordInput
+                            {...field}
+                            label={t('password')}
+                            required
+                            error={errors.password?.message}
+                            placeholder={t('passwordPlaceholder')}
+                            leftSection={<Lock size={16} />}
+                        />
                     )}
                 />
-                <Button size="md" type="submit" fullWidth loading={isPending}>
+                <Button type="submit" fullWidth loading={isPending}>
                     {t('submitLogin')}
                 </Button>
             </form>

@@ -38,7 +38,61 @@
         "voiceSoon": "Voice capture coming soon",
         "send": "Save",
         "openNotes": "Notes",
-        "noNotes": "No notes yet"
+        "noNotes": "No notes yet",
+        "hintFile": "File or photo",
+        "hintMusic": "Music",
+        "hintGeo": "Place",
+        "hintVoice": "Voice",
+        "hintsLabel": "You can add",
+        "insightsTitle": "From your life",
+        "insightsSoon": "Soon",
+        "insightGraphPreview": "Connection graph",
+        "insight": {
+            "links": {
+                "title": "Links between notes",
+                "body": "People, places, and themes weave together — no manual tags."
+            },
+            "fact": {
+                "title": "Interesting fact",
+                "body": "For example: you write about walks most often on Friday evenings."
+            },
+            "graph": {
+                "title": "Memory map",
+                "body": "A living graph of everything you saved — from coffee to trips."
+            },
+            "places": {
+                "title": "Places this week",
+                "body": "Where you spent time — from geo tags and mentions."
+            }
+        },
+        "navTabs": "Tabs",
+        "tab": {
+            "home": "Today",
+            "notes": "Notes",
+            "graph": "Graph",
+            "map": "Map",
+            "profile": "Profile",
+            "archive": "Archive"
+        },
+        "closeTab": "Close tab",
+        "tabNoteMissing": "Note not found",
+        "sectionSoon": "This section is under construction — preview only.",
+        "sectionGraphBody": "A living graph of connections across everything you saved.",
+        "sectionMapBody": "A map and list of places from geo tags and mentions.",
+        "sectionProfileBody": "Account settings and personal details.",
+        "sectionArchiveBody": "Older and hidden notes — when you want to look back.",
+        "searchLabel": "Search",
+        "searchPlaceholder": "Search or ask AI…",
+        "searchSoon": "Search and AI coming soon",
+        "spotlight": {
+            "empty": "Nothing found",
+            "groupNavigate": "Sections",
+            "groupNotes": "Notes",
+            "groupAi": "AI",
+            "homeDesc": "Today and new note",
+            "askAi": "Ask AI",
+            "askAiDesc": "Find meaning or links across your notes"
+        }
     },
     "account": {
         "menu": "Account",

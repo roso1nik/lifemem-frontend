@@ -1,0 +1,6 @@
+.root {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    background: color-mix(in srgb, var(--primary) 18%, transparent);
+    color: var(--primary);
+}

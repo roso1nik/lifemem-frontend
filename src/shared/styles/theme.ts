@@ -1,160 +1,115 @@
 import { CSSVariablesResolver, MantineColorsTuple, createTheme } from '@mantine/core'
 
-/** Soft powder / sky blue — calm, easy on the eyes */
+/** Mist Aqua — primary CTA / focus */
 const brandColors: MantineColorsTuple = [
-    '#f0f7fb',
-    '#ddeef7',
-    '#b8dced',
-    '#8fc6e0',
-    '#6bb0d1',
-    '#549fc4',
-    '#4894bb',
-    '#3880a4',
-    '#2f7293',
-    '#1f5a76'
+    '#eaf5f7',
+    '#d5ebf0',
+    '#b0d7e0',
+    '#8ac2cf',
+    '#6fb1c1',
+    '#5b9fb0',
+    '#4f91a2',
+    '#3f7a8a',
+    '#2f6a78',
+    '#1f5160'
 ]
 
-const secondaryColors: MantineColorsTuple = [
-    '#f4f6f8',
-    '#e8ecf0',
-    '#cfd7df',
-    '#b3bfcb',
-    '#9aabbb',
-    '#8b9faf',
-    '#8398aa',
-    '#708496',
-    '#637586',
-    '#526575'
-]
-
-const cyanColors: MantineColorsTuple = [
-    '#e8f8fb',
-    '#d3eff5',
-    '#a6dee9',
-    '#75ccdc',
-    '#4fbdd0',
-    '#38b4c8',
-    '#28afc5',
-    '#1299ae',
-    '#00889c',
-    '#007687'
-]
-
-const greenColors: MantineColorsTuple = [
-    '#e7feef',
-    '#d4f9e2',
-    '#aaf0c4',
-    '#7de8a4',
-    '#57e189',
-    '#40dd78',
-    '#31db6e',
-    '#22c55e',
-    '#15ac50',
-    '#009542'
+/** Soft Sage — secondary / chips / success-soft */
+const sageColors: MantineColorsTuple = [
+    '#eaf4ee',
+    '#d5e9dc',
+    '#b3d4c0',
+    '#90bfa3',
+    '#7fa892',
+    '#6e987f',
+    '#5f9e7a',
+    '#4d8264',
+    '#3f6b55',
+    '#2f5240'
 ]
 
 const redColors: MantineColorsTuple = [
-    '#ffe9e9',
-    '#ffd1d2',
-    '#f9a2a2',
-    '#f47070',
-    '#ef4444',
-    '#ed2a2a',
-    '#ec1a1c',
-    '#d20b10',
-    '#bc020c',
-    '#a50007'
+    '#fdecec',
+    '#f9d4d4',
+    '#f0a8a8',
+    '#e67c7c',
+    '#d95c5c',
+    '#d04545',
+    '#c93838',
+    '#b02e2e',
+    '#9a2828',
+    '#7f1f1f'
 ]
 
 const whiteColors: MantineColorsTuple = [
     '#ffffff',
-    '#e7e7e7',
-    '#cdcdcd',
-    '#b2b2b2',
-    '#9a9a9a',
-    '#8b8b8b',
-    '#848484',
-    '#717171',
-    '#656565',
-    '#575757'
+    '#e8eeec',
+    '#d0dad7',
+    '#b5c3bf',
+    '#9aada7',
+    '#879c96',
+    '#7d948d',
+    '#6b807a',
+    '#5c6f6a',
+    '#4c5c58'
 ]
+
+const systemFont =
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
 
 export const theme = createTheme({
     primaryColor: 'brandColors',
     colors: {
         brandColors,
-        violet: secondaryColors,
-        cyan: cyanColors,
-        green: greenColors,
+        sage: sageColors,
+        green: sageColors,
         red: redColors,
         white: whiteColors
     },
     primaryShade: 5,
     radius: {
-        xs: '6px',
-        sm: '8px',
+        xs: '8px',
+        sm: '10px',
         md: '12px',
-        lg: '16px',
-        xl: '22px'
+        lg: '14px',
+        xl: '20px'
     },
-    fontFamily: 'var(--font), Inter, sans-serif',
+    fontFamily: systemFont,
     headings: {
-        fontFamily: 'var(--font), Inter, sans-serif',
+        fontFamily: systemFont,
         fontWeight: '600'
     },
     autoContrast: true,
     defaultRadius: 'md',
     cursorType: 'pointer',
     components: {
-        Button: {
-            defaultProps: {
-                radius: 'md'
-            }
-        },
-        TextInput: {
-            defaultProps: {
-                radius: 'md'
-            }
-        },
-        PasswordInput: {
-            defaultProps: {
-                radius: 'md'
-            }
-        },
-        Textarea: {
-            defaultProps: {
-                radius: 'md'
-            }
-        },
-        ActionIcon: {
-            defaultProps: {
-                radius: 'md'
-            }
-        },
-        Input: {
-            defaultProps: {
-                radius: 'md'
-            }
-        }
+        Button: { defaultProps: { radius: 'md' } },
+        TextInput: { defaultProps: { radius: 'md' } },
+        PasswordInput: { defaultProps: { radius: 'md' } },
+        Textarea: { defaultProps: { radius: 'md' } },
+        ActionIcon: { defaultProps: { radius: 'md' } },
+        Input: { defaultProps: { radius: 'md' } },
+        Avatar: { defaultProps: { radius: 'xl' } }
     }
 })
 
 export const cssVariablesResolver: CSSVariablesResolver = () => ({
     variables: {
-        '--app-shell-border-color': 'var(--border)'
+        '--app-shell-border-color': 'var(--hairline)',
+        '--press-scale': '0.97'
     },
     light: {
         '--mantine-color-body': 'var(--background)',
         '--mantine-color-text': 'var(--foreground)',
-        '--mantine-color-anchor': 'var(--mantine-color-brandColors-6)',
-        '--mantine-color-default-border': 'var(--border)',
+        '--mantine-color-anchor': 'var(--primary)',
+        '--mantine-color-default-border': 'var(--hairline)',
         '--mantine-color-dimmed': 'var(--muted-foreground)'
     },
     dark: {
         '--mantine-color-body': 'var(--background)',
         '--mantine-color-text': 'var(--foreground)',
-        '--mantine-color-anchor': 'var(--mantine-color-brandColors-4)',
-        '--mantine-color-default-border': 'var(--border)',
+        '--mantine-color-anchor': 'var(--primary)',
+        '--mantine-color-default-border': 'var(--hairline)',
         '--mantine-color-dimmed': 'var(--muted-foreground)'
     }
 })

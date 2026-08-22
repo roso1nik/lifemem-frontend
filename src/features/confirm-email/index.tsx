@@ -4,9 +4,9 @@ import { ConfirmEmailRequest, confirmEmailSchema, useConfirmEmail } from '@/enti
 import { useResendCode } from '@/entities/user/api/use-resend-code'
 import { Link } from '@/i18n/navigation'
 import { ROUTES } from '@/shared/router'
+import { Button, TextInput } from '@/shared/ui'
 import { cn } from '@/shared/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input } from '@mantine/core'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -40,39 +40,37 @@ const ConfirmEmailForm = () => {
 
     return (
         <div className="flex flex-col items-center gap-3">
-            <h1 className="mb-1 text-center text-xl font-semibold">{t('confirmTitle')}</h1>
+            <h1 className="mb-1 text-center text-xl font-semibold tracking-tight">{t('confirmTitle')}</h1>
             <p className="text-muted-foreground mb-2 text-center text-sm">{t('confirmHint', { email })}</p>
             <form className="w-full" onSubmit={handleSubmit((data) => confirmEmail(data))}>
                 <Controller
                     control={control}
                     name="code"
                     render={({ field }) => (
-                        <Input.Wrapper label={t('code')} error={errors.code?.message}>
-                            <Input
-                                placeholder="------"
-                                maxLength={6}
-                                type="tel"
-                                autoFocus
-                                inputMode="numeric"
-                                value={field.value}
-                                onBlur={field.onBlur}
-                                onChange={(e) => {
-                                    field.onChange(e.target.value.replace(/[^0-9]/g, ''))
-                                }}
-                                styles={{
-                                    input: {
-                                        textAlign: 'center',
-                                        fontSize: '22px',
-                                        letterSpacing: '8px',
-                                        fontWeight: 600,
-                                        height: '48px'
-                                    }
-                                }}
-                            />
-                        </Input.Wrapper>
+                        <TextInput
+                            label={t('code')}
+                            error={errors.code?.message}
+                            placeholder="------"
+                            maxLength={6}
+                            type="tel"
+                            autoFocus
+                            inputMode="numeric"
+                            value={field.value}
+                            onBlur={field.onBlur}
+                            onChange={(e) => field.onChange(e.currentTarget.value.replace(/[^0-9]/g, ''))}
+                            styles={{
+                                input: {
+                                    textAlign: 'center',
+                                    fontSize: '22px',
+                                    letterSpacing: '8px',
+                                    fontWeight: 600,
+                                    height: '48px'
+                                }
+                            }}
+                        />
                     )}
                 />
-                <Button type="submit" mt="md" fullWidth size="md" loading={isPending}>
+                <Button type="submit" className="mt-4" fullWidth loading={isPending}>
                     {t('confirmSubmit')}
                 </Button>
                 <p

@@ -1,0 +1,17 @@
+.root {
+    background: var(--card);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-card);
+}
+
+.frost {
+    background: var(--surface-frost);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border: 1px solid var(--hairline);
+}
+
+.capsule {
+    border-radius: 20px;
+    box-shadow: 0 8px 28px color-mix(in srgb, var(--foreground) 6%, transparent);
+}

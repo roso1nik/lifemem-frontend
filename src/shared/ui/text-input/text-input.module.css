@@ -1,0 +1,32 @@
+.wrapper :global(.mantine-Input-input),
+.wrapper :global(.mantine-TextInput-input),
+.wrapper :global(.mantine-PasswordInput-input) {
+    background: var(--input-background);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-input);
+    min-height: 44px;
+    font-size: 15px;
+    transition:
+        border-color 150ms ease,
+        box-shadow 150ms ease;
+}
+
+.wrapper :global(.mantine-Input-input:focus),
+.wrapper :global(.mantine-TextInput-input:focus),
+.wrapper :global(.mantine-PasswordInput-input:focus),
+.wrapper :global(.mantine-PasswordInput-input:focus-within) {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 22%, transparent);
+}
+
+.wrapper :global(.mantine-InputWrapper-label) {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    margin-bottom: 6px;
+}
+
+.wrapper :global(.mantine-InputWrapper-error) {
+    font-size: 12px;
+    margin-top: 4px;
+}

@@ -1,0 +1,29 @@
+.wrapper :global(.mantine-Textarea-input) {
+    background: transparent;
+    border: none;
+    font-size: 15px;
+    line-height: 1.5;
+    padding: 12px 16px;
+}
+
+.wrapper :global(.mantine-Textarea-input:focus) {
+    outline: none;
+}
+
+.bordered :global(.mantine-Textarea-input) {
+    background: var(--input-background);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-input);
+}
+
+.bordered :global(.mantine-Textarea-input:focus) {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 22%, transparent);
+}
+
+.wrapper :global(.mantine-InputWrapper-label) {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    margin-bottom: 6px;
+}

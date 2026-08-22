@@ -1,0 +1,47 @@
+.root {
+    transition:
+        transform 100ms ease-out,
+        background-color 150ms ease,
+        color 150ms ease;
+    color: var(--muted-foreground);
+}
+
+.root:active:not(:disabled) {
+    transform: scale(var(--press-scale, 0.97));
+}
+
+.root:hover:not(:disabled) {
+    color: var(--foreground);
+    background: var(--muted);
+}
+
+.sm {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+}
+
+.md {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.lg {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+}
+
+.primary {
+    color: var(--primary-foreground);
+    background: var(--primary);
+}
+
+.primary:hover:not(:disabled) {
+    color: var(--primary-foreground);
+    background: color-mix(in srgb, var(--primary) 88%, var(--foreground));
+}

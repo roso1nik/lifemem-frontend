@@ -1,9 +1,9 @@
 'use client'
 
 import { RegisterRequest, useRegister, registerSchema } from '@/entities/user/api/use-register'
-import { AuthTabs } from '@/shared/ui'
+import { AuthTabs, Button, PasswordInput, TextInput } from '@/shared/ui'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, Input, PasswordInput, LoadingOverlay } from '@mantine/core'
+import { LoadingOverlay } from '@mantine/core'
 import { Mail, Lock, User } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
@@ -28,46 +28,43 @@ const RegisterForm = () => {
                     name="nickname"
                     control={control}
                     render={({ field }) => (
-                        <Input.Wrapper label={t('nickname')} error={errors.nickname?.message}>
-                            <Input
-                                {...field}
-                                size="md"
-                                placeholder={t('nicknamePlaceholder')}
-                                leftSection={<User size={16} />}
-                            />
-                        </Input.Wrapper>
+                        <TextInput
+                            {...field}
+                            label={t('nickname')}
+                            error={errors.nickname?.message}
+                            placeholder={t('nicknamePlaceholder')}
+                            leftSection={<User size={16} />}
+                        />
                     )}
                 />
                 <Controller
                     name="email"
                     control={control}
                     render={({ field }) => (
-                        <Input.Wrapper label={t('email')} error={errors.email?.message}>
-                            <Input
-                                {...field}
-                                type="email"
-                                size="md"
-                                placeholder={t('emailPlaceholder')}
-                                leftSection={<Mail size={16} />}
-                            />
-                        </Input.Wrapper>
+                        <TextInput
+                            {...field}
+                            type="email"
+                            label={t('email')}
+                            error={errors.email?.message}
+                            placeholder={t('emailPlaceholder')}
+                            leftSection={<Mail size={16} />}
+                        />
                     )}
                 />
                 <Controller
                     control={control}
                     name="password"
                     render={({ field }) => (
-                        <Input.Wrapper label={t('password')} error={errors.password?.message}>
-                            <PasswordInput
-                                {...field}
-                                size="md"
-                                placeholder={t('passwordPlaceholder')}
-                                leftSection={<Lock size={16} />}
-                            />
-                        </Input.Wrapper>
+                        <PasswordInput
+                            {...field}
+                            label={t('password')}
+                            error={errors.password?.message}
+                            placeholder={t('passwordPlaceholder')}
+                            leftSection={<Lock size={16} />}
+                        />
                     )}
                 />
-                <Button size="md" type="submit" fullWidth loading={isPending}>
+                <Button type="submit" fullWidth loading={isPending}>
                     {t('submitRegister')}
                 </Button>
             </form>
