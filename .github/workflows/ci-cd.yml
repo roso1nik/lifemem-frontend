@@ -55,6 +55,7 @@ jobs:
           script: |
             set -euo pipefail
             cd "${{ secrets.DEPLOY_PATH }}"
+            ls
             git fetch origin main
             git checkout main
             git reset --hard origin/main
