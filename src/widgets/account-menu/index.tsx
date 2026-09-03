@@ -27,7 +27,7 @@ export const AccountMenu = () => {
     const initials = (user?.nickname ?? 'u').slice(0, 2).toUpperCase()
 
     return (
-        <div className="border-sidebar-border flex flex-col gap-2 border-t p-3">
+        <div className="border-sidebar-border mt-auto flex shrink-0 flex-col gap-2 border-t p-3">
             <div className="flex items-center justify-between gap-2 px-1">
                 <ThemeSwitcher />
                 <LanguageSwitcher />

@@ -16,11 +16,15 @@ export const NotesList = ({ onSelect, selectedId }: NotesListProps) => {
     const t = useTranslations('home')
 
     if (groups.length === 0) {
-        return <p className="text-muted-foreground p-4 text-sm">{t('noNotes')}</p>
+        return (
+            <div className="min-h-0 flex-1 overflow-y-auto">
+                <p className="text-muted-foreground p-4 text-sm">{t('noNotes')}</p>
+            </div>
+        )
     }
 
     return (
-        <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-3 py-4">
             {groups.map((group, gi) => (
                 <motion.section
                     key={group.key}

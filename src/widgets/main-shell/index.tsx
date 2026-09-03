@@ -79,8 +79,8 @@ export const MainShell = ({ children }: MainShellProps) => {
                 </div>
             </AppShell.Header>
 
-            <AppShell.Navbar className="border-sidebar-border bg-sidebar/90 flex flex-col backdrop-blur-xl">
-                <div className="border-sidebar-border flex flex-row items-center gap-0.5 border-b px-3 py-2.5">
+            <AppShell.Navbar className="border-sidebar-border bg-sidebar/90 flex h-full min-h-0 flex-col backdrop-blur-xl">
+                <div className="border-sidebar-border flex shrink-0 flex-row items-center gap-0.5 border-b px-3 py-2.5">
                     {NAV_ICONS.map(({ id, icon: Icon }) => {
                         const sectionActive = id === 'notes' ? activeId === 'home' : activeId === `section:${id}`
                         return (
