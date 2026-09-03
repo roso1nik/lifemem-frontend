@@ -1,10 +1,12 @@
 import z from 'zod'
 import { AxiosPromise } from 'axios'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import apiClient from '@/shared/api'
+import apiClient, { getApiErrorMessage } from '@/shared/api'
 import { ApiQueryKeys } from '@/shared/config'
 import { AlertBaseDto } from '@/shared/types'
+import { useTranslations } from 'next-intl'
+import { completeOAuthLink } from '@/shared/lib/oauth'
 import { telegramLoginDataSchema } from './use-telegram-login'
 
 export const telegramLinkSchema = z.object({
@@ -18,10 +20,17 @@ export const telegramLink = async (data: TelegramLinkRequest): AxiosPromise<Aler
     return res
 }
 
-export const useTelegramLink = () =>
-    useMutation({
+export const useTelegramLink = () => {
+    const queryClient = useQueryClient()
+    const t = useTranslations('profile')
+
+    return useMutation({
         mutationKey: [ApiQueryKeys.TELEGRAM_LINK],
         mutationFn: (data: TelegramLinkRequest) => telegramLink(data),
-        onSuccess: (response) => toast.success(response.data.message || 'Telegram привязан'),
-        onError: () => toast.error('Не удалось привязать Telegram')
+        onSuccess: (response) => {
+            completeOAuthLink(queryClient)
+            toast.success(response.data.message || t('success.telegramLinked'))
+        },
+        onError: (error) => toast.error(getApiErrorMessage(error, t('errors.telegramLink')))
     })
+}

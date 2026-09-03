@@ -10,12 +10,11 @@ import { Link } from '@/i18n/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
-import { LoadingOverlay, Tooltip } from '@mantine/core'
+import { LoadingOverlay } from '@mantine/core'
 import z from 'zod'
 import { emailSchema } from '@/shared/types'
 import { formatPhoneNumber } from '@/shared/utils'
-
-type LoginMode = 'email' | 'phone'
+import { OAuthLoginButtons } from '@/features/oauth'
 
 const emailLoginSchema = z.object({
     email: emailSchema,
@@ -28,28 +27,9 @@ const phoneLoginSchema = z.object({
 
 type EmailLoginValues = z.infer<typeof emailLoginSchema>
 type PhoneLoginValues = z.infer<typeof phoneLoginSchema>
+type LoginMode = 'email' | 'phone'
 
-const OAuthButtons = () => {
-    const t = useTranslations('auth')
-    const providers = ['Google', 'Apple', 'Telegram'] as const
-
-    return (
-        <div className="mt-4 flex flex-col gap-2">
-            <p className="text-muted-foreground text-center text-xs">{t('orContinueWith')}</p>
-            <div className="flex gap-2">
-                {providers.map((provider) => (
-                    <Tooltip key={provider} label={t('oauthSoon')} withArrow>
-                        <span className="flex-1">
-                            <Button type="button" variant="subtle" fullWidth disabled className="pointer-events-none">
-                                {provider}
-                            </Button>
-                        </span>
-                    </Tooltip>
-                ))}
-            </div>
-        </div>
-    )
-}
+const OAuthButtons = () => <OAuthLoginButtons />
 
 const LoginForm = () => {
     const t = useTranslations('auth')

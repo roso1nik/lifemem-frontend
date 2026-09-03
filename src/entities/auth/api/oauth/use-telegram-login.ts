@@ -1,14 +1,14 @@
 import z from 'zod'
 import { AxiosPromise } from 'axios'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import Cookies from 'js-cookie'
-import apiClient from '@/shared/api'
-import { ApiQueryKeys, GLOBAL_DICTIONARY } from '@/shared/config'
+import apiClient, { getApiErrorMessage } from '@/shared/api'
+import { ApiQueryKeys } from '@/shared/config'
 import { useRouter } from '@/i18n/navigation'
-import { ROUTES } from '@/shared/router'
 import { createUserSettingsSchema } from '@/entities/user/api/use-register'
 import { LoginResponse } from '../use-login'
+import { useTranslations } from 'next-intl'
+import { completeOAuthLogin } from '@/shared/lib/oauth'
 
 export const telegramLoginDataSchema = z.object({
     id: z.number(),
@@ -37,16 +37,13 @@ export const telegramLogin = async (data: TelegramAuthRequest): AxiosPromise<Log
 
 export const useTelegramLogin = () => {
     const router = useRouter()
+    const queryClient = useQueryClient()
+    const t = useTranslations('auth')
 
     return useMutation({
         mutationKey: [ApiQueryKeys.TELEGRAM_LOGIN],
         mutationFn: (data: TelegramAuthRequest) => telegramLogin(data),
-        onSuccess: (response) => {
-            if (response.data.accessToken) Cookies.set(GLOBAL_DICTIONARY.ACCESS_TOKEN, response.data.accessToken)
-            if (response.data.refreshToken) Cookies.set(GLOBAL_DICTIONARY.REFRESH_TOKEN, response.data.refreshToken)
-            toast.success('Вход выполнен')
-            router.push(ROUTES.HOME_PAGE)
-        },
-        onError: () => toast.error('Не удалось войти через Telegram')
+        onSuccess: () => completeOAuthLogin(queryClient, router, t('success.login')),
+        onError: (error) => toast.error(getApiErrorMessage(error, t('errors.oauthLogin')))
     })
 }

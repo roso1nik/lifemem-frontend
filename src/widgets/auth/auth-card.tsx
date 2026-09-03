@@ -14,7 +14,6 @@ interface AuthCardProps {
 
 export const AuthCard: FC<AuthCardProps> = ({ children }) => {
     const t = useTranslations('auth')
-    const tLanding = useTranslations('landing')
 
     return (
         <>
@@ -29,11 +28,8 @@ export const AuthCard: FC<AuthCardProps> = ({ children }) => {
 
             <Surface className="w-full max-w-md p-6">{children}</Surface>
 
-            <Link
-                href={ROUTES.WELCOME}
-                className="text-muted-foreground hover:text-primary mt-5 text-sm no-underline"
-            >
-                {tLanding('whatIs')}
+            <Link href={ROUTES.WELCOME} className="text-muted-foreground hover:text-primary mt-5 text-sm no-underline">
+                {'Что это?'}
             </Link>
 
             <p className="text-muted-foreground mt-8 text-sm">

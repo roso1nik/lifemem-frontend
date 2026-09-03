@@ -48,7 +48,8 @@ export const getServiceSettings = async (): AxiosPromise<ServiceSettings> => {
 export const useGetServiceSettings = () =>
     useQuery({
         queryKey: [ApiQueryKeys.SERVICE_SETTINGS],
-        queryFn: () => getServiceSettings().then((res) => res.data)
+        queryFn: () => getServiceSettings().then((res) => res.data),
+        retry: false
     })
 
 export const updateServiceSettings = async (data: ServiceSettingsUpdateRequest): AxiosPromise<ServiceSettings> => {

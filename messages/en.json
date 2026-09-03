@@ -31,7 +31,12 @@
         "confirmSubmit": "Confirm",
         "codeSent": "Code sent",
         "orContinueWith": "or continue with",
-        "oauthSoon": "Coming soon",
+        "oauthGoogle": "Continue with Google",
+        "oauthApple": "Continue with Apple",
+        "oauthTelegram": "Continue with Telegram",
+        "oauthNicknameTitle": "Choose a nickname",
+        "oauthNicknameHint": "This nickname is taken. Pick another one.",
+        "cancel": "Cancel",
         "resendIn": "Resend in {seconds}s",
         "resend": "Send code again",
         "rights": "All rights reserved.",
@@ -46,7 +51,8 @@
             "login": "Could not sign in",
             "logout": "Could not sign out",
             "register": "Could not register",
-            "confirmCode": "Invalid code"
+            "confirmCode": "Invalid code",
+            "oauthLogin": "Could not sign in with OAuth"
         }
     },
     "home": {
@@ -139,7 +145,11 @@
         "bindings": "Connections",
         "notLinked": "Not linked",
         "link": "Link",
-        "linkSoon": "Coming soon",
+        "unlink": "Unlink",
+        "unlinkConfirm": "Unlink this account from your profile?",
+        "linkGoogle": "Link Google",
+        "linkApple": "Link Apple",
+        "linkTelegram": "Link Telegram",
         "loading": "Loading…",
         "save": "Save",
         "confirmCode": "Confirm code",
@@ -160,7 +170,13 @@
             "phoneAdded": "Phone added",
             "phoneConfirmed": "Phone confirmed",
             "restored": "Account restored",
-            "deleted": "Account deleted"
+            "deleted": "Account deleted",
+            "googleLinked": "Google linked",
+            "appleLinked": "Apple linked",
+            "telegramLinked": "Telegram linked",
+            "googleUnlinked": "Google unlinked",
+            "appleUnlinked": "Apple unlinked",
+            "telegramUnlinked": "Telegram unlinked"
         },
         "errors": {
             "updateNickname": "Could not update profile",
@@ -168,7 +184,13 @@
             "addPhone": "Could not add phone",
             "confirmCode": "Invalid code",
             "restore": "Could not restore account",
-            "delete": "Could not delete account"
+            "delete": "Could not delete account",
+            "googleLink": "Could not link Google",
+            "appleLink": "Could not link Apple",
+            "telegramLink": "Could not link Telegram",
+            "googleUnlink": "Could not unlink Google",
+            "appleUnlink": "Could not unlink Apple",
+            "telegramUnlink": "Could not unlink Telegram"
         }
     },
     "admin": {

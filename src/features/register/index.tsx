@@ -11,6 +11,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import z from 'zod'
 import { emailSchema } from '@/shared/types'
 import { formatPhoneNumber } from '@/shared/utils'
+import { OAuthLoginButtons } from '@/features/oauth'
 
 type RegisterMode = 'email' | 'phone'
 
@@ -149,6 +150,7 @@ const RegisterForm = () => {
                     </Button>
                 </form>
             )}
+            <OAuthLoginButtons />
             <LoadingOverlay visible={isPending} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
         </div>
     )

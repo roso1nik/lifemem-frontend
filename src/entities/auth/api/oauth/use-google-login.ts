@@ -2,13 +2,14 @@ import z from 'zod'
 import { AxiosPromise } from 'axios'
 import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import Cookies from 'js-cookie'
-import apiClient from '@/shared/api'
-import { ApiQueryKeys, GLOBAL_DICTIONARY } from '@/shared/config'
+import apiClient, { getApiErrorMessage } from '@/shared/api'
+import { ApiQueryKeys } from '@/shared/config'
 import { useRouter } from '@/i18n/navigation'
-import { ROUTES } from '@/shared/router'
 import { createUserSettingsSchema } from '@/entities/user/api/use-register'
 import { LoginResponse } from '../use-login'
+import { useTranslations } from 'next-intl'
+import { useQueryClient } from '@tanstack/react-query'
+import { completeOAuthLogin } from '@/shared/lib/oauth'
 
 export const googleAuthSchema = z.object({
     idToken: z.string().min(1),
@@ -25,16 +26,13 @@ export const googleLogin = async (data: GoogleAuthRequest): AxiosPromise<LoginRe
 
 export const useGoogleLogin = () => {
     const router = useRouter()
+    const queryClient = useQueryClient()
+    const t = useTranslations('auth')
 
     return useMutation({
         mutationKey: [ApiQueryKeys.GOOGLE_LOGIN],
         mutationFn: (data: GoogleAuthRequest) => googleLogin(data),
-        onSuccess: (response) => {
-            if (response.data.accessToken) Cookies.set(GLOBAL_DICTIONARY.ACCESS_TOKEN, response.data.accessToken)
-            if (response.data.refreshToken) Cookies.set(GLOBAL_DICTIONARY.REFRESH_TOKEN, response.data.refreshToken)
-            toast.success('Вход выполнен')
-            router.push(ROUTES.HOME_PAGE)
-        },
-        onError: () => toast.error('Не удалось войти через Google')
+        onSuccess: () => completeOAuthLogin(queryClient, router, t('success.login')),
+        onError: (error) => toast.error(getApiErrorMessage(error, t('errors.oauthLogin')))
     })
 }
