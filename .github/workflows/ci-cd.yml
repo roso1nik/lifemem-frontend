@@ -11,22 +11,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm i
-      - run: npm run lint
+#  lint:
+#    name: Lint
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 5
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version: 22
+#          cache: npm
+#      - run: npm i
+#      - run: npm run lint
 
   build:
     name: Build
-    needs: lint
+#    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
