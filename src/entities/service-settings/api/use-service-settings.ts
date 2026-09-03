@@ -53,7 +53,7 @@ export const useGetServiceSettings = () =>
     })
 
 export const updateServiceSettings = async (data: ServiceSettingsUpdateRequest): AxiosPromise<ServiceSettings> => {
-    const res = await apiClient.post('/settings/set', data)
+    const res = await apiClient.patch('/settings/set', data)
     return res
 }
 

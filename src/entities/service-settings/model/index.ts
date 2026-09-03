@@ -29,7 +29,7 @@ export interface ModelsSettings {
 export interface ServiceSettingsJson {
     appVersion: number
     authMethods: AuthMethodsSettings
-    models: ModelsSettings
+    models?: ModelsSettings
 }
 
 export interface ServiceSettings {

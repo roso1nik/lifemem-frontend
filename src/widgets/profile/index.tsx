@@ -1,6 +1,7 @@
 'use client'
 
 import { UpdateNicknameForm } from '@/features/profile/update-nickname'
+import { ProfileUserSettings } from '@/features/profile/user-settings'
 import { ProfileContacts } from '@/features/profile/contacts'
 import { ProfileBindings } from '@/features/profile/bindings'
 import { ProfileDangerZone } from '@/features/profile/danger-zone'
@@ -22,6 +23,11 @@ export const ProfilePage = () => {
                 <section>
                     <h2 className="mb-3 text-sm font-medium">{t('nickname')}</h2>
                     <UpdateNicknameForm />
+                </section>
+
+                <section>
+                    <h2 className="mb-3 text-sm font-medium">{t('settings')}</h2>
+                    <ProfileUserSettings />
                 </section>
 
                 <section>

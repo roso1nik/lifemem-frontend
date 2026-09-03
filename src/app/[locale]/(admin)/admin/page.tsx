@@ -1,8 +1,8 @@
-'use client'
+import { redirect } from '@/i18n/navigation'
+import { ROUTES } from '@/shared/router'
+import { getLocale } from 'next-intl/server'
 
-import { useTranslations } from 'next-intl'
-
-export default function AdminPage() {
-    const t = useTranslations('admin')
-    return <p className="text-muted-foreground text-sm">{t('placeholder')}</p>
+export default async function AdminIndexPage() {
+    const locale = await getLocale()
+    redirect({ href: ROUTES.ADMIN_USERS, locale })
 }

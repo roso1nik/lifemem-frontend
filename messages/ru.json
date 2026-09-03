@@ -135,6 +135,9 @@
         "title": "Профиль",
         "subtitle": "Настройки аккаунта и личные данные.",
         "nickname": "Никнейм",
+        "settings": "Настройки",
+        "notifications": "Уведомления",
+        "language": "Язык",
         "contacts": "Контакты",
         "email": "Почта",
         "phone": "Телефон",
@@ -197,7 +200,93 @@
         "title": "Админка",
         "placeholder": "Раздел в разработке. Дизайн появится позже.",
         "back": "К заметкам",
-        "noAccess": "Нет доступа"
+        "noAccess": "Нет доступа",
+        "loading": "Загрузка…",
+        "error": "Не удалось загрузить данные",
+        "empty": "Ничего не найдено",
+        "search": "Найти",
+        "save": "Сохранить",
+        "cancel": "Отмена",
+        "edit": "Изменить",
+        "actions": "Действия",
+        "prev": "Назад",
+        "next": "Вперёд",
+        "pagination": "Стр. {page} из {totalPages} · {total}",
+        "nav": {
+            "users": "Пользователи",
+            "settings": "Настройки",
+            "models": "Модели",
+            "logs": "Логи",
+            "authLogs": "Auth-логи",
+            "health": "Health"
+        },
+        "users": {
+            "nickname": "Никнейм",
+            "email": "Email",
+            "phone": "Телефон",
+            "role": "Роль",
+            "created": "Создан",
+            "editTitle": "Редактировать пользователя",
+            "emailVerified": "Email подтверждён",
+            "phoneVerified": "Телефон подтверждён",
+            "softDelete": "Soft delete",
+            "hardDelete": "Hard delete",
+            "confirmSoft": "Пометить пользователя как удалённого?",
+            "confirmHard": "Удалить пользователя навсегда? Это необратимо."
+        },
+        "settings": {
+            "appVersion": "Версия приложения",
+            "authMethods": "Методы авторизации",
+            "loginEnabled": "Вход включён",
+            "registrationEnabled": "Регистрация включена",
+            "models": "Модели AI",
+            "provider": "Провайдер",
+            "analyzePremium": "Analyze premium (UUID)",
+            "analyzeLite": "Analyze lite (UUID)",
+            "embeddingPremium": "Embedding premium (UUID)",
+            "embeddingLite": "Embedding lite (UUID)",
+            "auth": {
+                "email": "Email",
+                "freshCall": "Телефон",
+                "google": "Google",
+                "apple": "Apple",
+                "telegram": "Telegram"
+            }
+        },
+        "models": {
+            "name": "Название",
+            "type": "Тип",
+            "active": "Активна"
+        },
+        "logs": {
+            "path": "Path",
+            "method": "Method",
+            "code": "Code",
+            "userId": "User ID",
+            "time": "Время",
+            "duration": "Длительность",
+            "user": "Пользователь"
+        },
+        "authLogs": {
+            "userId": "User ID",
+            "all": "Все",
+            "time": "Время",
+            "type": "Тип",
+            "ip": "IP",
+            "user": "Пользователь"
+        },
+        "health": {
+            "title": "Статус сервисов",
+            "refresh": "Обновить",
+            "ok": "ok",
+            "error": "error",
+            "service": {
+                "app": "App",
+                "postgres": "Postgres",
+                "redis": "Redis",
+                "s3": "S3"
+            }
+        }
     },
     "main-page": "Главная",
     "change-language-title": "Язык",

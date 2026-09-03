@@ -135,6 +135,9 @@
         "title": "Profile",
         "subtitle": "Account settings and personal details.",
         "nickname": "Nickname",
+        "settings": "Settings",
+        "notifications": "Notifications",
+        "language": "Language",
         "contacts": "Contacts",
         "email": "Email",
         "phone": "Phone",
@@ -197,7 +200,93 @@
         "title": "Admin",
         "placeholder": "Under construction. Design comes later.",
         "back": "Back to notes",
-        "noAccess": "No access"
+        "noAccess": "No access",
+        "loading": "Loading…",
+        "error": "Failed to load data",
+        "empty": "Nothing found",
+        "search": "Search",
+        "save": "Save",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "actions": "Actions",
+        "prev": "Prev",
+        "next": "Next",
+        "pagination": "Page {page} of {totalPages} · {total}",
+        "nav": {
+            "users": "Users",
+            "settings": "Settings",
+            "models": "Models",
+            "logs": "Logs",
+            "authLogs": "Auth logs",
+            "health": "Health"
+        },
+        "users": {
+            "nickname": "Nickname",
+            "email": "Email",
+            "phone": "Phone",
+            "role": "Role",
+            "created": "Created",
+            "editTitle": "Edit user",
+            "emailVerified": "Email verified",
+            "phoneVerified": "Phone verified",
+            "softDelete": "Soft delete",
+            "hardDelete": "Hard delete",
+            "confirmSoft": "Mark this user as deleted?",
+            "confirmHard": "Permanently delete this user? This cannot be undone."
+        },
+        "settings": {
+            "appVersion": "App version",
+            "authMethods": "Auth methods",
+            "loginEnabled": "Login enabled",
+            "registrationEnabled": "Registration enabled",
+            "models": "AI models",
+            "provider": "Provider",
+            "analyzePremium": "Analyze premium (UUID)",
+            "analyzeLite": "Analyze lite (UUID)",
+            "embeddingPremium": "Embedding premium (UUID)",
+            "embeddingLite": "Embedding lite (UUID)",
+            "auth": {
+                "email": "Email",
+                "freshCall": "Phone",
+                "google": "Google",
+                "apple": "Apple",
+                "telegram": "Telegram"
+            }
+        },
+        "models": {
+            "name": "Name",
+            "type": "Type",
+            "active": "Active"
+        },
+        "logs": {
+            "path": "Path",
+            "method": "Method",
+            "code": "Code",
+            "userId": "User ID",
+            "time": "Time",
+            "duration": "Duration",
+            "user": "User"
+        },
+        "authLogs": {
+            "userId": "User ID",
+            "all": "All",
+            "time": "Time",
+            "type": "Type",
+            "ip": "IP",
+            "user": "User"
+        },
+        "health": {
+            "title": "Service status",
+            "refresh": "Refresh",
+            "ok": "ok",
+            "error": "error",
+            "service": {
+                "app": "App",
+                "postgres": "Postgres",
+                "redis": "Redis",
+                "s3": "S3"
+            }
+        }
     },
     "main-page": "Home",
     "change-language-title": "Language",

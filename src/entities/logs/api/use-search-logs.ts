@@ -1,5 +1,5 @@
 import { AxiosPromise } from 'axios'
-import { useMutation } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import apiClient from '@/shared/api'
 import { ApiQueryKeys } from '@/shared/config'
 import { SearchRequest, SortDirection, SearchResponse } from '@/shared/types'
@@ -25,8 +25,11 @@ export const searchLogs = async (data: LogsSearchRequest): AxiosPromise<LogsSear
     return res
 }
 
-export const useSearchLogs = () =>
-    useMutation({
-        mutationKey: [ApiQueryKeys.LOGS_SEARCH],
-        mutationFn: (data: LogsSearchRequest) => searchLogs(data)
+export const useSearchLogs = (request: LogsSearchRequest) =>
+    useQuery({
+        queryKey: [ApiQueryKeys.LOGS_SEARCH, request],
+        queryFn: () => searchLogs(request).then((res) => res.data),
+        placeholderData: keepPreviousData,
+        staleTime: Infinity,
+        gcTime: Infinity
     })
