@@ -51,13 +51,11 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script_stop: true
           script: |
             set -euo pipefail
             cd "${{ secrets.DEPLOY_PATH }}"
+            ls
             git fetch origin main
             git checkout main
             git reset --hard origin/main
             npm run docker:prod:deploy
-            docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-frontend-prod --env-file .env ps
