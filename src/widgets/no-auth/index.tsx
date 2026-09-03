@@ -11,7 +11,7 @@ export const NoAuthPage = () => {
 
     return (
         <div className="bg-background flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center">
-            <p className="text-primary text-2xl font-semibold lowercase">{APP_NAME}</p>
+            <p className="font-brand text-primary text-2xl font-semibold tracking-tight lowercase">{APP_NAME}</p>
             <p className="text-muted-foreground max-w-sm text-sm">{t('noAccess')}</p>
             <Button component={Link} href={ROUTES.HOME_PAGE} variant="light">
                 {t('back')}

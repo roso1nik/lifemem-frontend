@@ -19,7 +19,9 @@ export const LandingHero = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', bounce: 0, duration: 0.45 }}
             >
-                <p className="text-primary text-2xl font-semibold tracking-tight lowercase md:text-3xl">{APP_NAME}</p>
+                <p className="font-brand text-primary text-2xl font-semibold tracking-tight lowercase md:text-3xl">
+                    {APP_NAME}
+                </p>
                 <h1 className="mt-3 text-4xl leading-[1.06] font-semibold tracking-tight md:text-5xl lg:text-[3.25rem]">
                     {t('hero.title')}
                 </h1>

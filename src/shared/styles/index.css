@@ -53,11 +53,15 @@
 }
 
 body {
-    font-family: var(--font), Inter, sans-serif;
+    font-family: var(--font), ui-sans-serif, system-ui, sans-serif;
     background: var(--background);
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+.font-brand {
+    font-family: var(--font-brand), ui-serif, Georgia, 'Times New Roman', serif;
 }
 
 :root {

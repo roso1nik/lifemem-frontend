@@ -134,7 +134,7 @@ export function OpenGraphGraphic({ tagline }: { tagline: string }) {
                         fontWeight: 600,
                         letterSpacing: -1.4,
                         textTransform: 'lowercase',
-                        fontFamily: 'Inter'
+                        fontFamily: 'Georgia, "Times New Roman", serif'
                     }}
                 >
                     {SITE_SHORT_NAME}
@@ -146,7 +146,7 @@ export function OpenGraphGraphic({ tagline }: { tagline: string }) {
                     lineHeight: 1.35,
                     color: '#5C6B68',
                     maxWidth: 900,
-                    fontFamily: 'Inter'
+                    fontFamily: 'ui-sans-serif, system-ui, sans-serif'
                 }}
             >
                 {tagline}

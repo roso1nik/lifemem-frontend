@@ -22,7 +22,7 @@ export const AuthCard: FC<AuthCardProps> = ({ children }) => {
             </div>
 
             <div className="mb-6 flex flex-col items-center gap-2 text-center">
-                <p className="text-primary text-3xl font-semibold tracking-tight lowercase">{APP_NAME}</p>
+                <p className="font-brand text-primary text-3xl font-semibold tracking-tight lowercase">{APP_NAME}</p>
                 <p className="text-muted-foreground text-sm">{t('tagline')}</p>
             </div>
 

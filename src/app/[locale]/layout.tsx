@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Fraunces, Onest } from 'next/font/google'
 import '@mantine/core/styles.css'
 import '@mantine/dates/styles.css'
 import '@mantine/spotlight/styles.css'
@@ -17,9 +17,14 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { getSiteUrl, SITE_NAME } from '@/shared/config/site'
 import { getWebAppJsonLd, themeColorEntries } from '@/shared/config/seo'
 
-const font_flobal = Inter({
+const fontUi = Onest({
     variable: '--font',
     subsets: ['latin', 'cyrillic', 'cyrillic-ext', 'latin-ext']
+})
+
+const fontBrand = Fraunces({
+    variable: '--font-brand',
+    subsets: ['latin', 'latin-ext']
 })
 
 type LocaleLayoutProps = Readonly<{
@@ -101,11 +106,8 @@ export default async function RootLayout({ children, params }: LocaleLayoutProps
             <head>
                 <ColorSchemeScript />
             </head>
-            <body className={cn(`antialiased`, font_flobal.variable)}>
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-                />
+            <body className={cn('antialiased', fontUi.variable, fontBrand.variable)}>
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <MantineAppProvider>
                         <ThemeProvider>

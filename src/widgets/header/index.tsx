@@ -103,7 +103,7 @@ export const AppHeader = ({ menuOpened, onToggleMenu }: AppHeaderProps) => {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-1">
-                    <span className="text-primary mr-1 hidden text-sm font-semibold tracking-tight lowercase sm:inline">
+                    <span className="font-brand text-primary mr-1 hidden text-sm font-semibold tracking-tight lowercase sm:inline">
                         {APP_NAME}
                     </span>
                     <button

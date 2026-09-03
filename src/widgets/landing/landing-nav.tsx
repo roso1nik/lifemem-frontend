@@ -26,7 +26,7 @@ export const LandingNav = () => {
                 <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 md:h-16 md:px-6">
                     <Link
                         href={ROUTES.WELCOME}
-                        className="text-primary shrink-0 text-[17px] font-semibold tracking-tight lowercase no-underline"
+                        className="font-brand text-primary shrink-0 text-[17px] font-semibold tracking-tight lowercase no-underline"
                     >
                         {APP_NAME}
                     </Link>

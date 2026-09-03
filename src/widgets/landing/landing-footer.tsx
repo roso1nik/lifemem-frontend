@@ -13,7 +13,7 @@ export const LandingFooter = () => {
     return (
         <footer className="border-hairline border-t">
             <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 md:flex-row md:items-center md:gap-8 md:px-6">
-                <p className="text-primary text-sm font-semibold tracking-tight lowercase">{APP_NAME}</p>
+                <p className="font-brand text-primary text-sm font-semibold tracking-tight lowercase">{APP_NAME}</p>
                 <p className="text-muted-foreground text-sm">
                     © {year} {APP_NAME}. {t('footer.rights')}
                 </p>
