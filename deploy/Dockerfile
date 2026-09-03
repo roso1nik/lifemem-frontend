@@ -1,10 +1,15 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS deps
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm i
 
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ARG NEXT_PUBLIC_BACKEND_URL
@@ -21,12 +26,15 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-COPY package.json ./
-COPY --from=builder /app/node_modules ./node_modules
+COPY package.json package-lock.json ./
+RUN npm i --omit=dev && npm cache clean --force
+
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.ts ./
+COPY --from=builder /app/messages ./messages
+COPY --from=builder /app/next.config.ts ./next.config.ts
 
-EXPOSE 3004
 
-CMD ["npm", "start"]
+EXPOSE 8000
+
+CMD ["./node_modules/.bin/next", "start", "-H", "0.0.0.0", "-p", "8000"]
