@@ -17,7 +17,7 @@ import { useWorkspaceNavigation } from '@/features/workspace-tabs'
 export const AccountMenu = () => {
     const t = useTranslations('account')
     const { data: self } = useSelf()
-    const user = self?.user
+    const user = self?.info
     const { hasPermission } = usePermissions()
     const router = useRouter()
     const { goSection } = useWorkspaceNavigation()

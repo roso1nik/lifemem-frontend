@@ -16,7 +16,7 @@ export interface User {
 }
 
 export interface Self {
-    user: User
+    info: User
     permission: Permission[]
     role: Role
 }

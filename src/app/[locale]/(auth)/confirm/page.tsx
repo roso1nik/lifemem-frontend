@@ -1,9 +1,7 @@
-import ConfirmEmailForm from "@/features/confirm-email";
+import ConfirmCodeForm from '@/features/confirm-code'
 
 const ConfirmPage = () => {
-    return (
-        <ConfirmEmailForm />
-    )
-};
+    return <ConfirmCodeForm />
+}
 
-export default ConfirmPage;
+export default ConfirmPage

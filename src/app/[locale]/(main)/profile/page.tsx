@@ -1,4 +1,4 @@
-import { SectionPlaceholder } from '@/widgets/section-placeholder'
+import { ProfilePage } from '@/widgets/profile'
 import { getAppSectionMetadata } from '@/shared/config/seo'
 
 type PageProps = {
@@ -10,6 +10,6 @@ export async function generateMetadata({ params }: PageProps) {
     return getAppSectionMetadata(locale, 'profile')
 }
 
-export default function ProfilePage() {
-    return <SectionPlaceholder section="profile" />
+export default function Page() {
+    return <ProfilePage />
 }

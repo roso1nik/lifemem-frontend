@@ -1,0 +1,7 @@
+.wrapper :global(.mantine-PinInput-input) {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 8px;
+    text-align: center;
+    height: 48px;
+}

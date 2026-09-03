@@ -13,5 +13,6 @@ export const useSelf = () =>
     useQuery({
         queryKey: [ApiQueryKeys.GET_SELF],
         queryFn: () => getSelf().then((res) => res.data),
-        staleTime: 60_000
+        staleTime: 60_000,
+        retry: false
     })

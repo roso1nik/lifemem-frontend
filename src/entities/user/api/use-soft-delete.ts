@@ -1,25 +1,30 @@
 import { AxiosPromise } from 'axios'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import apiClient from '@/shared/api'
+import apiClient, { getApiErrorMessage } from '@/shared/api'
 import { ApiQueryKeys } from '@/shared/config'
-import { AlertBaseDto } from '@/shared/types'
+import { useRouter } from '@/i18n/navigation'
+import { ROUTES } from '@/shared/router'
+import { useTranslations } from 'next-intl'
 
-export const softDeleteUser = async (): AxiosPromise<AlertBaseDto> => {
+export const softDeleteUser = async (): AxiosPromise<void> => {
     const res = await apiClient.delete('/user/soft')
     return res
 }
 
 export const useSoftDeleteUser = () => {
     const queryClient = useQueryClient()
+    const router = useRouter()
+    const t = useTranslations('profile')
 
     return useMutation({
         mutationKey: [ApiQueryKeys.SOFT_DELETE_USER],
         mutationFn: () => softDeleteUser(),
-        onSuccess: (response) => {
-            queryClient.removeQueries({ queryKey: [ApiQueryKeys.GET_SELF] })
-            toast.success(response.data.message || 'Аккаунт удалён')
+        onSuccess: () => {
+            queryClient.clear()
+            toast.success(t('success.deleted'))
+            router.replace(ROUTES.WELCOME)
         },
-        onError: () => toast.error('Не удалось удалить аккаунт')
+        onError: (error) => toast.error(getApiErrorMessage(error, t('errors.delete')))
     })
 }
