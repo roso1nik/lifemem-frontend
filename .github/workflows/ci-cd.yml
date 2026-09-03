@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm i
       - run: npm run lint
 
   build:
@@ -35,7 +35,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm i
       - run: npm run build
 
   deploy:
@@ -60,4 +60,4 @@ jobs:
             git checkout main
             git reset --hard origin/main
             npm run docker:prod:deploy
-            docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-prod --env-file deploy/.env.prod ps
+            docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-frontend-prod --env-file .env ps

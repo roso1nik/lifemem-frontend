@@ -10,7 +10,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p 8000 -H 0.0.0.0",
-    "docker:prod:deploy": "docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-prod --env-file deploy/.env.prod up --build -d --remove-orphans",
+    "docker:prod:deploy": "docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-frontend-prod --env-file .env up --build -d --remove-orphans",
     "lint": "eslint",
     "tsc": "tsc"
   },
