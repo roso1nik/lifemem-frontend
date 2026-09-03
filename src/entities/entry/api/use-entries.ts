@@ -6,18 +6,21 @@ import { ApiQueryKeys } from '@/shared/config'
 import { dayjsInstance } from '@/shared/utils'
 import { Entry } from '../model'
 
+export const EMPTY_ENTRIES: Entry[] = []
+
 export const useEntries = () => {
     const queryClient = useQueryClient()
 
     return useQuery({
         queryKey: [ApiQueryKeys.ENTRIES],
-        queryFn: () => queryClient.getQueryData<Entry[]>([ApiQueryKeys.ENTRIES]) ?? [],
+        queryFn: () => queryClient.getQueryData<Entry[]>([ApiQueryKeys.ENTRIES]) ?? EMPTY_ENTRIES,
+        initialData: EMPTY_ENTRIES,
         staleTime: Infinity
     })
 }
 
 export const useTodayEntriesCount = () => {
-    const { data: entries = [] } = useEntries()
+    const { data: entries = EMPTY_ENTRIES } = useEntries()
 
     return useMemo(
         () => entries.filter((entry) => dayjsInstance(entry.createdAt).isSame(dayjsInstance(), 'day')).length,
@@ -32,7 +35,7 @@ export type EntriesDayGroup = {
 }
 
 export const useEntriesGroupedByDay = (): EntriesDayGroup[] => {
-    const { data: entries = [] } = useEntries()
+    const { data: entries = EMPTY_ENTRIES } = useEntries()
 
     return useMemo(() => {
         const sorted = [...entries].sort(
@@ -60,7 +63,7 @@ export const useEntriesGroupedByDay = (): EntriesDayGroup[] => {
 }
 
 export const useEntryById = (entryId: string | null) => {
-    const { data: entries = [] } = useEntries()
+    const { data: entries = EMPTY_ENTRIES } = useEntries()
 
     return useMemo(() => entries.find((entry) => entry.id === entryId) ?? null, [entries, entryId])
 }

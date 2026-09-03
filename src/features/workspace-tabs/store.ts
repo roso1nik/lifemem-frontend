@@ -158,25 +158,31 @@ export const useWorkspaceTabs = create<WorkspaceTabsState>()(
                 const matched = matchWorkspacePath(path)
                 if (!matched) return
 
+                const { tabs, activeId } = get()
+
                 if (matched.kind === 'home') {
-                    set({ activeId: 'home' })
+                    if (activeId !== 'home') set({ activeId: 'home' })
                     return
                 }
 
                 if (matched.kind === 'note') {
                     const id = noteTabId(matched.noteId)
                     const href = ROUTES.NOTE(matched.noteId)
-                    const { tabs } = get()
                     const exists = tabs.find((t) => t.id === id)
-                    if (exists) {
+
+                    if (exists && exists.kind === 'note') {
+                        const nextTitle = noteTitle && noteTitle.length > 0 ? noteTitle : exists.title
+                        const titleChanged = nextTitle !== exists.title
+                        if (activeId === id && !titleChanged) return
                         set({
                             activeId: id,
-                            tabs: tabs.map((t) =>
-                                t.id === id && t.kind === 'note' && noteTitle ? { ...t, title: noteTitle } : t
-                            )
+                            tabs: titleChanged
+                                ? tabs.map((t) => (t.id === id && t.kind === 'note' ? { ...t, title: nextTitle } : t))
+                                : tabs
                         })
                         return
                     }
+
                     set({
                         tabs: [
                             ...tabs,
@@ -193,6 +199,8 @@ export const useWorkspaceTabs = create<WorkspaceTabsState>()(
                     return
                 }
 
+                const sectionTabId = sectionId(matched.section)
+                if (tabs.some((t) => t.id === sectionTabId) && activeId === sectionTabId) return
                 get().openSection(matched.section)
             }
         }),

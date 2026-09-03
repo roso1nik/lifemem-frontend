@@ -45,7 +45,7 @@ export const GoogleLoginButton = ({ onSuccess, onError, label, className }: Goog
 
         const update = () => {
             const next = Math.round(el.getBoundingClientRect().width)
-            if (next > 0) setWidth(next)
+            setWidth((current) => (next > 0 && next !== current ? next : current))
         }
 
         update()

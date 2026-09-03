@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { usePathname } from '@/i18n/navigation'
-import { useEntries } from '@/entities/entry/api/use-entries'
+import { useEntries, EMPTY_ENTRIES } from '@/entities/entry/api/use-entries'
 import { getEntryPreviewText } from '@/entities/entry/model'
 import { removeLocalePrefix } from '@/i18n/routing'
 import { matchWorkspacePath, useWorkspaceTabs } from './store'
@@ -11,7 +11,7 @@ import { matchWorkspacePath, useWorkspaceTabs } from './store'
 export const useSyncWorkspaceRoute = () => {
     const pathname = usePathname()
     const syncFromPath = useWorkspaceTabs((s) => s.syncFromPath)
-    const { data: entries = [] } = useEntries()
+    const { data: entries = EMPTY_ENTRIES } = useEntries()
     const path = removeLocalePrefix(pathname)
 
     useEffect(() => {
