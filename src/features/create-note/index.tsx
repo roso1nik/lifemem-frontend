@@ -6,7 +6,7 @@ import { IconButton, RichTextEditor, Surface, isEmptyHtml } from '@/shared/ui'
 import { Menu, Tooltip } from '@mantine/core'
 import { ArrowUp, FileIcon, MapPin, Mic, Paperclip, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/shared/utils'
@@ -17,16 +17,49 @@ type PendingAttachment =
     | { id: string; kind: 'photo'; file: File; name: string }
     | { id: string; kind: 'geo'; name: string; location: EntryLocationInput }
 
-export const CreateNoteForm = () => {
+export type CreateNoteFormProps = {
+    onWritingChange?: (writing: boolean) => void
+}
+
+const isInOverlay = (target: EventTarget | null) => {
+    if (!(target instanceof Element)) return false
+    return Boolean(
+        target.closest(
+            '.mantine-Menu-dropdown, .mantine-Popover-dropdown, .mantine-Tooltip-tooltip, [data-portal]'
+        )
+    )
+}
+
+export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
     const t = useTranslations('home')
     const [content, setContent] = useState('')
     const [attachments, setAttachments] = useState<PendingAttachment[]>([])
+    const [focused, setFocused] = useState(false)
     const fileRef = useRef<HTMLInputElement>(null)
+    const shellRef = useRef<HTMLDivElement>(null)
     const { mutate: createEntry, isPending } = useCreateEntry()
 
     const hasText = !isEmptyHtml(content)
     const canSend = hasText || attachments.length > 0
+    const isWriting = focused || hasText || attachments.length > 0
     const showHints = !hasText && attachments.length === 0
+
+    useEffect(() => {
+        onWritingChange?.(isWriting)
+    }, [isWriting, onWritingChange])
+
+    useEffect(() => {
+        if (!focused) return
+
+        const onPointerDown = (event: PointerEvent) => {
+            if (shellRef.current?.contains(event.target as Node)) return
+            if (isInOverlay(event.target)) return
+            setFocused(false)
+        }
+
+        document.addEventListener('pointerdown', onPointerDown)
+        return () => document.removeEventListener('pointerdown', onPointerDown)
+    }, [focused])
 
     const addAttachment = (attachment: PendingAttachment) => {
         setAttachments((prev) => [...prev, attachment])
@@ -71,6 +104,7 @@ export const CreateNoteForm = () => {
                 onSuccess: () => {
                     setContent('')
                     setAttachments([])
+                    setFocused(false)
                 }
             }
         )
@@ -84,10 +118,12 @@ export const CreateNoteForm = () => {
 
     return (
         <motion.div
+            ref={shellRef}
+            layout
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
-            className="flex flex-col gap-3"
+            className={cn('flex flex-col gap-3', isWriting && 'min-h-0 flex-1')}
         >
             <AnimatePresence initial={false}>
                 {showHints && (
@@ -124,10 +160,14 @@ export const CreateNoteForm = () => {
                 )}
             </AnimatePresence>
 
-            <Surface frost capsule className="overflow-hidden">
+            <Surface
+                frost
+                capsule
+                className={cn('overflow-hidden', isWriting && 'flex min-h-0 flex-1 flex-col')}
+            >
                 <AnimatePresence>
                     {attachments.length > 0 && (
-                        <div className="border-hairline flex flex-wrap gap-2 border-b px-3 pt-3 pb-2">
+                        <div className="border-hairline flex shrink-0 flex-wrap gap-2 border-b px-3 pt-3 pb-2">
                             {attachments.map((a) => (
                                 <span
                                     key={a.id}
@@ -153,20 +193,29 @@ export const CreateNoteForm = () => {
                     )}
                 </AnimatePresence>
 
-                <RichTextEditor
-                    value={content}
-                    onChange={setContent}
-                    placeholder={t('composerPlaceholder')}
-                    minHeight={48}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                            e.preventDefault()
-                            onSubmit()
-                        }
-                    }}
-                />
+                <div className={cn(isWriting && 'min-h-0 flex-1 overflow-y-auto')}>
+                    <RichTextEditor
+                        value={content}
+                        onChange={setContent}
+                        placeholder={t('composerPlaceholder')}
+                        canvas={isWriting}
+                        minHeight={isWriting ? 220 : 48}
+                        onFocus={() => setFocused(true)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Escape' && !hasText && attachments.length === 0) {
+                                ;(e.target as HTMLElement).blur()
+                                setFocused(false)
+                                return
+                            }
+                            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                                e.preventDefault()
+                                onSubmit()
+                            }
+                        }}
+                    />
+                </div>
 
-                <div className="flex items-center justify-between gap-2 px-2 pb-2">
+                <div className="flex shrink-0 items-center justify-between gap-2 px-2 pb-2">
                     <div className="flex items-center gap-0.5">
                         <input
                             ref={fileRef}

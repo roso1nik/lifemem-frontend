@@ -15,6 +15,13 @@
     outline: none;
 }
 
+.canvas :global(.mantine-RichTextEditor-content .ProseMirror) {
+    padding: 20px 20px 28px;
+    font-size: 16px;
+    line-height: 1.65;
+    min-height: var(--rte-min-height, 12rem);
+}
+
 .root :global(.mantine-RichTextEditor-content .ProseMirror p.is-editor-empty:first-child::before) {
     color: var(--muted-foreground);
     content: attr(data-placeholder);

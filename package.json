@@ -28,6 +28,7 @@
     "@tanstack/react-query-devtools": "^5.91.2",
     "@tiptap/extension-link": "^3.31.2",
     "@tiptap/extension-placeholder": "^3.31.2",
+    "@tiptap/extension-text-align": "^3.31.2",
     "@tiptap/pm": "^3.31.2",
     "@tiptap/react": "^3.31.2",
     "@tiptap/starter-kit": "^3.31.2",
