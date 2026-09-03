@@ -25,8 +25,18 @@ export interface Entry {
     places: EntryRelation[]
 }
 
-export const getEntryPreviewText = (entry: Entry): string =>
-    entry.text?.trim() || entry.title?.trim() || ''
+const stripHtml = (html: string): string =>
+    html
+        .replace(/<br\s*\/?>/gi, ' ')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+
+export const getEntryPreviewText = (entry: Entry): string => {
+    const fromText = entry.text?.trim() ? stripHtml(entry.text) : ''
+    return fromText || entry.title?.trim() || ''
+}
 
 export const getEntryAttachmentCount = (entry: Entry): number =>
     entry.images.length + (entry.isHasVoice ? 1 : 0) + entry.places.length

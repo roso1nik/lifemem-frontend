@@ -2,7 +2,7 @@
 
 import { useCreateEntry } from '@/entities/entry/api/use-create-entry'
 import { EntryLocationInput } from '@/entities/entry/api/create-entry-request'
-import { IconButton, Surface, Textarea } from '@/shared/ui'
+import { IconButton, RichTextEditor, Surface, isEmptyHtml } from '@/shared/ui'
 import { Menu, Tooltip } from '@mantine/core'
 import { ArrowUp, FileIcon, MapPin, Mic, Paperclip, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -24,8 +24,9 @@ export const CreateNoteForm = () => {
     const fileRef = useRef<HTMLInputElement>(null)
     const { mutate: createEntry, isPending } = useCreateEntry()
 
-    const canSend = content.trim().length > 0 || attachments.length > 0
-    const showHints = !content.trim() && attachments.length === 0
+    const hasText = !isEmptyHtml(content)
+    const canSend = hasText || attachments.length > 0
+    const showHints = !hasText && attachments.length === 0
 
     const addAttachment = (attachment: PendingAttachment) => {
         setAttachments((prev) => [...prev, attachment])
@@ -62,7 +63,7 @@ export const CreateNoteForm = () => {
 
         createEntry(
             {
-                text: content.trim() || undefined,
+                text: hasText ? content : undefined,
                 photos: photos.map((item) => item.file),
                 location: locations.length ? locations : undefined
             },
@@ -152,13 +153,11 @@ export const CreateNoteForm = () => {
                     )}
                 </AnimatePresence>
 
-                <Textarea
+                <RichTextEditor
                     value={content}
-                    onChange={(e) => setContent(e.currentTarget.value)}
+                    onChange={setContent}
                     placeholder={t('composerPlaceholder')}
-                    minRows={2}
-                    maxRows={8}
-                    autosize
+                    minHeight={48}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                             e.preventDefault()
