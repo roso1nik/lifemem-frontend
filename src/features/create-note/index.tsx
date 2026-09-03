@@ -1,30 +1,34 @@
 'use client'
 
-import { useCreateNote } from '@/entities/note/api/use-create-note'
-import { NoteAttachment, NoteAttachmentType } from '@/entities/note/model'
+import { useCreateEntry } from '@/entities/entry/api/use-create-entry'
+import { EntryLocationInput } from '@/entities/entry/api/create-entry-request'
 import { IconButton, Surface, Textarea } from '@/shared/ui'
 import { Menu, Tooltip } from '@mantine/core'
-import { ArrowUp, FileAudio, FileIcon, MapPin, Mic, Paperclip, X } from 'lucide-react'
+import { ArrowUp, FileIcon, MapPin, Mic, Paperclip, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/shared/utils'
 
-type HintKey = 'file' | 'music' | 'geo' | 'voice'
+type HintKey = 'file' | 'geo' | 'voice'
+
+type PendingAttachment =
+    | { id: string; kind: 'photo'; file: File; name: string }
+    | { id: string; kind: 'geo'; name: string; location: EntryLocationInput }
 
 export const CreateNoteForm = () => {
     const t = useTranslations('home')
     const [content, setContent] = useState('')
-    const [attachments, setAttachments] = useState<NoteAttachment[]>([])
+    const [attachments, setAttachments] = useState<PendingAttachment[]>([])
     const fileRef = useRef<HTMLInputElement>(null)
-    const { mutate: createNote, isPending } = useCreateNote()
+    const { mutate: createEntry, isPending } = useCreateEntry()
 
     const canSend = content.trim().length > 0 || attachments.length > 0
     const showHints = !content.trim() && attachments.length === 0
 
-    const addAttachment = (partial: Omit<NoteAttachment, 'id'>) => {
-        setAttachments((prev) => [...prev, { ...partial, id: crypto.randomUUID() }])
+    const addAttachment = (attachment: PendingAttachment) => {
+        setAttachments((prev) => [...prev, attachment])
     }
 
     const removeAttachment = (id: string) => {
@@ -36,15 +40,12 @@ export const CreateNoteForm = () => {
             fileRef.current?.click()
             return
         }
-        if (key === 'music') {
-            addAttachment({ type: NoteAttachmentType.MUSIC, name: t('hintMusic') })
-            return
-        }
         if (key === 'geo') {
             addAttachment({
-                type: NoteAttachmentType.GEO,
+                id: crypto.randomUUID(),
+                kind: 'geo',
                 name: t('hintGeo'),
-                meta: { lat: 55.75, lng: 37.62, label: t('hintGeo') }
+                location: { latitude: 55.75, longitude: 37.62, locationLabel: t('hintGeo') }
             })
             return
         }
@@ -53,8 +54,18 @@ export const CreateNoteForm = () => {
 
     const onSubmit = () => {
         if (!canSend || isPending) return
-        createNote(
-            { content: content.trim() || ' ', attachments },
+
+        const photos = attachments.filter((item): item is Extract<PendingAttachment, { kind: 'photo' }> => item.kind === 'photo')
+        const locations = attachments
+            .filter((item): item is Extract<PendingAttachment, { kind: 'geo' }> => item.kind === 'geo')
+            .map((item) => item.location)
+
+        createEntry(
+            {
+                text: content.trim() || undefined,
+                photos: photos.map((item) => item.file),
+                location: locations.length ? locations : undefined
+            },
             {
                 onSuccess: () => {
                     setContent('')
@@ -66,7 +77,6 @@ export const CreateNoteForm = () => {
 
     const hints: { key: HintKey; label: string; Icon: typeof FileIcon }[] = [
         { key: 'file', label: t('hintFile'), Icon: FileIcon },
-        { key: 'music', label: t('hintMusic'), Icon: FileAudio },
         { key: 'geo', label: t('hintGeo'), Icon: MapPin },
         { key: 'voice', label: t('hintVoice'), Icon: Mic }
     ]
@@ -122,16 +132,12 @@ export const CreateNoteForm = () => {
                                     key={a.id}
                                     className="bg-muted text-foreground inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs"
                                 >
-                                    {a.type === NoteAttachmentType.MUSIC && (
-                                        <FileAudio size={12} className="text-sage" />
-                                    )}
-                                    {a.type === NoteAttachmentType.GEO && (
+                                    {a.kind === 'geo' ? (
                                         <MapPin size={12} className="text-sage" />
-                                    )}
-                                    {a.type === NoteAttachmentType.FILE && (
+                                    ) : (
                                         <FileIcon size={12} className="text-sage" />
                                     )}
-                                    {a.name ?? a.type}
+                                    {a.name}
                                     <button
                                         type="button"
                                         onClick={() => removeAttachment(a.id)}
@@ -166,11 +172,17 @@ export const CreateNoteForm = () => {
                         <input
                             ref={fileRef}
                             type="file"
+                            accept="image/*"
                             className="hidden"
                             onChange={(e) => {
                                 const file = e.target.files?.[0]
                                 if (!file) return
-                                addAttachment({ type: NoteAttachmentType.FILE, name: file.name })
+                                addAttachment({
+                                    id: crypto.randomUUID(),
+                                    kind: 'photo',
+                                    file,
+                                    name: file.name
+                                })
                                 e.target.value = ''
                             }}
                         />
@@ -188,12 +200,6 @@ export const CreateNoteForm = () => {
                                     onClick={() => fileRef.current?.click()}
                                 >
                                     {t('attachFile')}
-                                </Menu.Item>
-                                <Menu.Item
-                                    leftSection={<FileAudio size={14} />}
-                                    onClick={() => onHint('music')}
-                                >
-                                    {t('attachMusic')}
                                 </Menu.Item>
                                 <Menu.Item leftSection={<MapPin size={14} />} onClick={() => onHint('geo')}>
                                     {t('attachGeo')}

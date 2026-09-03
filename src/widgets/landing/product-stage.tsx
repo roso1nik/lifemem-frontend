@@ -5,8 +5,8 @@ import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { MapPin } from 'lucide-react'
-import { Note } from '@/entities/note/model'
-import { NoteCard } from '@/entities/note/ui/note-card'
+import { Entry, getEntryPreviewText } from '@/entities/entry/model'
+import { EntryCard } from '@/entities/entry/ui/entry-card'
 import { Surface } from '@/shared/ui'
 import { getLandingNotes, notePhoto, type LandingNoteId } from './mock'
 import { graphNodeForNote, MemoryGraph } from './memory-graph'
@@ -24,8 +24,8 @@ export const ProductStage = () => {
         [t]
     )
     const [selectedId, setSelectedId] = useState<LandingNoteId>('park')
-    const onSelect = useCallback((note: Note) => {
-        setSelectedId(note.id as LandingNoteId)
+    const onSelect = useCallback((entry: Entry) => {
+        setSelectedId(entry.id as LandingNoteId)
     }, [])
     const selected = notes.find((note) => note.id === selectedId) ?? notes[0]
     const photo = notePhoto(selected)
@@ -45,8 +45,8 @@ export const ProductStage = () => {
                 <ul className="border-hairline divide-hairline divide-y sm:border-r">
                     {notes.map((note) => (
                         <li key={note.id}>
-                            <NoteCard
-                                note={note}
+                            <EntryCard
+                                entry={note}
                                 selected={note.id === selectedId}
                                 onSelect={onSelect}
                             />
@@ -79,7 +79,9 @@ export const ProductStage = () => {
                             </div>
                         )}
                     </div>
-                    <p className="text-foreground line-clamp-3 px-4 pt-3 text-sm leading-snug">{selected.content}</p>
+                    <p className="text-foreground line-clamp-3 px-4 pt-3 text-sm leading-snug">
+                        {getEntryPreviewText(selected)}
+                    </p>
                     <div className="mt-auto px-2 pt-1 pb-2">
                         <MemoryGraph compact activeId={graphNodeForNote(selected.id)} className="max-h-28" />
                     </div>

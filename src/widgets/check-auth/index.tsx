@@ -19,7 +19,7 @@ export const CheckAuthProvider: FC<CheckAuthProviderProps> = ({ children }) => {
 
     useEffect(() => {
         if (isLoading) return
-        if (!isSuccess || !data) {
+        if (!isSuccess || !data?.user) {
             router.replace(ROUTES.LOGIN)
             return
         }
@@ -30,7 +30,7 @@ export const CheckAuthProvider: FC<CheckAuthProviderProps> = ({ children }) => {
 
     if (isLoading) return <LoadingPageNext />
 
-    if (isSuccess && data && hasPermission(PermissionValue.ADMIN_PANEL)) {
+    if (isSuccess && data?.user && hasPermission(PermissionValue.ADMIN_PANEL)) {
         return <>{children}</>
     }
 

@@ -1,24 +1,23 @@
+import z from 'zod'
 import { AxiosPromise } from 'axios'
 import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { ConfirmEmailRequest, confirmEmailSchema } from '../model'
+import apiClient from '@/shared/api'
 import { ApiQueryKeys } from '@/shared/config'
 import { useRouter } from '@/i18n/navigation'
 import { ROUTES } from '@/shared/router'
+import { AlertBaseDto, emailSchema } from '@/shared/types'
 
-export { confirmEmailSchema }
-export type { ConfirmEmailRequest }
+export const confirmEmailSchema = z.object({
+    email: emailSchema,
+    code: z.string().min(4).max(8).regex(/^\d+$/)
+})
 
-/** Stub — replace with apiClient.post('/auth/confirm-email', data) */
-export const confirmEmail = async (_data: ConfirmEmailRequest): AxiosPromise<{ ok: boolean }> => {
-    await new Promise((r) => setTimeout(r, 400))
-    return {
-        data: { ok: true },
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config: {} as never
-    }
+export type ConfirmEmailRequest = z.infer<typeof confirmEmailSchema>
+
+export const confirmEmail = async (data: ConfirmEmailRequest): AxiosPromise<AlertBaseDto> => {
+    const res = await apiClient.post('/user/confirm-email', data)
+    return res
 }
 
 export const useConfirmEmail = () => {
@@ -26,9 +25,9 @@ export const useConfirmEmail = () => {
 
     return useMutation({
         mutationKey: [ApiQueryKeys.CONFIRM_EMAIL],
-        mutationFn: (data: ConfirmEmailRequest) => confirmEmail(data).then((res) => res.data),
-        onSuccess: () => {
-            toast.success('Email подтверждён (мок)')
+        mutationFn: (data: ConfirmEmailRequest) => confirmEmail(data),
+        onSuccess: (response) => {
+            toast.success(response.data.message || 'Email подтверждён')
             router.push(ROUTES.HOME_PAGE)
         },
         onError: () => toast.error('Неверный код')

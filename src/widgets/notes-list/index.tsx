@@ -1,18 +1,18 @@
 'use client'
 
-import { useNotesGroupedByDay } from '@/entities/note/api/use-notes'
-import { Note } from '@/entities/note/model'
-import { NoteCard } from '@/entities/note/ui/note-card'
+import { useEntriesGroupedByDay } from '@/entities/entry/api/use-entries'
+import { Entry, getEntryPreviewText } from '@/entities/entry/model'
+import { EntryCard } from '@/entities/entry/ui/entry-card'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 
 interface NotesListProps {
-    onSelect?: (note: Note) => void
+    onSelect?: (entry: Entry) => void
     selectedId?: string | null
 }
 
 export const NotesList = ({ onSelect, selectedId }: NotesListProps) => {
-    const groups = useNotesGroupedByDay()
+    const groups = useEntriesGroupedByDay()
     const t = useTranslations('home')
 
     if (groups.length === 0) {
@@ -32,11 +32,11 @@ export const NotesList = ({ onSelect, selectedId }: NotesListProps) => {
                         {group.label}
                     </h3>
                     <ul className="flex flex-col gap-0.5">
-                        {group.notes.map((note) => (
-                            <li key={note.id}>
-                                <NoteCard
-                                    note={note}
-                                    selected={selectedId === note.id}
+                        {group.entries.map((entry) => (
+                            <li key={entry.id}>
+                                <EntryCard
+                                    entry={entry}
+                                    selected={selectedId === entry.id}
                                     onSelect={onSelect}
                                 />
                             </li>
@@ -47,3 +47,5 @@ export const NotesList = ({ onSelect, selectedId }: NotesListProps) => {
         </div>
     )
 }
+
+export { getEntryPreviewText }

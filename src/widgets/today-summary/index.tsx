@@ -1,6 +1,6 @@
 'use client'
 
-import { useTodayNotesCount } from '@/entities/note/api/use-notes'
+import { useTodayEntriesCount } from '@/entities/entry/api/use-entries'
 import { dayjsInstance, cn } from '@/shared/utils'
 import { Surface } from '@/shared/ui'
 import { useTranslations } from 'next-intl'
@@ -32,7 +32,7 @@ const insights = [
 
 export const TodaySummary = () => {
     const t = useTranslations('home')
-    const count = useTodayNotesCount()
+    const count = useTodayEntriesCount()
     const today = dayjsInstance()
 
     return (

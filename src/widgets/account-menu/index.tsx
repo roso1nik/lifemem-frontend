@@ -1,5 +1,6 @@
 'use client'
 
+import { useLogout } from '@/entities/auth/api/use-logout'
 import { useSelf } from '@/entities/user/api/use-self'
 import { usePermissions } from '@/entities/permissions/hooks/usePermission'
 import { PermissionValue } from '@/entities/permissions/const/permission-map'
@@ -8,9 +9,6 @@ import { Avatar } from '@/shared/ui'
 import { Menu, UnstyledButton } from '@mantine/core'
 import { ChevronUp, LogOut, Shield, User } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import toast from 'react-hot-toast'
-import Cookies from 'js-cookie'
-import { GLOBAL_DICTIONARY } from '@/shared/config'
 import { ThemeSwitcher } from '@/widgets/theme'
 import { LanguageSwitcher } from '@/widgets/language-switcher'
 import { useRouter } from '@/i18n/navigation'
@@ -18,19 +16,15 @@ import { useWorkspaceNavigation } from '@/features/workspace-tabs'
 
 export const AccountMenu = () => {
     const t = useTranslations('account')
-    const { data: user } = useSelf()
+    const { data: self } = useSelf()
+    const user = self?.user
     const { hasPermission } = usePermissions()
     const router = useRouter()
     const { goSection } = useWorkspaceNavigation()
+    const { mutate: logout } = useLogout()
     const canAdmin = hasPermission(PermissionValue.ADMIN_PANEL)
 
     const initials = (user?.nickname ?? 'u').slice(0, 2).toUpperCase()
-
-    const logout = () => {
-        Cookies.remove(GLOBAL_DICTIONARY.ACCESS_TOKEN)
-        toast.success('Вы вышли (мок)')
-        router.push(ROUTES.LOGIN)
-    }
 
     return (
         <div className="border-sidebar-border flex flex-col gap-2 border-t p-3">
@@ -60,7 +54,7 @@ export const AccountMenu = () => {
                         </Menu.Item>
                     )}
                     <Menu.Divider />
-                    <Menu.Item color="red" leftSection={<LogOut size={14} />} onClick={logout}>
+                    <Menu.Item color="red" leftSection={<LogOut size={14} />} onClick={() => logout(undefined)}>
                         {t('logout')}
                     </Menu.Item>
                 </Menu.Dropdown>

@@ -13,14 +13,15 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
-import { useNotesStore } from '@/entities/note/store/notes-store'
+import { useEntries } from '@/entities/entry/api/use-entries'
+import { getEntryPreviewText } from '@/entities/entry/model'
 import { useWorkspaceNavigation } from '@/features/workspace-tabs'
 
 export const openSearchSpotlight = () => spotlight.open()
 
 export const SearchSpotlight = () => {
     const t = useTranslations('home')
-    const notes = useNotesStore((s) => s.notes)
+    const { data: entries = [] } = useEntries()
     const { goHome, goNote, goSection } = useWorkspaceNavigation()
 
     const actions = useMemo<(SpotlightActionData | { group: string; actions: SpotlightActionData[] })[]>(
@@ -67,17 +68,20 @@ export const SearchSpotlight = () => {
             },
             {
                 group: t('spotlight.groupNotes'),
-                actions: notes.map((note) => ({
-                    id: `note-${note.id}`,
-                    label: note.content.trim().slice(0, 64) || t('tab.notes'),
-                    description: note.content.trim().slice(64, 120) || undefined,
-                    leftSection: <Notebook size={18} className="text-sage" />,
-                    onClick: () =>
-                        goNote({
-                            id: note.id,
-                            title: note.content.trim().slice(0, 28) || t('tab.notes')
-                        })
-                }))
+                actions: entries.map((entry) => {
+                    const preview = getEntryPreviewText(entry)
+                    return {
+                        id: `note-${entry.id}`,
+                        label: preview.slice(0, 64) || t('tab.notes'),
+                        description: preview.slice(64, 120) || undefined,
+                        leftSection: <Notebook size={18} className="text-sage" />,
+                        onClick: () =>
+                            goNote({
+                                id: entry.id,
+                                title: preview.slice(0, 28) || t('tab.notes')
+                            })
+                    }
+                })
             },
             {
                 group: t('spotlight.groupAi'),
@@ -92,7 +96,7 @@ export const SearchSpotlight = () => {
                 ]
             }
         ],
-        [goHome, goNote, goSection, notes, t]
+        [entries, goHome, goNote, goSection, t]
     )
 
     return (

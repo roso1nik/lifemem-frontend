@@ -2,27 +2,33 @@ import axios from 'axios'
 import Cookies from 'js-cookie'
 import { GLOBAL_DICTIONARY } from '../config'
 
+const getAcceptLanguage = (): string => {
+    if (typeof window === 'undefined') return 'ru'
+    const match = window.location.pathname.match(/^\/(ru|en)(?:\/|$)/)
+    return match?.[1] ?? 'ru'
+}
+
 const apiClient = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
     withCredentials: true
 })
 
-// Добавление токена в запрос
 apiClient.interceptors.request.use(
     (config) => {
+        config.headers['x-client-type'] = 'web'
+        config.headers['x-accept-language'] = getAcceptLanguage()
+
         if (typeof window !== 'undefined') {
             const accessToken = Cookies.get(GLOBAL_DICTIONARY.ACCESS_TOKEN)
             if (accessToken) {
                 config.headers['Authorization'] = `Bearer ${accessToken}`
             }
-            return config
         }
         return config
     },
     (error) => Promise.reject(error)
 )
 
-// Обработка ответов
 let refreshTokenAttempts = 0
 
 apiClient.interceptors.response.use(
@@ -33,7 +39,6 @@ apiClient.interceptors.response.use(
 
         if (typeof window !== 'undefined') {
             if (status === 401 && !originalRequest?._retry) {
-
                 if (refreshTokenAttempts >= 3) {
                     return Promise.reject(error)
                 }
@@ -42,10 +47,18 @@ apiClient.interceptors.response.use(
                 refreshTokenAttempts += 1
 
                 try {
-                    const response = await axios.post('auth/refresh', {}, {
-                        baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
-                        withCredentials: true
-                    })
+                    const response = await axios.post(
+                        '/auth/refresh',
+                        {},
+                        {
+                            baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+                            withCredentials: true,
+                            headers: {
+                                'x-client-type': 'web',
+                                'x-accept-language': getAcceptLanguage()
+                            }
+                        }
+                    )
 
                     const newAccessToken = response.data.accessToken
 
@@ -57,9 +70,7 @@ apiClient.interceptors.response.use(
 
                     refreshTokenAttempts = 0
                     return apiClient(originalRequest)
-
                 } catch (refreshError) {
-
                     Cookies.remove(GLOBAL_DICTIONARY.ACCESS_TOKEN)
                     return Promise.reject(refreshError)
                 }
@@ -75,6 +86,8 @@ export const apiServerClient = axios.create({
     withCredentials: false
 })
 apiServerClient.interceptors.request.use((config) => {
+    config.headers['x-client-type'] = 'web'
+    config.headers['x-accept-language'] = 'ru'
     if (config.headers?.cookie) {
         delete config.headers.cookie
     }

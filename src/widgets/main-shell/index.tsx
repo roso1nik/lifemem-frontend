@@ -6,7 +6,7 @@ import { ReactNode } from 'react'
 import { NotesList } from '@/widgets/notes-list'
 import { AccountMenu } from '@/widgets/account-menu'
 import { AppHeader } from '@/widgets/header'
-import { Note } from '@/entities/note/model'
+import { Entry, getEntryPreviewText } from '@/entities/entry/model'
 import { IconButton } from '@/shared/ui'
 import { Archive, GitBranch, MapPinned, Notebook } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -43,10 +43,10 @@ export const MainShell = ({ children }: MainShellProps) => {
         return tab?.kind === 'note' ? tab.noteId : null
     })()
 
-    const onSelect = (note: Note) => {
+    const onSelect = (entry: Entry) => {
         goNote({
-            id: note.id,
-            title: note.content.trim().slice(0, 28) || t('tab.notes')
+            id: entry.id,
+            title: getEntryPreviewText(entry).slice(0, 28) || t('tab.notes')
         })
         close()
     }

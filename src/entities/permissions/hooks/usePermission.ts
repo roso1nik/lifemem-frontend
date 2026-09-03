@@ -1,23 +1,18 @@
 'use client'
 
 import { useSelf } from '@/entities/user/api/use-self'
-import { PermissionValue, PermissionValueType } from '../const/permission-map'
-import { RoleName } from '@/entities/role/model'
+import { PermissionValueType } from '../const/permission-map'
 
-/**
- * Stub until permissions API is wired.
- * Treats mock admin user / role name "admin" as having admin panel access.
- */
 export const usePermissions = () => {
-    const { data: user } = useSelf()
+    const { data: self } = useSelf()
 
     const hasPermission = (permission: PermissionValueType) => {
-        if (!user) return false
-        if (permission === PermissionValue.ADMIN_PANEL) {
-            return user.roleId === RoleName.ADMIN || user.nickname === 'admin'
-        }
-        return false
+        if (!self) return false
+        return self.permission?.some((item) => item.key === permission) ?? false
     }
 
     return { hasPermission }
 }
+
+/** @deprecated use usePermissions */
+export { usePermissions as usePermission }

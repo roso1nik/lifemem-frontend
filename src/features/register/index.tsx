@@ -6,10 +6,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { LoadingOverlay } from '@mantine/core'
 import { Mail, Lock, User } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 const RegisterForm = () => {
     const t = useTranslations('auth')
+    const locale = useLocale()
     const { mutate: register, isPending } = useRegister()
     const {
         handleSubmit,
@@ -17,7 +18,7 @@ const RegisterForm = () => {
         control
     } = useForm<RegisterRequest>({
         resolver: zodResolver(registerSchema),
-        defaultValues: { nickname: '', email: '', password: '' }
+        defaultValues: { nickname: '', email: '', password: '', initSettings: { lang: locale } }
     })
 
     return (

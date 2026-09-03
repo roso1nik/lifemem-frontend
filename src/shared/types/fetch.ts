@@ -62,7 +62,6 @@ export interface LocaleMessage {
     en: string
 }
 
-
 export interface RequestDataGet<TSortFields extends string = never> {
     page: number
     take: number
@@ -81,3 +80,31 @@ export const PLACEHOLDER_QUERY_GET_COLLECTION_PROFILE: RequestDataGet = {
     page: 1,
     take: 10
 }
+
+export interface ErrorDto {
+    code: string
+    message: string
+    meta?: string
+}
+
+export interface ErrorResponseDto {
+    timestamp: number
+    path: string
+    errors: ErrorDto[]
+}
+
+export interface AlertBaseDto {
+    message: string
+    alert: boolean
+}
+
+export type SortDirection = 'ASC' | 'DESC'
+
+export interface SearchRequest<TFilter = Record<string, unknown>, TSort = Record<string, SortDirection>> {
+    filters?: Partial<TFilter>
+    pagination: Pagination
+    query?: string
+    sorts?: Partial<TSort>
+}
+
+export type SearchResponse<T> = ResponseApi<T[]>

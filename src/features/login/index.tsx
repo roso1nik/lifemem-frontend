@@ -1,6 +1,6 @@
 'use client'
 
-import { useLogin, LoginRequest, loginSchema } from '@/entities/user/api/use-login'
+import { useLogin, loginSchema } from '@/entities/auth/api/use-login'
 import { ROUTES } from '@/shared/router'
 import { AuthTabs, Button, PasswordInput, TextInput } from '@/shared/ui'
 import { Lock, Mail } from 'lucide-react'
@@ -9,6 +9,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
 import { LoadingOverlay } from '@mantine/core'
+import z from 'zod'
+import { emailSchema } from '@/shared/types'
+
+const loginFormSchema = loginSchema.extend({
+    email: emailSchema,
+    password: z.string().min(6, 'Минимум 6 символов')
+})
+
+type LoginFormValues = z.infer<typeof loginFormSchema>
 
 const LoginForm = () => {
     const t = useTranslations('auth')
@@ -17,8 +26,8 @@ const LoginForm = () => {
         handleSubmit,
         formState: { errors },
         control
-    } = useForm<LoginRequest>({
-        resolver: zodResolver(loginSchema),
+    } = useForm<LoginFormValues>({
+        resolver: zodResolver(loginFormSchema),
         defaultValues: { email: '', password: '' }
     })
 

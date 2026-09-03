@@ -3,7 +3,8 @@
 import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { Search, Sparkles } from 'lucide-react'
-import { NoteCard } from '@/entities/note/ui/note-card'
+import { getEntryPreviewText } from '@/entities/entry/model'
+import { EntryCard } from '@/entities/entry/ui/entry-card'
 import { Surface } from '@/shared/ui'
 import { dayjsInstance } from '@/shared/utils'
 import { getLandingNotes } from './mock'
@@ -48,7 +49,7 @@ export const LandingAsk = () => {
                             <ul className="divide-hairline divide-y">
                                 {results.map((note) => (
                                     <li key={note.id}>
-                                        <NoteCard note={note} />
+                                        <EntryCard entry={note} />
                                     </li>
                                 ))}
                             </ul>
@@ -64,7 +65,9 @@ export const LandingAsk = () => {
                             {source && (
                                 <footer className="border-hairline mt-7 border-t pt-4">
                                     <p className="text-sage text-xs font-medium tracking-tight">{t('ask.fromNotes')}</p>
-                                    <p className="text-muted-foreground mt-2 text-sm leading-snug">{source.content}</p>
+                                    <p className="text-muted-foreground mt-2 text-sm leading-snug">
+                                        {getEntryPreviewText(source)}
+                                    </p>
                                     <p className="text-muted-foreground mt-1 text-[11px] tabular-nums">
                                         {dayjsInstance(source.createdAt).format('D MMMM, HH:mm')}
                                     </p>

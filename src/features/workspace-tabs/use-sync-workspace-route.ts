@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react'
 import { usePathname } from '@/i18n/navigation'
-import { useNotesStore } from '@/entities/note/store/notes-store'
+import { useEntries } from '@/entities/entry/api/use-entries'
+import { getEntryPreviewText } from '@/entities/entry/model'
 import { removeLocalePrefix } from '@/i18n/routing'
 import { matchWorkspacePath, useWorkspaceTabs } from './store'
 
@@ -10,7 +11,7 @@ import { matchWorkspacePath, useWorkspaceTabs } from './store'
 export const useSyncWorkspaceRoute = () => {
     const pathname = usePathname()
     const syncFromPath = useWorkspaceTabs((s) => s.syncFromPath)
-    const notes = useNotesStore((s) => s.notes)
+    const { data: entries = [] } = useEntries()
     const path = removeLocalePrefix(pathname)
 
     useEffect(() => {
@@ -18,12 +19,12 @@ export const useSyncWorkspaceRoute = () => {
         if (!matched) return
 
         if (matched.kind === 'note') {
-            const note = notes.find((n) => n.id === matched.noteId)
-            const title = note?.content.trim().slice(0, 28) || matched.noteId
+            const entry = entries.find((item) => item.id === matched.noteId)
+            const title = entry ? getEntryPreviewText(entry).slice(0, 28) : matched.noteId
             syncFromPath(path, title)
             return
         }
 
         syncFromPath(path)
-    }, [path, notes, syncFromPath])
+    }, [path, entries, syncFromPath])
 }
