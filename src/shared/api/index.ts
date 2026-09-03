@@ -1,12 +1,7 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
 import { GLOBAL_DICTIONARY } from '../config'
-
-const getAcceptLanguage = (): string => {
-    if (typeof window === 'undefined') return 'ru'
-    const match = window.location.pathname.match(/^\/(ru|en)(?:\/|$)/)
-    return match?.[1] ?? 'ru'
-}
+import { getAcceptLanguage } from '../utils'
 
 const apiClient = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,

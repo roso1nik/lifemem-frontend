@@ -9,4 +9,3 @@ export {
     type CreateEntryResponse,
     type EntryLocationInput
 } from './create-entry-request'
-export { updateEntrySchema, type UpdateEntryRequest } from './use-update-entry'
