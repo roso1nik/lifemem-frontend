@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { useRegister, registerSchema } from '@/entities/user/api/use-register'
-import { AuthTabs, Button, PasswordInput, SegmentedControl, TextInput } from '@/shared/ui'
+import { Button, PasswordInput, TextInput } from '@/shared/ui'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoadingOverlay } from '@mantine/core'
 import { Mail, Lock, User, Phone } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslations, useLocale } from 'next-intl'
+import { Link } from '@/i18n/navigation'
+import { ROUTES } from '@/shared/router'
 import z from 'zod'
 import { emailSchema } from '@/shared/types'
 import { formatPhoneNumber } from '@/shared/utils'
@@ -27,6 +29,9 @@ const phoneRegisterSchema = registerSchema
         phoneNumber: z.string().min(10)
     })
     .omit({ email: true, password: true })
+
+const modeSwitchClassName =
+    'text-primary mt-3 self-center text-sm transition-transform active:scale-[0.97]'
 
 const RegisterForm = () => {
     const t = useTranslations('auth')
@@ -57,16 +62,10 @@ const RegisterForm = () => {
 
     return (
         <div className="relative flex flex-col gap-1">
-            <AuthTabs active="register" />
-            <SegmentedControl
-                value={mode}
-                onChange={(value) => setMode(value as RegisterMode)}
-                options={[
-                    { value: 'email', label: t('viaEmail') },
-                    { value: 'phone', label: t('viaPhone') }
-                ]}
-                className="mb-4"
-            />
+            <header className="mb-5">
+                <h1 className="text-2xl font-semibold tracking-tight">{t('registerWelcome')}</h1>
+                <p className="text-muted-foreground mt-1 text-sm">{t('registerHint')}</p>
+            </header>
 
             {mode === 'email' ? (
                 <form className="flex flex-col gap-4" onSubmit={emailForm.handleSubmit(onEmailSubmit)}>
@@ -150,7 +149,24 @@ const RegisterForm = () => {
                     </Button>
                 </form>
             )}
+
+            <button
+                type="button"
+                className={modeSwitchClassName}
+                onClick={() => setMode(mode === 'email' ? 'phone' : 'email')}
+            >
+                {mode === 'email' ? t('usePhone') : t('useEmail')}
+            </button>
+
             <OAuthLoginButtons />
+
+            <p className="text-muted-foreground mt-5 text-center text-sm">
+                {t('hasAccount')}{' '}
+                <Link href={ROUTES.LOGIN} className="text-primary hover:underline">
+                    {t('signInLink')}
+                </Link>
+            </p>
+
             <LoadingOverlay visible={isPending} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
         </div>
     )

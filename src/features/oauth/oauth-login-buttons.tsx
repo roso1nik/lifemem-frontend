@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { FC, ReactNode, useCallback, useMemo, useState } from 'react'
 import { type CredentialResponse } from '@react-oauth/google'
 import { useLocale, useTranslations } from 'next-intl'
 import { useGetServiceSettings } from '@/entities/service-settings/api/use-service-settings'
@@ -25,7 +25,11 @@ type PendingLogin =
     | { provider: 'apple'; idToken: string; nickname: string }
     | { provider: 'telegram'; telegramData: TelegramLoginData; nickname: string }
 
-export const OAuthLoginButtons = () => {
+interface OAuthLoginButtonsProps {
+    phoneComponent?: ReactNode
+}
+
+export const OAuthLoginButtons: FC<OAuthLoginButtonsProps> = ({ phoneComponent }) => {
     const t = useTranslations('auth')
     const locale = useLocale()
     const { data: settings } = useGetServiceSettings()
@@ -55,18 +59,12 @@ export const OAuthLoginButtons = () => {
             }
 
             if (payload.provider === 'google') {
-                googleLogin(
-                    { idToken: payload.idToken, nickname: payload.nickname, initSettings },
-                    { onError }
-                )
+                googleLogin({ idToken: payload.idToken, nickname: payload.nickname, initSettings }, { onError })
                 return
             }
 
             if (payload.provider === 'apple') {
-                appleLogin(
-                    { idToken: payload.idToken, nickname: payload.nickname, initSettings },
-                    { onError }
-                )
+                appleLogin({ idToken: payload.idToken, nickname: payload.nickname, initSettings }, { onError })
                 return
             }
 
@@ -128,9 +126,8 @@ export const OAuthLoginButtons = () => {
             <div className="mt-4 flex flex-col gap-2">
                 <p className="text-muted-foreground text-center text-xs">{t('orContinueWith')}</p>
                 <div className="flex flex-col gap-2">
-                    {enabledProviders.includes('google') && (
-                        <GoogleLoginButton onSuccess={handleGoogleSuccess} />
-                    )}
+                    {phoneComponent}
+                    {enabledProviders.includes('google') && <GoogleLoginButton onSuccess={handleGoogleSuccess} />}
                     {enabledProviders.includes('apple') && isAppleConfigured && (
                         <Button
                             type="button"
@@ -142,9 +139,7 @@ export const OAuthLoginButtons = () => {
                             {t('oauthApple')}
                         </Button>
                     )}
-                    {enabledProviders.includes('telegram') && (
-                        <TelegramLoginWidget onAuth={handleTelegramAuth} />
-                    )}
+                    {enabledProviders.includes('telegram') && <TelegramLoginWidget onAuth={handleTelegramAuth} />}
                 </div>
             </div>
 

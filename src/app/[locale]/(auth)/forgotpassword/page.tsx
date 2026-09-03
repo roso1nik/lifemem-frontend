@@ -1,7 +1,7 @@
 'use client'
 
 import { ROUTES } from '@/shared/router'
-import { AuthTabs, Button, TextInput } from '@/shared/ui'
+import { Button, TextInput } from '@/shared/ui'
 import { Mail } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
@@ -11,7 +11,6 @@ const ForgotPasswordPage = () => {
 
     return (
         <div className="flex flex-col gap-1">
-            <AuthTabs active="login" />
             <h2 className="mb-1 text-lg font-semibold tracking-tight">{t('forgotTitle')}</h2>
             <p className="text-muted-foreground mb-4 text-sm">{t('forgotUnavailable')}</p>
             <div className="mb-4">

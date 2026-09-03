@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useLogin, isPhoneCodeResponse } from '@/entities/auth/api/use-login'
 import { useConfirmPhoneLogin } from '@/entities/auth/api/use-confirm-phone-login'
 import { ROUTES } from '@/shared/router'
-import { AuthTabs, Button, PasswordInput, PinInput, SegmentedControl, TextInput } from '@/shared/ui'
+import { Button, PasswordInput, PinInput, TextInput } from '@/shared/ui'
 import { Lock, Mail, Phone } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -29,8 +29,6 @@ type EmailLoginValues = z.infer<typeof emailLoginSchema>
 type PhoneLoginValues = z.infer<typeof phoneLoginSchema>
 type LoginMode = 'email' | 'phone'
 
-const OAuthButtons = () => <OAuthLoginButtons />
-
 const LoginForm = () => {
     const t = useTranslations('auth')
     const [mode, setMode] = useState<LoginMode>('email')
@@ -52,6 +50,18 @@ const LoginForm = () => {
     })
 
     const isPending = isLoginPending || isConfirmPending
+
+    const switchToPhone = () => {
+        setMode('phone')
+        setPhoneStep('phone')
+        setCode('')
+    }
+
+    const switchToEmail = () => {
+        setMode('email')
+        setPhoneStep('phone')
+        setCode('')
+    }
 
     const onEmailSubmit = (data: EmailLoginValues) => {
         login({ email: data.email, password: data.password })
@@ -77,22 +87,12 @@ const LoginForm = () => {
         confirmPhoneLogin({ phone: phoneNumber, code })
     }
 
-  return (
+    return (
         <div className="relative flex flex-col gap-1">
-            <AuthTabs active="login" />
-            <SegmentedControl
-                value={mode}
-                onChange={(value) => {
-                    setMode(value as LoginMode)
-                    setPhoneStep('phone')
-                    setCode('')
-                }}
-                options={[
-                    { value: 'email', label: t('viaEmail') },
-                    { value: 'phone', label: t('viaPhone') }
-                ]}
-                className="mb-4"
-            />
+            <header className="mb-5">
+                <h1 className="text-2xl font-semibold tracking-tight">{t('loginWelcome')}</h1>
+                <p className="text-muted-foreground mt-1 text-sm">{t('loginHint')}</p>
+            </header>
 
             {mode === 'email' ? (
                 <form className="flex flex-col gap-4" onSubmit={emailForm.handleSubmit(onEmailSubmit)}>
@@ -128,6 +128,9 @@ const LoginForm = () => {
                     <Button type="submit" fullWidth loading={isLoginPending}>
                         {t('submitLogin')}
                     </Button>
+                    <Link href={ROUTES.FORGOT_PASSWORD} className="text-primary -mt-1 self-end text-sm hover:underline">
+                        {t('forgotPassword')}
+                    </Link>
                 </form>
             ) : phoneStep === 'phone' ? (
                 <form className="flex flex-col gap-4" onSubmit={phoneForm.handleSubmit(onPhoneSubmit)}>
@@ -154,14 +157,16 @@ const LoginForm = () => {
                 </form>
             ) : (
                 <div className="flex flex-col gap-4">
-                    <p className="text-muted-foreground text-center text-sm">{t('confirmPhoneHint', { phone: phoneNumber })}</p>
+                    <p className="text-muted-foreground text-center text-sm">
+                        {t('confirmPhoneHint', { phone: phoneNumber })}
+                    </p>
                     <PinInput value={code} onChange={setCode} />
                     <Button type="button" fullWidth loading={isConfirmPending} onClick={onCodeSubmit}>
                         {t('submitLogin')}
                     </Button>
                     <button
                         type="button"
-                        className="text-primary text-sm hover:underline"
+                        className="text-primary self-center text-sm transition-transform active:scale-[0.97]"
                         onClick={() => {
                             setPhoneStep('phone')
                             setCode('')
@@ -172,13 +177,23 @@ const LoginForm = () => {
                 </div>
             )}
 
-            <OAuthButtons />
+            <OAuthLoginButtons
+                phoneComponent={
+                    phoneStep !== 'code' ? (
+                        <Button fullWidth variant="subtle" onClick={mode === 'email' ? switchToPhone : switchToEmail}>
+                            {mode === 'email' ? t('usePhone') : t('useEmail')}
+                        </Button>
+                    ) : null
+                }
+            />
 
-            {mode === 'email' && (
-                <Link href={ROUTES.FORGOT_PASSWORD} className="text-primary mt-3 self-end text-sm hover:underline">
-                    {t('forgotPassword')}
+            <p className="text-muted-foreground mt-5 text-center text-sm">
+                {t('noAccount')}{' '}
+                <Link href={ROUTES.REGISTER} className="text-primary hover:underline">
+                    {t('createAccount')}
                 </Link>
-            )}
+            </p>
+
             <LoadingOverlay visible={isPending} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
         </div>
     )

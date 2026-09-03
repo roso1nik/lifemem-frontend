@@ -2,6 +2,7 @@
 
 import { FC, ReactNode } from 'react'
 import { ThemeSwitcher } from '../theme'
+import { LanguageSwitcher } from '@/widgets/language-switcher'
 import { APP_NAME } from '@/shared/config'
 import { ROUTES } from '@/shared/router'
 import { useTranslations } from 'next-intl'
@@ -17,10 +18,6 @@ export const AuthCard: FC<AuthCardProps> = ({ children }) => {
 
     return (
         <>
-            <div className="absolute top-4 right-4 z-10">
-                <ThemeSwitcher />
-            </div>
-
             <div className="mb-6 flex flex-col items-center gap-2 text-center">
                 <p className="font-brand text-primary text-3xl font-semibold tracking-tight lowercase">{APP_NAME}</p>
                 <p className="text-muted-foreground text-sm">{t('tagline')}</p>
@@ -28,11 +25,20 @@ export const AuthCard: FC<AuthCardProps> = ({ children }) => {
 
             <Surface className="w-full max-w-md p-6">{children}</Surface>
 
-            <Link href={ROUTES.WELCOME} className="text-muted-foreground hover:text-primary mt-5 text-sm no-underline">
-                {'Что это?'}
-            </Link>
+            <div className="mt-5 flex w-full max-w-md items-center justify-between">
+                <Link
+                    href={ROUTES.WELCOME}
+                    className="text-muted-foreground hover:text-primary text-sm no-underline"
+                >
+                    {'Что это?'}
+                </Link>
+                <div className="flex items-center gap-1">
+                    <LanguageSwitcher />
+                    <ThemeSwitcher />
+                </div>
+            </div>
 
-            <p className="text-muted-foreground mt-8 text-sm">
+            <p className="text-muted-foreground mt-6 text-sm">
                 © {new Date().getFullYear()} {APP_NAME}. {t('rights')}
             </p>
         </>
