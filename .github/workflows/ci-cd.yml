@@ -5,59 +5,93 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        required: false
+        default: ''
 
-concurrency:
-  group: ${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
-#  lint:
-#    name: Lint
-#    runs-on: ubuntu-latest
-#    timeout-minutes: 5
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: actions/setup-node@v4
-#        with:
-#          node-version: 22
-#          cache: npm
-#      - run: npm i
-#      - run: npm run lint
-
   build:
-    name: Build
-#    needs: lint
+    if: github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.image_tag == '')
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
         with:
-          node-version: 22
-          cache: npm
-      - run: npm i
-      - run: npm run build
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Save current latest as previous
+        continue-on-error: true
+        run: docker buildx imagetools create -t ${{ env.IMAGE }}:previous ${{ env.IMAGE }}:latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:sha-${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }}
+            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+            NEXT_PUBLIC_APPLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_APPLE_CLIENT_ID }}
+            NEXT_PUBLIC_APPLE_REDIRECT_URI=${{ secrets.NEXT_PUBLIC_APPLE_REDIRECT_URI }}
+            NEXT_PUBLIC_TELEGRAM_BOT_USERNAME=${{ secrets.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME }}
+            NEXT_PUBLIC_TELEGRAM_BOT_ID=${{ secrets.NEXT_PUBLIC_TELEGRAM_BOT_ID }}
 
   deploy:
-    name: Deploy
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: |
+      always() &&
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.result == 'success') ||
+      (github.event_name == 'workflow_dispatch' && (needs.build.result == 'success' || (needs.build.result == 'skipped' && inputs.image_tag != '')))
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-      - name: Deploy via SSH
+      - name: Deploy
         uses: appleboy/ssh-action@v1.2.2
+        env:
+          FRONTEND_IMAGE: ghcr.io/${{ github.repository }}:${{ inputs.image_tag != '' && inputs.image_tag || format('sha-{0}', github.sha) }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
+          envs: FRONTEND_IMAGE,GHCR_TOKEN,GHCR_USER
           script: |
             set -euo pipefail
             cd "${{ secrets.DEPLOY_PATH }}"
-            ls
             git fetch origin main
             git checkout main
             git reset --hard origin/main
-            npm run docker:prod:deploy
+
+            test -n "$GHCR_USER"
+            test -n "$GHCR_TOKEN"
+            test -n "$FRONTEND_IMAGE"
+
+            if grep -q '^FRONTEND_IMAGE=' .env; then
+              sed -i "s|^FRONTEND_IMAGE=.*|FRONTEND_IMAGE=$FRONTEND_IMAGE|" .env
+            else
+              echo "FRONTEND_IMAGE=$FRONTEND_IMAGE" >> .env
+            fi
+
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+            docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-frontend-prod --env-file .env pull
+            docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-frontend-prod --env-file .env up -d --no-build --remove-orphans
             docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-frontend-prod --env-file .env ps
+            docker logout ghcr.io || true
