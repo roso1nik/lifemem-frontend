@@ -1,6 +1,7 @@
 export * from './button'
 export * from './icon-button'
 export * from './text-input'
+export * from './phone-input'
 export * from './password-input'
 export * from './textarea'
 export * from './rich-text-editor'

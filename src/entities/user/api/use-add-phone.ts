@@ -5,10 +5,11 @@ import toast from 'react-hot-toast'
 import apiClient, { getApiErrorMessage } from '@/shared/api'
 import { ApiQueryKeys } from '@/shared/config'
 import { AlertBaseDto } from '@/shared/types'
+import { isValidPhone } from '@/shared/utils'
 import { useTranslations } from 'next-intl'
 
 export const addPhoneSchema = z.object({
-    phoneNumber: z.string().min(1)
+    phoneNumber: z.string().refine(isValidPhone)
 })
 
 export type AddPhoneRequest = z.infer<typeof addPhoneSchema>

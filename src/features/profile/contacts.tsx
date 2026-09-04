@@ -6,12 +6,12 @@ import { useAddEmail, addEmailSchema } from '@/entities/user/api/use-add-email'
 import { useAddPhone, addPhoneSchema } from '@/entities/user/api/use-add-phone'
 import { useConfirmEmail } from '@/entities/user/api/use-confirm-email'
 import { useConfirmPhone } from '@/entities/user/api/use-confirm-phone'
-import { Button, PasswordInput, PinInput, Surface, TextInput } from '@/shared/ui'
+import { Button, PasswordInput, PhoneInput, PinInput, Surface, TextInput } from '@/shared/ui'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Mail, Phone, Lock } from 'lucide-react'
+import { Mail, Lock } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
-import { formatPhoneNumber } from '@/shared/utils'
+import { toE164Phone } from '@/shared/utils'
 import { ApiQueryKeys } from '@/shared/config'
 import { useQueryClient } from '@tanstack/react-query'
 import z from 'zod'
@@ -169,12 +169,14 @@ export const ProfileContacts = () => {
                     <form
                         className="flex flex-col gap-3"
                         onSubmit={phoneForm.handleSubmit((data) => {
-                            const digits = data.phoneNumber.replace(/\D/g, '')
+                            const phoneNumber = toE164Phone(data.phoneNumber)
+                            if (!phoneNumber) return
+
                             addPhone(
-                                { phoneNumber: digits },
+                                { phoneNumber },
                                 {
                                     onSuccess: () => {
-                                        setPendingPhone(digits)
+                                        setPendingPhone(phoneNumber)
                                         setPhoneCodeStep(true)
                                     }
                                 }
@@ -185,13 +187,11 @@ export const ProfileContacts = () => {
                             control={phoneForm.control}
                             name="phoneNumber"
                             render={({ field }) => (
-                                <TextInput
+                                <PhoneInput
                                     label={t('addPhone')}
-                                    type="tel"
-                                    leftSection={<Phone size={16} />}
                                     value={field.value}
                                     onBlur={field.onBlur}
-                                    onChange={(e) => field.onChange(formatPhoneNumber(e.currentTarget.value))}
+                                    onChange={field.onChange}
                                     error={phoneForm.formState.errors.phoneNumber?.message}
                                 />
                             )}

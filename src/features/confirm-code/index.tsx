@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { ApiQueryKeys } from '@/shared/config'
 import { useQueryClient } from '@tanstack/react-query'
+import { toE164Phone } from '@/shared/utils'
 
 const ConfirmCodeForm = () => {
     const t = useTranslations('auth')
@@ -37,7 +38,8 @@ const ConfirmCodeForm = () => {
         }
 
         if (isPhone) {
-            confirmPhone({ phone: phone.replace(/\D/g, ''), code }, { onSuccess: onDone })
+            const e164 = toE164Phone(phone) ?? (phone.startsWith('+') ? phone : `+${phone.replace(/\D/g, '')}`)
+            confirmPhone({ phone: e164, code }, { onSuccess: onDone })
         } else {
             confirmEmail({ email, code }, { onSuccess: onDone })
         }

@@ -2,17 +2,17 @@
 
 import { useState } from 'react'
 import { useRegister, registerSchema } from '@/entities/user/api/use-register'
-import { Button, PasswordInput, TextInput } from '@/shared/ui'
+import { Button, PasswordInput, PhoneInput, TextInput } from '@/shared/ui'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoadingOverlay } from '@mantine/core'
-import { Mail, Lock, User, Phone } from 'lucide-react'
+import { Mail, Lock, User } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { ROUTES } from '@/shared/router'
 import z from 'zod'
 import { emailSchema } from '@/shared/types'
-import { formatPhoneNumber } from '@/shared/utils'
+import { isValidPhone, toE164Phone } from '@/shared/utils'
 import { OAuthLoginButtons } from '@/features/oauth'
 
 type RegisterMode = 'email' | 'phone'
@@ -26,7 +26,7 @@ const emailRegisterSchema = registerSchema
 
 const phoneRegisterSchema = registerSchema
     .extend({
-        phoneNumber: z.string().min(10)
+        phoneNumber: z.string().refine(isValidPhone)
     })
     .omit({ email: true, password: true })
 
@@ -51,9 +51,12 @@ const RegisterForm = () => {
     }
 
     const onPhoneSubmit = (data: z.infer<typeof phoneRegisterSchema>) => {
+        const phoneNumber = toE164Phone(data.phoneNumber)
+        if (!phoneNumber) return
+
         register({
             ...data,
-            phoneNumber: data.phoneNumber.replace(/\D/g, '')
+            phoneNumber
         })
     }
 
@@ -129,15 +132,12 @@ const RegisterForm = () => {
                         name="phoneNumber"
                         control={phoneForm.control}
                         render={({ field }) => (
-                            <TextInput
+                            <PhoneInput
                                 label={t('phone')}
                                 error={phoneForm.formState.errors.phoneNumber?.message}
-                                type="tel"
-                                placeholder={t('phonePlaceholder')}
-                                leftSection={<Phone size={16} />}
                                 value={field.value}
                                 onBlur={field.onBlur}
-                                onChange={(e) => field.onChange(formatPhoneNumber(e.currentTarget.value))}
+                                onChange={field.onChange}
                             />
                         )}
                     />

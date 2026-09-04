@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { useLogin, isPhoneCodeResponse } from '@/entities/auth/api/use-login'
 import { useConfirmPhoneLogin } from '@/entities/auth/api/use-confirm-phone-login'
 import { ROUTES } from '@/shared/router'
-import { Button, PasswordInput, PinInput, TextInput } from '@/shared/ui'
-import { Lock, Mail, Phone } from 'lucide-react'
+import { Button, PasswordInput, PhoneInput, PinInput, TextInput } from '@/shared/ui'
+import { Lock, Mail } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
@@ -13,7 +13,7 @@ import { useTranslations } from 'next-intl'
 import { LoadingOverlay } from '@mantine/core'
 import z from 'zod'
 import { emailSchema } from '@/shared/types'
-import { formatPhoneNumber } from '@/shared/utils'
+import { isValidPhone, toE164Phone } from '@/shared/utils'
 import { OAuthLoginButtons } from '@/features/oauth'
 
 const emailLoginSchema = z.object({
@@ -22,7 +22,7 @@ const emailLoginSchema = z.object({
 })
 
 const phoneLoginSchema = z.object({
-    phone: z.string().min(10, 'Введите номер телефона')
+    phone: z.string().refine(isValidPhone)
 })
 
 type EmailLoginValues = z.infer<typeof emailLoginSchema>
@@ -68,10 +68,12 @@ const LoginForm = () => {
     }
 
     const onPhoneSubmit = (data: PhoneLoginValues) => {
-        const digits = data.phone.replace(/\D/g, '')
-        setPhoneNumber(digits)
+        const phone = toE164Phone(data.phone)
+        if (!phone) return
+
+        setPhoneNumber(phone)
         login(
-            { phone: digits },
+            { phone },
             {
                 onSuccess: (response) => {
                     if (isPhoneCodeResponse(response.data)) {
@@ -141,16 +143,13 @@ const LoginForm = () => {
                         control={phoneForm.control}
                         name="phone"
                         render={({ field }) => (
-                            <TextInput
+                            <PhoneInput
                                 label={t('phone')}
                                 required
                                 error={phoneForm.formState.errors.phone?.message}
-                                type="tel"
-                                placeholder={t('phonePlaceholder')}
-                                leftSection={<Phone size={16} />}
                                 value={field.value}
                                 onBlur={field.onBlur}
-                                onChange={(e) => field.onChange(formatPhoneNumber(e.currentTarget.value))}
+                                onChange={field.onChange}
                             />
                         )}
                     />
