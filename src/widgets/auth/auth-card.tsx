@@ -4,9 +4,7 @@ import { FC, ReactNode } from 'react'
 import { ThemeSwitcher } from '../theme'
 import { LanguageSwitcher } from '@/widgets/language-switcher'
 import { APP_NAME } from '@/shared/config'
-import { ROUTES } from '@/shared/router'
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
 import { Surface } from '@/shared/ui'
 
 interface AuthCardProps {
@@ -25,13 +23,7 @@ export const AuthCard: FC<AuthCardProps> = ({ children }) => {
 
             <Surface className="w-full max-w-md p-6">{children}</Surface>
 
-            <div className="mt-5 flex w-full max-w-md items-center justify-between">
-                <Link
-                    href={ROUTES.WELCOME}
-                    className="text-muted-foreground hover:text-primary text-sm no-underline"
-                >
-                    {'Что это?'}
-                </Link>
+            <div className="mt-5 flex w-full max-w-md items-center justify-end">
                 <div className="flex items-center gap-1">
                     <LanguageSwitcher />
                     <ThemeSwitcher />

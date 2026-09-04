@@ -128,7 +128,10 @@ const LoginForm = () => {
                     <Button type="submit" fullWidth loading={isLoginPending}>
                         {t('submitLogin')}
                     </Button>
-                    <Link href={ROUTES.FORGOT_PASSWORD} className="text-primary -mt-1 self-end text-sm hover:underline">
+                    <Link
+                        href={ROUTES.FORGOT_PASSWORD}
+                        className="text-primary -mt-1 self-center text-sm hover:underline"
+                    >
                         {t('forgotPassword')}
                     </Link>
                 </form>

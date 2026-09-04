@@ -29,7 +29,7 @@
 }
 
 .subtle:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--muted) 80%, var(--primary));
+    background: color-mix(in srgb, var(--muted) 92%, var(--primary));
 }
 
 .ghost {

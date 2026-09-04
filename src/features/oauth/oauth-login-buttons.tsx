@@ -123,8 +123,12 @@ export const OAuthLoginButtons: FC<OAuthLoginButtonsProps> = ({ phoneComponent }
 
     return (
         <>
-            <div className="mt-4 flex flex-col gap-2">
-                <p className="text-muted-foreground text-center text-xs">{t('orContinueWith')}</p>
+            <div className="mt-5 flex flex-col gap-3">
+                <div className="text-muted-foreground flex items-center gap-3 text-xs">
+                    <span className="bg-border h-px flex-1" />
+                    <span className="shrink-0 tracking-wide lowercase">{t('orContinueWith')}</span>
+                    <span className="bg-border h-px flex-1" />
+                </div>
                 <div className="flex flex-col gap-2">
                     {phoneComponent}
                     {enabledProviders.includes('google') && <GoogleLoginButton onSuccess={handleGoogleSuccess} />}

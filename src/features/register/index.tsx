@@ -30,9 +30,6 @@ const phoneRegisterSchema = registerSchema
     })
     .omit({ email: true, password: true })
 
-const modeSwitchClassName =
-    'text-primary mt-3 self-center text-sm transition-transform active:scale-[0.97]'
-
 const RegisterForm = () => {
     const t = useTranslations('auth')
     const locale = useLocale()
@@ -150,15 +147,18 @@ const RegisterForm = () => {
                 </form>
             )}
 
-            <button
-                type="button"
-                className={modeSwitchClassName}
-                onClick={() => setMode(mode === 'email' ? 'phone' : 'email')}
-            >
-                {mode === 'email' ? t('usePhone') : t('useEmail')}
-            </button>
-
-            <OAuthLoginButtons />
+            <OAuthLoginButtons
+                phoneComponent={
+                    <Button
+                        type="button"
+                        fullWidth
+                        variant="subtle"
+                        onClick={() => setMode(mode === 'email' ? 'phone' : 'email')}
+                    >
+                        {mode === 'email' ? t('usePhone') : t('useEmail')}
+                    </Button>
+                }
+            />
 
             <p className="text-muted-foreground mt-5 text-center text-sm">
                 {t('hasAccount')}{' '}

@@ -26,6 +26,11 @@
         border-color 150ms ease;
 }
 
+.wrap:hover .face {
+    background: #f7f8f8;
+    border-color: #c5c7c5;
+}
+
 .wrap:active .face {
     transform: scale(0.97);
 }
@@ -58,6 +63,12 @@
     background: #131314;
     color: #e3e3e3;
     box-shadow: none;
+}
+
+:global(html[data-mantine-color-scheme='dark']) .wrap:hover .face,
+:global(.dark) .wrap:hover .face {
+    background: #1b1b1c;
+    border-color: #a8aaa8;
 }
 
 @media (prefers-reduced-motion: reduce) {

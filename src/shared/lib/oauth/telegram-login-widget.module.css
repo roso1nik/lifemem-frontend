@@ -22,7 +22,7 @@
 }
 
 .telegram:hover:not(:disabled) {
-    background: #229ed9;
+    background: color-mix(in srgb, #2aabee 88%, #fff);
 }
 
 .telegram:active:not(:disabled) {
