@@ -10,6 +10,7 @@ import { LoginResponse } from '../use-login'
 import { useTranslations } from 'next-intl'
 import { useQueryClient } from '@tanstack/react-query'
 import { completeOAuthLogin } from '@/shared/lib/oauth'
+import { logLoginAttempt, logLoginError, logLoginSuccess } from '../log-login'
 
 export const googleAuthSchema = z.object({
     idToken: z.string().min(1),
@@ -31,8 +32,18 @@ export const useGoogleLogin = () => {
 
     return useMutation({
         mutationKey: [ApiQueryKeys.GOOGLE_LOGIN],
-        mutationFn: (data: GoogleAuthRequest) => googleLogin(data),
-        onSuccess: () => completeOAuthLogin(queryClient, router, t('success.login')),
-        onError: (error) => toast.error(getApiErrorMessage(error, t('errors.oauthLogin')))
+        mutationFn: (data: GoogleAuthRequest) => {
+            logLoginAttempt({ kind: 'oauth', method: 'google' })
+            return googleLogin(data)
+        },
+        onSuccess: () => {
+            logLoginSuccess({ kind: 'oauth', method: 'google' })
+            completeOAuthLogin(queryClient, router, t('success.login'))
+        },
+        onError: (error) => {
+            const reason = getApiErrorMessage(error, t('errors.oauthLogin'))
+            logLoginError({ kind: 'oauth', method: 'google' }, reason)
+            toast.error(reason)
+        }
     })
 }

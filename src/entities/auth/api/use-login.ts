@@ -9,6 +9,13 @@ import { ROUTES } from '@/shared/router'
 import { emailSchema } from '@/shared/types'
 import { User } from '@/entities/user/model'
 import { useTranslations } from 'next-intl'
+import {
+    logLoginAttempt,
+    logLoginCodeSent,
+    logLoginError,
+    logLoginSuccess,
+    resolveLoginIdentity
+} from './log-login'
 
 export interface LoginResponse {
     user: User
@@ -50,17 +57,31 @@ export const useLogin = () => {
 
     return useMutation({
         mutationKey: [ApiQueryKeys.LOGIN],
-        mutationFn: (data: LoginRequest) => login(data),
-        onSuccess: (response) => {
+        mutationFn: (data: LoginRequest) => {
+            const identity = resolveLoginIdentity(data)
+            if (identity) logLoginAttempt(identity)
+            return login(data)
+        },
+        onSuccess: (response, variables) => {
             const data = response.data
+            const identity = resolveLoginIdentity(variables)
+
             if (isPhoneCodeResponse(data)) {
+                if (identity?.kind === 'phone') logLoginCodeSent(identity)
                 toast.success(data.message || t('codeSent'))
                 return
             }
+
+            if (identity) logLoginSuccess(identity)
             queryClient.invalidateQueries({ queryKey: [ApiQueryKeys.GET_SELF] })
             toast.success(t('success.login'))
             router.replace(ROUTES.HOME_PAGE)
         },
-        onError: (error) => toast.error(getApiErrorMessage(error, t('errors.login')))
+        onError: (error, variables) => {
+            const identity = resolveLoginIdentity(variables)
+            const reason = getApiErrorMessage(error, t('errors.login'))
+            if (identity) logLoginError(identity, reason)
+            toast.error(reason)
+        }
     })
 }

@@ -9,6 +9,7 @@ import { createUserSettingsSchema } from '@/entities/user/api/use-register'
 import { LoginResponse } from '../use-login'
 import { useTranslations } from 'next-intl'
 import { completeOAuthLogin } from '@/shared/lib/oauth'
+import { logLoginAttempt, logLoginError, logLoginSuccess } from '../log-login'
 
 export const appleAuthSchema = z.object({
     idToken: z.string().min(1),
@@ -30,8 +31,18 @@ export const useAppleLogin = () => {
 
     return useMutation({
         mutationKey: [ApiQueryKeys.APPLE_LOGIN],
-        mutationFn: (data: AppleAuthRequest) => appleLogin(data),
-        onSuccess: () => completeOAuthLogin(queryClient, router, t('success.login')),
-        onError: (error) => toast.error(getApiErrorMessage(error, t('errors.oauthLogin')))
+        mutationFn: (data: AppleAuthRequest) => {
+            logLoginAttempt({ kind: 'oauth', method: 'apple' })
+            return appleLogin(data)
+        },
+        onSuccess: () => {
+            logLoginSuccess({ kind: 'oauth', method: 'apple' })
+            completeOAuthLogin(queryClient, router, t('success.login'))
+        },
+        onError: (error) => {
+            const reason = getApiErrorMessage(error, t('errors.oauthLogin'))
+            logLoginError({ kind: 'oauth', method: 'apple' }, reason)
+            toast.error(reason)
+        }
     })
 }

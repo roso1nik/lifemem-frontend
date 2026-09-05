@@ -8,6 +8,7 @@ import { useRouter } from '@/i18n/navigation'
 import { ROUTES } from '@/shared/router'
 import { LoginResponse } from './use-login'
 import { useTranslations } from 'next-intl'
+import { logLoginAttempt, logLoginError, logLoginSuccess } from './log-login'
 
 export const confirmPhoneLoginSchema = z.object({
     phone: z.string().min(1),
@@ -29,12 +30,20 @@ export const useConfirmPhoneLogin = () => {
 
     return useMutation({
         mutationKey: [ApiQueryKeys.CONFIRM_PHONE_LOGIN],
-        mutationFn: (data: ConfirmPhoneLoginRequest) => confirmPhoneLogin(data),
-        onSuccess: () => {
+        mutationFn: (data: ConfirmPhoneLoginRequest) => {
+            logLoginAttempt({ kind: 'phone', phone: data.phone })
+            return confirmPhoneLogin(data)
+        },
+        onSuccess: (_response, variables) => {
+            logLoginSuccess({ kind: 'phone', phone: variables.phone })
             queryClient.invalidateQueries({ queryKey: [ApiQueryKeys.GET_SELF] })
             toast.success(t('success.login'))
             router.replace(ROUTES.HOME_PAGE)
         },
-        onError: (error) => toast.error(getApiErrorMessage(error, t('errors.confirmCode')))
+        onError: (error, variables) => {
+            const reason = getApiErrorMessage(error, t('errors.confirmCode'))
+            logLoginError({ kind: 'phone', phone: variables.phone }, reason)
+            toast.error(reason)
+        }
     })
 }
