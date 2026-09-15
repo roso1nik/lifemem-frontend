@@ -4,11 +4,10 @@ import { useCallback, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { MapPin } from 'lucide-react'
-import { Entry, getEntryPreviewText } from '@/entities/entry/model'
-import { EntryCard } from '@/entities/entry/ui/entry-card'
+import { FileIcon, MapPin, Mic } from 'lucide-react'
 import { Surface } from '@/shared/ui'
-import { getLandingNotes, notePhoto, type LandingNoteId } from './mock'
+import { dayjsInstance, cn } from '@/shared/utils'
+import { getLandingDemoNotes, type LandingNote, type LandingNoteId } from './mock'
 import { graphNodeForNote, MemoryGraph } from './memory-graph'
 
 export const ProductStage = () => {
@@ -16,7 +15,7 @@ export const ProductStage = () => {
     const reduce = useReducedMotion()
     const notes = useMemo(
         () =>
-            getLandingNotes({
+            getLandingDemoNotes({
                 park: t('notes.park'),
                 evening: t('notes.evening'),
                 kyoto: t('notes.kyoto')
@@ -24,11 +23,10 @@ export const ProductStage = () => {
         [t]
     )
     const [selectedId, setSelectedId] = useState<LandingNoteId>('park')
-    const onSelect = useCallback((entry: Entry) => {
-        setSelectedId(entry.id as LandingNoteId)
+    const onSelect = useCallback((note: LandingNote) => {
+        setSelectedId(note.id)
     }, [])
     const selected = notes.find((note) => note.id === selectedId) ?? notes[0]
-    const photo = notePhoto(selected)
     const photoAlt = selected.id === 'evening' ? t('stage.eveningAlt') : t('stage.parkAlt')
 
     return (
@@ -45,17 +43,43 @@ export const ProductStage = () => {
                 <ul className="border-hairline divide-hairline divide-y sm:border-r">
                     {notes.map((note) => (
                         <li key={note.id}>
-                            <EntryCard
-                                entry={note}
-                                selected={note.id === selectedId}
-                                onSelect={onSelect}
-                            />
+                            <button
+                                type="button"
+                                onClick={() => onSelect(note)}
+                                className={cn(
+                                    'w-full cursor-pointer px-3 py-2.5 text-left transition-colors',
+                                    'hover:bg-sidebar-accent active:scale-[0.99]',
+                                    note.id === selectedId && 'bg-sidebar-accent'
+                                )}
+                            >
+                                <p className="text-foreground line-clamp-2 text-sm leading-snug">{note.text}</p>
+                                <div className="mt-1.5 flex items-center gap-2">
+                                    <span className="text-muted-foreground text-[11px] tabular-nums">
+                                        {dayjsInstance(note.createdAt).format('HH:mm')}
+                                    </span>
+                                    {note.photo && (
+                                        <span className="text-sage">
+                                            <FileIcon size={12} />
+                                        </span>
+                                    )}
+                                    {note.hasVoice && (
+                                        <span className="text-sage">
+                                            <Mic size={12} />
+                                        </span>
+                                    )}
+                                    {note.place && (
+                                        <span className="text-sage">
+                                            <MapPin size={12} />
+                                        </span>
+                                    )}
+                                </div>
+                            </button>
                         </li>
                     ))}
                 </ul>
                 <div className="flex min-h-[220px] flex-col">
                     <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                        {photo ? (
+                        {selected.photo ? (
                             <motion.div
                                 key={selected.id}
                                 className="absolute inset-0"
@@ -64,7 +88,7 @@ export const ProductStage = () => {
                                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                             >
                                 <Image
-                                    src={photo}
+                                    src={selected.photo}
                                     alt={photoAlt}
                                     fill
                                     sizes="(min-width: 1024px) 320px, 90vw"
@@ -79,9 +103,7 @@ export const ProductStage = () => {
                             </div>
                         )}
                     </div>
-                    <p className="text-foreground line-clamp-3 px-4 pt-3 text-sm leading-snug">
-                        {getEntryPreviewText(selected)}
-                    </p>
+                    <p className="text-foreground line-clamp-3 px-4 pt-3 text-sm leading-snug">{selected.text}</p>
                     <div className="mt-auto px-2 pt-1 pb-2">
                         <MemoryGraph compact activeId={graphNodeForNote(selected.id)} className="max-h-28" />
                     </div>

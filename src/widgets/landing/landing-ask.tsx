@@ -3,18 +3,16 @@
 import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { Search, Sparkles } from 'lucide-react'
-import { getEntryPreviewText } from '@/entities/entry/model'
-import { EntryCard } from '@/entities/entry/ui/entry-card'
 import { Surface } from '@/shared/ui'
 import { dayjsInstance } from '@/shared/utils'
-import { getLandingNotes } from './mock'
+import { getLandingDemoNotes } from './mock'
 import { Reveal } from './reveal'
 
 export const LandingAsk = () => {
     const t = useTranslations('landing')
     const notes = useMemo(
         () =>
-            getLandingNotes({
+            getLandingDemoNotes({
                 park: t('notes.park'),
                 evening: t('notes.evening'),
                 kyoto: t('notes.kyoto')
@@ -48,8 +46,11 @@ export const LandingAsk = () => {
                             </div>
                             <ul className="divide-hairline divide-y">
                                 {results.map((note) => (
-                                    <li key={note.id}>
-                                        <EntryCard entry={note} />
+                                    <li key={note.id} className="px-3 py-2.5">
+                                        <p className="text-foreground line-clamp-2 text-sm leading-snug">{note.text}</p>
+                                        <p className="text-muted-foreground mt-1.5 text-[11px] tabular-nums">
+                                            {dayjsInstance(note.createdAt).format('HH:mm')}
+                                        </p>
                                     </li>
                                 ))}
                             </ul>
@@ -65,9 +66,7 @@ export const LandingAsk = () => {
                             {source && (
                                 <footer className="border-hairline mt-7 border-t pt-4">
                                     <p className="text-sage text-xs font-medium tracking-tight">{t('ask.fromNotes')}</p>
-                                    <p className="text-muted-foreground mt-2 text-sm leading-snug">
-                                        {getEntryPreviewText(source)}
-                                    </p>
+                                    <p className="text-muted-foreground mt-2 text-sm leading-snug">{source.text}</p>
                                     <p className="text-muted-foreground mt-1 text-[11px] tabular-nums">
                                         {dayjsInstance(source.createdAt).format('D MMMM, HH:mm')}
                                     </p>

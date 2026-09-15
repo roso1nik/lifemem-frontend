@@ -26,9 +26,8 @@ export const useUpdateEntry = () => {
         mutationKey: [ApiQueryKeys.UPDATE_ENTRY],
         mutationFn: ({ id, data }: { id: string; data: UpdateEntryRequest }) => updateEntry(id, data),
         onSuccess: (response) => {
-            queryClient.setQueryData<Entry[]>([ApiQueryKeys.ENTRIES], (prev = []) =>
-                prev.map((entry) => (entry.id === response.data.id ? response.data : entry))
-            )
+            queryClient.invalidateQueries({ queryKey: [ApiQueryKeys.ENTRY_BY_ID, response.data.id] })
+            queryClient.invalidateQueries({ queryKey: [ApiQueryKeys.ENTRY_SEARCH] })
             toast.success('Заметка обновлена')
         },
         onError: () => toast.error('Не удалось обновить заметку')

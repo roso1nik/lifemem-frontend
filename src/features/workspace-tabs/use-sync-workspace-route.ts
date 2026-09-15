@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { usePathname } from '@/i18n/navigation'
-import { useEntries, EMPTY_ENTRIES } from '@/entities/entry/api/use-entries'
+import { useGetEntry } from '@/entities/entry/api/use-get-entry'
 import { getEntryPreviewText } from '@/entities/entry/model'
 import { removeLocalePrefix } from '@/i18n/routing'
 import { matchWorkspacePath, useWorkspaceTabs } from './store'
@@ -11,20 +11,20 @@ import { matchWorkspacePath, useWorkspaceTabs } from './store'
 export const useSyncWorkspaceRoute = () => {
     const pathname = usePathname()
     const syncFromPath = useWorkspaceTabs((s) => s.syncFromPath)
-    const { data: entries = EMPTY_ENTRIES } = useEntries()
     const path = removeLocalePrefix(pathname)
+    const matched = useMemo(() => matchWorkspacePath(path), [path])
+    const noteId = matched?.kind === 'note' ? matched.noteId : null
+    const { data: entry } = useGetEntry(noteId)
 
     useEffect(() => {
-        const matched = matchWorkspacePath(path)
         if (!matched) return
 
         if (matched.kind === 'note') {
-            const entry = entries.find((item) => item.id === matched.noteId)
             const title = entry ? getEntryPreviewText(entry).slice(0, 28) : matched.noteId
             syncFromPath(path, title)
             return
         }
 
         syncFromPath(path)
-    }, [path, entries, syncFromPath])
+    }, [path, matched, entry, syncFromPath])
 }

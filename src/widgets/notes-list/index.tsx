@@ -1,19 +1,66 @@
 'use client'
 
-import { useEntriesGroupedByDay } from '@/entities/entry/api/use-entries'
-import { Entry, getEntryPreviewText } from '@/entities/entry/model'
-import { EntryCard } from '@/entities/entry/ui/entry-card'
+import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
+import { useSearchEntries } from '@/entities/entry/api/use-search-entries'
+import { EntrySearchItem } from '@/entities/entry/model'
+import { EntryCard } from '@/entities/entry/ui/entry-card'
+import { Loader } from '@/shared/ui'
+import { dayjsInstance } from '@/shared/utils'
+
+export type EntriesDayGroup = {
+    key: string
+    label: string
+    entries: EntrySearchItem[]
+}
+
+const groupEntriesByDay = (entries: EntrySearchItem[]): EntriesDayGroup[] => {
+    const sorted = [...entries].sort(
+        (a, b) => dayjsInstance(b.createdAt).valueOf() - dayjsInstance(a.createdAt).valueOf()
+    )
+    const map = new Map<string, EntrySearchItem[]>()
+
+    for (const entry of sorted) {
+        const key = dayjsInstance(entry.createdAt).format('YYYY-MM-DD')
+        const list = map.get(key) ?? []
+        list.push(entry)
+        map.set(key, list)
+    }
+
+    const today = dayjsInstance().format('YYYY-MM-DD')
+    const yesterday = dayjsInstance().subtract(1, 'day').format('YYYY-MM-DD')
+
+    return Array.from(map.entries()).map(([key, dayEntries]) => {
+        let label = dayjsInstance(key).format('D MMMM YYYY')
+        if (key === today) label = 'Сегодня'
+        else if (key === yesterday) label = 'Вчера'
+        return { key, label, entries: dayEntries }
+    })
+}
 
 interface NotesListProps {
-    onSelect?: (entry: Entry) => void
+    onSelect?: (entry: EntrySearchItem) => void
     selectedId?: string | null
 }
 
 export const NotesList = ({ onSelect, selectedId }: NotesListProps) => {
-    const groups = useEntriesGroupedByDay()
     const t = useTranslations('home')
+    const { data, isLoading, isError } = useSearchEntries()
+    const entries = data?.data ?? []
+    const groups = useMemo(() => groupEntriesByDay(entries), [entries])
+
+    if (isLoading) {
+        return <Loader variant="section" size="sm" />
+    }
+
+    if (isError) {
+        return (
+            <div className="min-h-0 flex-1 overflow-y-auto">
+                <p className="text-muted-foreground p-4 text-sm">{t('notesError')}</p>
+            </div>
+        )
+    }
 
     if (groups.length === 0) {
         return (
@@ -51,5 +98,3 @@ export const NotesList = ({ onSelect, selectedId }: NotesListProps) => {
         </div>
     )
 }
-
-export { getEntryPreviewText }

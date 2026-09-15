@@ -55,9 +55,11 @@ export const ApiQueryKeys = {
     LOGS_SEARCH: 'logs-search',
 
     // Entry
-    ENTRIES: 'entries',
+    ENTRY_SEARCH: 'entry-search',
+    ENTRY_BY_ID: 'entry-by-id',
     CREATE_ENTRY: 'create-entry',
     UPDATE_ENTRY: 'update-entry',
+    DELETE_ENTRY: 'delete-entry',
 
     // Person / Place
     PERSON_LIST: 'person-list',

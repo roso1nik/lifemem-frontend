@@ -1,26 +1,70 @@
-'use client'
-
+import z from 'zod'
+import { AxiosPromise } from 'axios'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
+import apiClient from '@/shared/api'
 import { ApiQueryKeys } from '@/shared/config'
-import { createEntry, CreateEntryRequest, CreateEntryResponse } from './create-entry-request'
-import { Entry } from '../model'
+import { EntryImage, EntryVoice } from '../model'
 
-const toEntryStub = (response: CreateEntryResponse, data: CreateEntryRequest): Entry => {
-    const now = new Date().toISOString()
+export const entryLocationSchema = z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+    locationLabel: z.string().optional()
+})
 
-    return {
-        id: response.id,
-        createdAt: now,
-        updatedAt: now,
-        title: data.title ?? '',
-        text: data.text ?? null,
-        isHasVoice: Boolean(data.voice),
-        images: response.images,
-        isReady: response.places.processing === 0,
-        peoples: [],
-        places: []
+export type EntryLocationInput = z.infer<typeof entryLocationSchema>
+
+export const createEntrySchema = z
+    .object({
+        title: z.string().optional(),
+        text: z.string().optional(),
+        voice: z.instanceof(Blob).optional(),
+        photos: z.array(z.instanceof(Blob)).max(5).optional(),
+        photoDescriptions: z.array(z.string().nullable()).optional(),
+        location: z.array(entryLocationSchema).max(3).optional(),
+        personIds: z.array(z.string().uuid()).optional(),
+        placeIds: z.array(z.string().uuid()).max(3).optional()
+    })
+    .refine((data) => Boolean(data.text?.trim()) || Boolean(data.voice), {
+        message: 'Укажите текст или голосовую заметку'
+    })
+
+export type CreateEntryRequest = z.infer<typeof createEntrySchema>
+
+export interface EntryPlacesResponse {
+    ready: number
+    processing: number
+}
+
+export interface CreateEntryResponse {
+    id: string
+    images: EntryImage[]
+    voice: EntryVoice | null
+    places: EntryPlacesResponse
+}
+
+const buildCreateEntryFormData = (data: CreateEntryRequest): FormData => {
+    const form = new FormData()
+
+    if (data.title) form.append('title', data.title)
+    if (data.text) form.append('text', data.text)
+    if (data.voice) form.append('voice', data.voice)
+    if (data.location?.length) form.append('location', JSON.stringify(data.location))
+    if (data.personIds?.length) form.append('personIds', JSON.stringify(data.personIds))
+    if (data.placeIds?.length) form.append('placeIds', JSON.stringify(data.placeIds))
+    if (data.photoDescriptions?.length) {
+        form.append('photoDescriptions', JSON.stringify(data.photoDescriptions))
     }
+    data.photos?.forEach((photo) => form.append('photos', photo))
+
+    return form
+}
+
+export const createEntry = async (data: CreateEntryRequest): AxiosPromise<CreateEntryResponse> => {
+    const res = await apiClient.post('/entry', buildCreateEntryFormData(data), {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    return res
 }
 
 export const useCreateEntry = () => {
@@ -29,11 +73,8 @@ export const useCreateEntry = () => {
     return useMutation({
         mutationKey: [ApiQueryKeys.CREATE_ENTRY],
         mutationFn: (data: CreateEntryRequest) => createEntry(data),
-        onSuccess: (response, variables) => {
-            queryClient.setQueryData<Entry[]>([ApiQueryKeys.ENTRIES], (prev = []) => [
-                toEntryStub(response.data, variables),
-                ...prev
-            ])
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: [ApiQueryKeys.ENTRY_SEARCH] })
         },
         onError: () => toast.error('Не удалось сохранить заметку')
     })
