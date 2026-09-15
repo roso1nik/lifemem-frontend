@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Modal } from '@mantine/core'
 import { Pencil } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -9,7 +9,13 @@ import { getEntryPreviewText } from '@/entities/entry/model'
 import { DeleteNoteButton } from '@/features/delete-note'
 import { EditNoteForm } from '@/features/edit-note'
 import { useWorkspaceNavigation } from '@/features/workspace-tabs'
-import { Button, Loader, Surface } from '@/shared/ui'
+import {
+    Button,
+    ImageGallery,
+    imageGalleryItemFromEntryPhoto,
+    Loader,
+    Surface
+} from '@/shared/ui'
 import { dayjsInstance } from '@/shared/utils'
 
 type NoteDetailProps = {
@@ -21,6 +27,15 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
     const { data: entry, isLoading, isError } = useGetEntry(noteId)
     const [editOpen, setEditOpen] = useState(false)
     const { goHome } = useWorkspaceNavigation()
+
+    const galleryItems = useMemo(() => {
+        if (!entry?.photos.length) return []
+        return entry.photos
+            .map((photo, index) =>
+                imageGalleryItemFromEntryPhoto(photo, t('note.photoAlt', { index: index + 1 }))
+            )
+            .filter((item): item is NonNullable<typeof item> => item != null)
+    }, [entry, t])
 
     if (isLoading) {
         return <Loader variant="section" />
@@ -36,6 +51,7 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
 
     const preview = getEntryPreviewText(entry)
     const body = entry.formattedText?.trim() || entry.text?.trim() || preview
+    const hasMeta = entry.voice || entry.people.length > 0 || entry.places.length > 0
 
     return (
         <div className="mx-auto flex w-full flex-1 flex-col px-4 py-8 md:w-4/5 md:px-6">
@@ -74,7 +90,11 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
                 </p>
             )}
 
-                            <Surface className="mt-6 p-5">
+            {galleryItems.length > 0 && (
+                <ImageGallery className="mt-6" items={galleryItems} columns={3} />
+            )}
+
+            <Surface className="mt-6 p-5">
                 {entry.formattedTextFormat === 'html' ? (
                     <div
                         className="text-[15px] leading-relaxed"
@@ -86,16 +106,8 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
                     </p>
                 )}
 
-                {(entry.photos.length > 0 || entry.voice || entry.people.length > 0 || entry.places.length > 0) && (
+                {hasMeta && (
                     <div className="border-hairline mt-4 flex flex-wrap gap-2 border-t pt-4">
-                        {entry.photos.map((image) => (
-                            <span
-                                key={image.id}
-                                className="bg-muted text-muted-foreground rounded-md px-2.5 py-1 text-xs"
-                            >
-                                {image.url || image.fileId}
-                            </span>
-                        ))}
                         {entry.voice && (
                             <span className="bg-muted text-muted-foreground rounded-md px-2.5 py-1 text-xs">
                                 {t('note.voice')}

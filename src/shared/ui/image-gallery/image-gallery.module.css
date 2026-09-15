@@ -1,0 +1,96 @@
+.root {
+    width: 100%;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.gridSingle {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+    .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .cols2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cols4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .gridSingle {
+        grid-template-columns: minmax(0, 1fr);
+        max-width: 420px;
+    }
+}
+
+.thumb {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    padding: 0;
+    aspect-ratio: 1;
+    border-radius: var(--radius-card, 14px);
+    background: var(--muted);
+    cursor: pointer;
+    transition:
+        transform 100ms ease-out,
+        box-shadow 150ms ease,
+        border-color 150ms ease;
+}
+
+.gridSingle .thumb {
+    aspect-ratio: 4 / 3;
+}
+
+.thumb:hover {
+    border-color: color-mix(in srgb, var(--primary) 35%, var(--hairline));
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.thumb:active {
+    transform: scale(var(--press-scale, 0.97));
+}
+
+.thumb:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.badge {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    border-radius: 999px;
+    border: 1px solid var(--hairline);
+    background: color-mix(in srgb, var(--surface-frost) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--muted-foreground);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    padding: 5px 8px;
+    pointer-events: none;
+}

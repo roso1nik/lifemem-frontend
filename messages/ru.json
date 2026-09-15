@@ -1,6 +1,15 @@
 {
     "common": {
-        "loading": "Загрузка…"
+        "loading": "Загрузка…",
+        "gallery": {
+            "label": "Фотографии",
+            "open": "Открыть фото {index} из {total}",
+            "next": "Следующее",
+            "previous": "Предыдущее",
+            "close": "Закрыть",
+            "zoomIn": "Увеличить",
+            "zoomOut": "Уменьшить"
+        }
     },
     "auth": {
         "login": "Вход",
@@ -103,6 +112,7 @@
             "deleteTitle": "Удалить заметку?",
             "deleteConfirm": "Заметка будет скрыта. Это действие нельзя отменить из приложения.",
             "voice": "Голос",
+            "photoAlt": "Фото {index}",
             "processing": "Обработка {done}/{total}"
         },
         "hintFile": "Файл или фото",

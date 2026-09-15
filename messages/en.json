@@ -1,6 +1,15 @@
 {
     "common": {
-        "loading": "Loading…"
+        "loading": "Loading…",
+        "gallery": {
+            "label": "Photos",
+            "open": "Open photo {index} of {total}",
+            "next": "Next",
+            "previous": "Previous",
+            "close": "Close",
+            "zoomIn": "Zoom in",
+            "zoomOut": "Zoom out"
+        }
     },
     "auth": {
         "login": "Sign in",
@@ -103,6 +112,7 @@
             "deleteTitle": "Delete note?",
             "deleteConfirm": "The note will be hidden. This can’t be undone from the app.",
             "voice": "Voice",
+            "photoAlt": "Photo {index}",
             "processing": "Processing {done}/{total}"
         },
         "hintFile": "File or photo",
