@@ -57,5 +57,9 @@ export const ApiQueryKeys = {
     // Entry
     ENTRIES: 'entries',
     CREATE_ENTRY: 'create-entry',
-    UPDATE_ENTRY: 'update-entry'
+    UPDATE_ENTRY: 'update-entry',
+
+    // Person / Place
+    PERSON_LIST: 'person-list',
+    PLACE_LIST: 'place-list'
 } as const

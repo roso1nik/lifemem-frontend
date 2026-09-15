@@ -1,4 +1,7 @@
 {
+    "common": {
+        "loading": "Loading…"
+    },
     "auth": {
         "login": "Sign in",
         "register": "Sign up",
@@ -127,7 +130,19 @@
         "sectionGraphBody": "A living graph of connections across everything you saved.",
         "sectionMapBody": "A map and list of places from geo tags and mentions.",
         "sectionProfileBody": "Account settings and personal details.",
-        "sectionArchiveBody": "Older and hidden notes — when you want to look back.",
+        "sectionArchiveBody": "People and places from your notes — when you want to look back.",
+        "archive": {
+            "people": "People",
+            "places": "Places",
+            "searchPeople": "Find a person…",
+            "searchPlaces": "Find a place…",
+            "emptyPeople": "No people yet",
+            "emptyPlaces": "No places yet",
+            "loadMore": "Load more",
+            "loading": "Loading…",
+            "error": "Couldn’t load the list",
+            "autodetected": "Auto"
+        },
         "searchLabel": "Search",
         "searchPlaceholder": "Search or ask AI…",
         "searchSoon": "Search and AI coming soon",

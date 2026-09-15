@@ -1,4 +1,7 @@
 {
+    "common": {
+        "loading": "Загрузка…"
+    },
     "auth": {
         "login": "Вход",
         "register": "Регистрация",
@@ -127,7 +130,19 @@
         "sectionGraphBody": "Здесь появится живой граф связей между всем, что вы сохранили.",
         "sectionMapBody": "Карта и список мест из геометок и упоминаний.",
         "sectionProfileBody": "Настройки аккаунта и личные данные.",
-        "sectionArchiveBody": "Старые и скрытые заметки — когда понадобится оглянуться назад.",
+        "sectionArchiveBody": "Люди и места из ваших записей — чтобы оглянуться назад.",
+        "archive": {
+            "people": "Люди",
+            "places": "Места",
+            "searchPeople": "Найти человека…",
+            "searchPlaces": "Найти место…",
+            "emptyPeople": "Пока нет людей",
+            "emptyPlaces": "Пока нет мест",
+            "loadMore": "Ещё",
+            "loading": "Загрузка…",
+            "error": "Не удалось загрузить список",
+            "autodetected": "Авто"
+        },
         "searchLabel": "Поиск",
         "searchPlaceholder": "Найти или спросить ИИ…",
         "searchSoon": "Поиск и ИИ скоро подключим",

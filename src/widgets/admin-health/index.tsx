@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { useHealthCheck } from '@/entities/health/api/use-health-check'
 import { HealthServiceStatus } from '@/entities/health/model'
-import { Button, Surface } from '@/shared/ui'
+import { Button, Loader, Surface } from '@/shared/ui'
 import { cn } from '@/shared/utils'
 
 export const AdminHealth = () => {
@@ -19,7 +19,7 @@ export const AdminHealth = () => {
                 </Button>
             </div>
 
-            {isLoading && <p className="text-muted-foreground text-sm">{t('loading')}</p>}
+            {isLoading && <Loader variant="section" size="sm" />}
             {isError && <p className="text-sm text-red-600">{t('error')}</p>}
 
             <div className="flex flex-col gap-2">

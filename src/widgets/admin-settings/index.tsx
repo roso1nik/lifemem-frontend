@@ -9,7 +9,7 @@ import {
     type ServiceSettingsUpdateRequest
 } from '@/entities/service-settings/api/use-service-settings'
 import type { AuthMethod, AuthMethodsSettings, ModelProvider, ModelsSettings } from '@/entities/service-settings/model'
-import { Button, SegmentedControl, Surface, TextInput } from '@/shared/ui'
+import { Button, Loader, SegmentedControl, Surface, TextInput } from '@/shared/ui'
 
 const AUTH_KEYS: (keyof AuthMethodsSettings)[] = ['email', 'freshCall', 'google', 'apple', 'telegram']
 
@@ -115,7 +115,7 @@ export const AdminServiceSettings = () => {
         update(payload)
     }
 
-    if (isLoading) return <p className="text-muted-foreground text-sm">{t('loading')}</p>
+    if (isLoading) return <Loader variant="section" size="sm" />
     if (isError || !authMethods) return <p className="text-sm text-red-600">{t('error')}</p>
 
     return (
