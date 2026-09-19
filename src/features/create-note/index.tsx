@@ -1,7 +1,7 @@
 'use client'
 
 import { useCreateEntry } from '@/entities/entry/api/use-create-entry'
-import { EntryLocationInput } from '@/entities/entry/api/create-entry-request'
+import { EntryLocationInput } from '@/entities/entry/api/use-create-entry'
 import { IconButton, RichTextEditor, Surface, isEmptyHtml } from '@/shared/ui'
 import { Menu, Tooltip } from '@mantine/core'
 import { ArrowUp, FileIcon, MapPin, Mic, Paperclip, X } from 'lucide-react'

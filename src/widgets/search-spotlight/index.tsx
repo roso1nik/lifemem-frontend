@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Spotlight, type SpotlightActionData, spotlight } from '@mantine/spotlight'
+import { useDebouncedValue } from '@mantine/hooks'
 import {
     Archive,
     GitBranch,
@@ -13,7 +14,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
-import { useEntries } from '@/entities/entry/api/use-entries'
+import { useSearchEntries } from '@/entities/entry/api/use-search-entries'
 import { getEntryPreviewText } from '@/entities/entry/model'
 import { useWorkspaceNavigation } from '@/features/workspace-tabs'
 
@@ -21,8 +22,18 @@ export const openSearchSpotlight = () => spotlight.open()
 
 export const SearchSpotlight = () => {
     const t = useTranslations('home')
-    const { data: entries = [] } = useEntries()
     const { goHome, goNote, goSection } = useWorkspaceNavigation()
+    const { data } = useSearchEntries()
+    const [query, setQuery] = useState('')
+    const [debouncedQuery] = useDebouncedValue(query.trim().toLowerCase(), 200)
+
+    const notes = useMemo(() => {
+        const entries = data?.data ?? []
+        if (!debouncedQuery) return entries.slice(0, 8)
+        return entries
+            .filter((entry) => getEntryPreviewText(entry).toLowerCase().includes(debouncedQuery))
+            .slice(0, 8)
+    }, [data, debouncedQuery])
 
     const actions = useMemo<(SpotlightActionData | { group: string; actions: SpotlightActionData[] })[]>(
         () => [
@@ -68,7 +79,7 @@ export const SearchSpotlight = () => {
             },
             {
                 group: t('spotlight.groupNotes'),
-                actions: entries.map((entry) => {
+                actions: notes.map((entry) => {
                     const preview = getEntryPreviewText(entry)
                     return {
                         id: `note-${entry.id}`,
@@ -96,7 +107,7 @@ export const SearchSpotlight = () => {
                 ]
             }
         ],
-        [entries, goHome, goNote, goSection, t]
+        [notes, goHome, goNote, goSection, t]
     )
 
     return (
@@ -105,7 +116,7 @@ export const SearchSpotlight = () => {
             shortcut={['mod + K', 'mod + P']}
             nothingFound={t('spotlight.empty')}
             highlightQuery
-            limit={8}
+            limit={12}
             scrollable
             maxHeight={360}
             radius="lg"
@@ -113,6 +124,7 @@ export const SearchSpotlight = () => {
                 backgroundOpacity: 0.35,
                 blur: 8
             }}
+            onQueryChange={setQuery}
             searchProps={{
                 leftSection: <Search size={18} strokeWidth={2} />,
                 rightSection: (

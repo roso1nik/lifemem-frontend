@@ -1,13 +1,13 @@
 'use client'
 
-import { Entry, getEntryAttachmentCount, getEntryPreviewText } from '@/entities/entry/model'
+import { EntrySearchItem, getEntryAttachmentCount, getEntryPreviewText } from '@/entities/entry/model'
 import { FileIcon, MapPin, Mic } from 'lucide-react'
 import { dayjsInstance, cn } from '@/shared/utils'
 
 export type EntryCardProps = {
-    entry: Entry
+    entry: EntrySearchItem
     selected?: boolean
-    onSelect?: (entry: Entry) => void
+    onSelect?: (entry: EntrySearchItem) => void
 }
 
 export const EntryCard = ({ entry, selected, onSelect }: EntryCardProps) => {
@@ -30,21 +30,26 @@ export const EntryCard = ({ entry, selected, onSelect }: EntryCardProps) => {
                 </span>
                 {attachmentCount > 0 && (
                     <span className="text-muted-foreground flex items-center gap-1">
-                        {entry.images.slice(0, 2).map((image) => (
-                            <span key={image.id} title={image.url} className="text-sage">
+                        {entry.photoCount > 0 && (
+                            <span className="text-sage">
                                 <FileIcon size={12} />
                             </span>
-                        ))}
+                        )}
                         {entry.isHasVoice && (
                             <span className="text-sage">
                                 <Mic size={12} />
                             </span>
                         )}
-                        {entry.places.length > 0 && (
+                        {entry.placesCount > 0 && (
                             <span className="text-sage">
                                 <MapPin size={12} />
                             </span>
                         )}
+                    </span>
+                )}
+                {!entry.isReady && (
+                    <span className="text-muted-foreground text-[11px]">
+                        {entry.processingStatus.done}/{entry.processingStatus.total}
                     </span>
                 )}
             </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useGetUserSettings, useUpdateUserSettings } from '@/entities/user-settings/api/use-user-settings'
-import { Button, SegmentedControl, Surface } from '@/shared/ui'
+import { Button, Loader, SegmentedControl, Surface } from '@/shared/ui'
 import { Switch } from '@mantine/core'
 import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from '@/i18n/navigation'
@@ -40,7 +40,7 @@ export const ProfileUserSettings = () => {
     }
 
     if (isLoading) {
-        return <p className="text-muted-foreground text-sm">{t('loading')}</p>
+        return <Loader variant="section" size="sm" />
     }
 
     return (

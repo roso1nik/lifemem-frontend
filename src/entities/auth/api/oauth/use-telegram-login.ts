@@ -9,6 +9,7 @@ import { createUserSettingsSchema } from '@/entities/user/api/use-register'
 import { LoginResponse } from '../use-login'
 import { useTranslations } from 'next-intl'
 import { completeOAuthLogin } from '@/shared/lib/oauth'
+import { logLoginAttempt, logLoginError, logLoginSuccess } from '../log-login'
 
 export const telegramLoginDataSchema = z.object({
     id: z.number(),
@@ -42,8 +43,18 @@ export const useTelegramLogin = () => {
 
     return useMutation({
         mutationKey: [ApiQueryKeys.TELEGRAM_LOGIN],
-        mutationFn: (data: TelegramAuthRequest) => telegramLogin(data),
-        onSuccess: () => completeOAuthLogin(queryClient, router, t('success.login')),
-        onError: (error) => toast.error(getApiErrorMessage(error, t('errors.oauthLogin')))
+        mutationFn: (data: TelegramAuthRequest) => {
+            logLoginAttempt({ kind: 'oauth', method: 'telegram' })
+            return telegramLogin(data)
+        },
+        onSuccess: () => {
+            logLoginSuccess({ kind: 'oauth', method: 'telegram' })
+            completeOAuthLogin(queryClient, router, t('success.login'))
+        },
+        onError: (error) => {
+            const reason = getApiErrorMessage(error, t('errors.oauthLogin'))
+            logLoginError({ kind: 'oauth', method: 'telegram' }, reason)
+            toast.error(reason)
+        }
     })
 }

@@ -1,4 +1,4 @@
-import { Entry } from '@/entities/entry/model'
+import type { EntrySearchItem } from '@/entities/entry/model'
 
 export const LANDING_PHOTOS = {
     park: '/landing/park-walk.png',
@@ -19,72 +19,56 @@ export const CAPTURE_CAROUSEL_PHOTOS = [
 
 export type LandingNoteId = 'park' | 'evening' | 'cafe'
 
+export type LandingNote = {
+    id: LandingNoteId
+    text: string
+    createdAt: string
+    photo?: string
+    place?: string
+    hasVoice?: boolean
+}
+
 type NoteCopy = Record<LandingNoteId, string>
 
-export const getLandingNotes = (content: NoteCopy): Entry[] => [
+const LANDING_PROCESSING: EntrySearchItem['processingStatus'] = { done: 1, total: 1, error: 0 }
+
+export const landingNoteToSearchItem = (note: LandingNote): EntrySearchItem => ({
+    id: note.id,
+    title: '',
+    text: note.text,
+    formattedText: null,
+    formattedTextFormat: null,
+    createdAt: note.createdAt,
+    isHasVoice: note.hasVoice ?? false,
+    photoCount: note.photo ? 1 : 0,
+    isReady: true,
+    processingStatus: LANDING_PROCESSING,
+    peopleCount: 0,
+    placesCount: note.place ? 1 : 0
+})
+
+export const notePhoto = (note: LandingNote) => note.photo
+
+export const getLandingDemoNotes = (content: NoteCopy): LandingNote[] => [
     {
         id: 'park',
-        createdAt: '2026-08-22T15:20:00.000Z',
-        updatedAt: '2026-08-22T15:20:00.000Z',
-        title: '',
         text: content.park,
-        isHasVoice: true,
-        isReady: true,
-        images: [
-            {
-                id: 'park-photo',
-                createdAt: '2026-08-22T15:20:00.000Z',
-                updatedAt: '2026-08-22T15:20:00.000Z',
-                fileId: 'park-photo',
-                description: null,
-                url: LANDING_PHOTOS.park
-            }
-        ],
-        peoples: [],
-        places: [{ id: 'park-geo', name: 'Park' }]
+        createdAt: '2026-08-22T15:20:00.000Z',
+        photo: LANDING_PHOTOS.park,
+        place: 'Park',
+        hasVoice: true
     },
     {
         id: 'evening',
-        createdAt: '2026-08-21T21:04:00.000Z',
-        updatedAt: '2026-08-21T21:04:00.000Z',
-        title: '',
         text: content.evening,
-        isHasVoice: false,
-        isReady: true,
-        images: [
-            {
-                id: 'evening-photo',
-                createdAt: '2026-08-21T21:04:00.000Z',
-                updatedAt: '2026-08-21T21:04:00.000Z',
-                fileId: 'evening-photo',
-                description: null,
-                url: LANDING_PHOTOS.evening
-            }
-        ],
-        peoples: [],
-        places: []
+        createdAt: '2026-08-21T21:04:00.000Z',
+        photo: LANDING_PHOTOS.evening
     },
     {
         id: 'cafe',
-        createdAt: '2026-08-18T11:12:00.000Z',
-        updatedAt: '2026-08-18T11:12:00.000Z',
-        title: '',
         text: content.cafe,
-        isHasVoice: false,
-        isReady: true,
-        images: [
-            {
-                id: 'cafe-photo',
-                createdAt: '2026-08-18T11:12:00.000Z',
-                updatedAt: '2026-08-18T11:12:00.000Z',
-                fileId: 'cafe-photo',
-                description: null,
-                url: LANDING_PHOTOS.cafe
-            }
-        ],
-        peoples: [],
-        places: [{ id: 'cafe-geo', name: 'Cafe' }]
+        createdAt: '2026-08-18T11:12:00.000Z',
+        photo: LANDING_PHOTOS.cafe,
+        place: 'Cafe'
     }
 ]
-
-export const notePhoto = (entry: Entry): string | undefined => entry.images[0]?.url

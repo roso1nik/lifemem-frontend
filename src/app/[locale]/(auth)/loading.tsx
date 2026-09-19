@@ -1,5 +1,7 @@
-import { LoadingPageNext } from '@/shared/ui'
+import { getTranslations } from 'next-intl/server'
+import { Loader } from '@/shared/ui'
 
-export default function Loading() {
-    return <LoadingPageNext />
+export default async function Loading() {
+    const t = await getTranslations('common')
+    return <Loader variant="page" label={t('loading')} />
 }

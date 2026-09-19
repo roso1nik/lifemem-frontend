@@ -1,4 +1,4 @@
-import { SectionPlaceholder } from '@/widgets/section-placeholder'
+import { ArchivePage } from '@/widgets/archive'
 import { getAppSectionMetadata } from '@/shared/config/seo'
 
 type PageProps = {
@@ -10,6 +10,6 @@ export async function generateMetadata({ params }: PageProps) {
     return getAppSectionMetadata(locale, 'archive')
 }
 
-export default function ArchivePage() {
-    return <SectionPlaceholder section="archive" />
+export default function Page() {
+    return <ArchivePage />
 }

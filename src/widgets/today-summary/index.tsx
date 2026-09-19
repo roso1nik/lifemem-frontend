@@ -1,11 +1,12 @@
 'use client'
 
-import { useTodayEntriesCount } from '@/entities/entry/api/use-entries'
-import { dayjsInstance, cn } from '@/shared/utils'
-import { Surface } from '@/shared/ui'
+import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import { GitBranch, Lightbulb, MapPinned, Network, Sparkles } from 'lucide-react'
+import { useSearchEntries } from '@/entities/entry/api/use-search-entries'
+import { Surface } from '@/shared/ui'
+import { dayjsInstance, cn } from '@/shared/utils'
 
 const insights = [
     {
@@ -32,8 +33,16 @@ const insights = [
 
 export const TodaySummary = () => {
     const t = useTranslations('home')
-    const count = useTodayEntriesCount()
+    const { data } = useSearchEntries()
     const today = dayjsInstance()
+
+    const count = useMemo(
+        () =>
+            (data?.data ?? []).filter((entry) =>
+                dayjsInstance(entry.createdAt).isSame(dayjsInstance(), 'day')
+            ).length,
+        [data]
+    )
 
     return (
         <motion.div
