@@ -2,10 +2,22 @@ import { Entry } from '@/entities/entry/model'
 
 export const LANDING_PHOTOS = {
     park: '/landing/park-walk.png',
-    evening: '/landing/evening-table.png'
+    evening: '/landing/evening-table.png',
+    cafe: '/landing/nodes/cafe.jpg',
+    place: '/landing/capture/place.jpg',
+    privacy: '/landing/privacy-shield.jpg',
+    askVisual: '/landing/ask-visual.jpg'
 } as const
 
-export type LandingNoteId = 'park' | 'evening' | 'kyoto'
+export const CAPTURE_CAROUSEL_PHOTOS = [
+    '/landing/capture/slide-1.jpg',
+    '/landing/capture/slide-2.jpg',
+    '/landing/capture/slide-3.jpg',
+    '/landing/capture/slide-4.jpg',
+    '/landing/capture/slide-5.jpg'
+] as const
+
+export type LandingNoteId = 'park' | 'evening' | 'cafe'
 
 type NoteCopy = Record<LandingNoteId, string>
 
@@ -53,16 +65,25 @@ export const getLandingNotes = (content: NoteCopy): Entry[] => [
         places: []
     },
     {
-        id: 'kyoto',
+        id: 'cafe',
         createdAt: '2026-08-18T11:12:00.000Z',
         updatedAt: '2026-08-18T11:12:00.000Z',
         title: '',
-        text: content.kyoto,
+        text: content.cafe,
         isHasVoice: false,
         isReady: true,
-        images: [],
+        images: [
+            {
+                id: 'cafe-photo',
+                createdAt: '2026-08-18T11:12:00.000Z',
+                updatedAt: '2026-08-18T11:12:00.000Z',
+                fileId: 'cafe-photo',
+                description: null,
+                url: LANDING_PHOTOS.cafe
+            }
+        ],
         peoples: [],
-        places: [{ id: 'kyoto-geo', name: 'Kyoto' }]
+        places: [{ id: 'cafe-geo', name: 'Cafe' }]
     }
 ]
 

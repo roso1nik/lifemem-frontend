@@ -318,85 +318,263 @@
         "loginDescription": "Sign in to Lifemem to continue your notes, graph, and places.",
         "registerTitle": "Create account",
         "registerDescription": "Create a Lifemem account to save notes and watch your life graph grow.",
-        "welcomeTitle": "Lifemem. Notes that connect your life",
-        "welcomeDescription": "Save notes, photos, places, and people. Lifemem builds a living graph of your life so you can find any moment later."
+        "welcomeTitle": "Lifemem — personal memory with a living graph",
+        "welcomeDescription": "Voice, photos, text, and places in one feed. A connection graph, semantic search, and answers from your entries."
     },
     "landing": {
         "skip": "Skip to content",
-        "getStarted": "Get started",
+        "getStarted": "Get started free",
         "signIn": "Sign in",
         "nav": {
+            "how": "How it works",
+            "capture": "Capture",
             "graph": "Graph",
-            "ask": "Ask",
+            "ask": "Search",
             "places": "Places",
+            "pricing": "Pricing",
             "privacy": "Privacy",
             "menu": "Open menu",
-            "close": "Close menu"
+            "close": "Close menu",
+            "getStartedShort": "Start",
+            "more": "More"
         },
         "hero": {
-            "title": "Your life, as notes.",
-            "sub": "Speak, shoot, or type. Lifemem links people, places, and notes into a graph you can search."
+            "eyebrow": "Memory that connects itself",
+            "titleLead": "Capture a moment —",
+            "titleAccent": "your graph and search already know the context",
+            "sub": "Voice, photos, and places in one feed. Lifemem finds what you mean and answers only from your notes — nothing invented.",
+            "proof": "300 free credits every month",
+            "ctaPrimary": "Start free",
+            "ctaSecondary": "See how it works",
+            "features": {
+                "voice": "Voice & text",
+                "graph": "Living graph",
+                "search": "Semantic search",
+                "private": "Your data"
+            }
+        },
+        "how": {
+            "kicker": "How it works",
+            "title": "From capture to answer in three steps",
+            "body": "No folders or tags — links grow from what you already saved.",
+            "stepLabel": "Step {step}",
+            "steps": {
+                "capture": {
+                    "title": "Capture",
+                    "body": "Voice, photo, place, or one line — one feed."
+                },
+                "connect": {
+                    "title": "Connects itself",
+                    "body": "People and places show up in the graph around each entry."
+                },
+                "ask": {
+                    "title": "Find or ask",
+                    "body": "Semantic search or answers built only from your notes."
+                }
+            }
         },
         "stage": {
             "today": "Today",
             "notesCount": "{count, plural, one {# note} other {# notes}}",
-            "parkAlt": "A quiet park path after rain, cool light through the trees.",
-            "eveningAlt": "An evening table by the window: a cup, a notebook, dusk outside."
+            "parkAlt": "A couple on a calm walk in the park, soft light.",
+            "eveningAlt": "A quiet evening by the window, dim room light.",
+            "cafeAlt": "Interior of a city café by the window."
         },
         "capture": {
-            "title": "Capture in the moment.",
-            "body": "Voice, a photo, a pin on the map, or a line of text. One tap is enough.",
+            "kicker": "Ways to capture",
+            "title": "Save it the way that fits",
+            "body": "One tap is enough: voice memo, photo, map pin, or a short line — all in one place.",
             "voice": "Voice",
-            "voiceHint": "Thirty seconds on a walk. Kept as audio, read as text.",
+            "voiceHint": "Dictate on the go — audio is kept, text is searchable.",
             "photo": "Photo",
+            "photoHint": "A picture adds context and sits in the feed with your note.",
+            "photoAlt": "A life moment captured on camera.",
             "place": "Place",
-            "placeHint": "The park, the kitchen, a street you forget the name of.",
+            "placeHint": "Park, café, home — a geo tag anchors the moment on the map.",
+            "placeAlt": "City street from above — geo tag metaphor.",
             "text": "Text",
-            "textHint": "A sentence is already a note."
+            "textHint": "One sentence is enough to start.",
+            "textSamples": ["Walk after the rain", "Pick up bread", "Project idea"]
         },
         "graph": {
-            "title": "A living graph of what you saved.",
-            "body": "People, places, and things link themselves. You do not file them.",
-            "caption": "Notes, people, and places drawn from a few days of capture."
+            "kicker": "Connection graph",
+            "title": "A map of your memory that grows on its own",
+            "body": "Each entry is a node. People and places link automatically — you see context around what matters.",
+            "caption": "Demo: a few days of entries — people, places, and notes linked together.",
+            "scenario": "Example: open “Walk” — see Dasha, the park, and an evening entry. Context without folders.",
+            "demoHint": "Demo: nodes highlight in turn — this is how context around an entry looks.",
+            "interactiveHint": "In the app you can open a node and explore connections",
+            "selectedNode": "Selected: {name}",
+            "legend": {
+                "note": {
+                    "title": "Entry",
+                    "body": "text, voice, or photo with a date"
+                },
+                "person": {
+                    "title": "Person",
+                    "body": "a name from a note or contact"
+                },
+                "place": {
+                    "title": "Place",
+                    "body": "geo tag or location name"
+                }
+            }
         },
         "ask": {
-            "title": "Ask the way you remember.",
-            "body": "Search finds the moment. Answers come only from your notes.",
-            "query": "walked with Dasha last summer",
-            "prompt": "When did I last walk with Dasha, and is it worth going again?",
-            "answer": "Saturday, after the rain. You wrote the park was almost empty and that you were glad she came. Weekend afternoons are when you two walk most. If you want that again, Saturday still fits.",
-            "fromNotes": "From your notes"
+            "kicker": "Search & answers",
+            "title": "Search by meaning or ask a question",
+            "body": "Semantic search finds notes from a phrase — no date or title needed. Question mode answers only from what was found.",
+            "modeSearch": "Semantic search",
+            "modeRag": "Question over notes",
+            "query": "walks with Dasha last summer",
+            "prompt": "When did we last walk with Dasha, and is it worth doing again?",
+            "answer": "Last Saturday, after the rain. You noted the park was almost empty and that you were glad she came. You usually walk together on weekend afternoons — Saturday would fit that mood again.",
+            "fromNotes": "Source — your note",
+            "visualAlt": "Workspace — a metaphor for searching your entries.",
+            "visualCaption": "Search surfaces fragments of memory — answers come from your notes.",
+            "resultsCount": "{count, plural, one {# result} other {# results}}",
+            "flowLabel": "next",
+            "questionLabel": "Your question",
+            "answerLabel": "Answer from notes"
         },
         "places": {
-            "title": "Places stay on the map.",
-            "body": "Geo tags and names of streets, parks, kitchens. Open a year and see where you were."
+            "kicker": "Memory map",
+            "title": "Places stay on the map",
+            "body": "Geo tags and location names accumulate on their own. Open a year or a route and see where you were and what you wrote there.",
+            "mapLabel": "Live map of entries",
+            "pins": {
+                "park": "Park",
+                "cafe": "Café",
+                "office": "Office",
+                "river": "Embankment",
+                "home": "Home"
+            },
+            "pinDetails": {
+                "park": "1 note · voice memo",
+                "cafe": "Meeting with Max",
+                "office": "2 notes this week",
+                "river": "Run · 1 photo",
+                "home": "Evening by the window"
+            },
+            "stats": {
+                "notes": { "value": "48", "label": "geo-tagged notes" },
+                "cities": { "value": "6", "label": "cities this year" },
+                "routes": { "value": "12", "label": "routes" }
+            },
+            "highlightsTitle": "What the map gives you",
+            "highlights": {
+                "timeline": "Day and trip timelines — see where a day started.",
+                "clusters": "Pins cluster into familiar places: home, work, café.",
+                "search": "Jump from the map to notes and semantic search."
+            }
+        },
+        "pricing": {
+            "kicker": "Plans",
+            "title": "A plan that matches how you capture",
+            "subtitle": "Credits go to voice, semantic search, and answers over your notes. Higher tiers mean more headroom and better processing.",
+            "perMonth": "/mo",
+            "billedYearlyPlaceholder": " ",
+            "recommended": "Recommended",
+            "billingMonthly": "Monthly",
+            "billingYearly": "Yearly",
+            "billingYearlyBadge": "−30%",
+            "billingToggleLabel": "Billing period",
+            "yearlyHint": "Pay yearly and save 30% compared to monthly billing.",
+            "swipeHint": "Swipe left for Pro and Max plans",
+            "priceRub": "${value}",
+            "billedYearly": "${value} billed yearly",
+            "plans": {
+                "free": {
+                    "name": "Free",
+                    "tagline": "Try without a card",
+                    "price": "$0",
+                    "cta": "Get started free",
+                    "features": {
+                        "credits": "300 credits per month",
+                        "models": "Lite models for STT and search",
+                        "processing": "Standard processing speed",
+                        "voiceFormat": "Voice transcript without auto-formatting",
+                        "core": "Graph, places, export",
+                        "yearly": "Monthly billing only"
+                    }
+                },
+                "pro": {
+                    "name": "Pro",
+                    "tagline": "Best for daily capture",
+                    "highlight": "Most popular",
+                    "cta": "Try Pro",
+                    "features": {
+                        "credits": "3,000 credits per month",
+                        "models": "Premium models for search and answers",
+                        "processing": "Faster, more accurate speech recognition",
+                        "voiceFormat": "Auto-formatting after voice memos",
+                        "core": "Everything in Free",
+                        "yearly": "Annual plan with 30% off"
+                    }
+                },
+                "max": {
+                    "name": "Max",
+                    "tagline": "Heavy use and top processing quality",
+                    "highlight": "Max limits",
+                    "cta": "Choose Max",
+                    "features": {
+                        "credits": "12,000 credits per month",
+                        "models": "Best models and priority queues",
+                        "processing": "Highest processing quality",
+                        "voiceFormat": "Auto-formatting and note structure",
+                        "core": "Everything in Pro plus early access",
+                        "yearly": "Annual plan with 30% off"
+                    }
+                }
+            }
         },
         "privacy": {
-            "title": "Your data is encrypted and stays yours.",
-            "body": "Notes are protected in transit and at rest. We do not sell them or send them to third parties.",
-            "indexTitle": "No third parties.",
-            "indexBody": "Your files and text are not handed to other companies for training or ads.",
-            "leaveTitle": "Leave with your files.",
-            "leaveBody": "Export or delete whenever you want."
+            "kicker": "Security",
+            "imageAlt": "Data protection: secure dashboard on a screen.",
+            "title": "Your entries stay under your control",
+            "body": "We do not sell your notes. Data is sent over a secure connection; smart features use models, but your content is not used for training or ads.",
+            "transportTitle": "Secure transfer",
+            "transportBody": "The site and app use HTTPS — data travels between you and our servers over an encrypted channel.",
+            "modelsTitle": "Models without training on you",
+            "modelsBody": "Speech recognition, semantic search, and note answers use AI models. Your text and files are not shared to train public models or sold to advertisers.",
+            "leaveTitle": "Export and delete",
+            "leaveBody": "Download an archive or delete your account anytime — no extra steps."
         },
         "cta": {
-            "title": "Start with one moment.",
-            "body": "A sentence, a voice memo, a photo from today."
+            "kicker": "Start free",
+            "title": "Your first entry in a minute",
+            "body": "One line, a voice memo, or a photo from today. The graph and search kick in on their own.",
+            "primary": "Create account",
+            "note": "No card required · delete your data anytime"
         },
         "footer": {
-            "rights": "All rights reserved."
+            "rights": "All rights reserved.",
+            "tagline": "Personal memory with a connection graph, semantic search, and answers from your entries.",
+            "navTitle": "Product",
+            "legalTitle": "Legal",
+            "supportTitle": "Support",
+            "supportHint": "Email us if something breaks or you need help.",
+            "startLink": "Create account",
+            "languageLabel": "Interface language",
+            "langRu": "Русский",
+            "langEn": "English",
+            "legal": {
+                "terms": "Terms of service",
+                "privacy": "Privacy policy",
+                "cookies": "Cookie policy"
+            }
         },
         "notes": {
-            "park": "Walked with Dasha. The park was almost empty after the rain.",
-            "evening": "Came home late. Quiet table, the window still blue.",
-            "kyoto": "Kyoto in October. Need to ask Keiko about ryokans."
+            "park": "Walk with Dasha after the rain. The park was almost empty.",
+            "evening": "Home late. Quiet table by the window, blue light outside.",
+            "cafe": "Coffee at the corner café. Moved the release with Max to Friday."
         },
         "nodes": {
-            "park": "Park walk",
+            "park": "Walk",
             "dasha": "Dasha",
-            "kyoto": "Kyoto",
-            "evening": "Evening table",
-            "coffee": "Coffee"
+            "cafe": "Café",
+            "evening": "Evening",
+            "max": "Max"
         }
     }
 }

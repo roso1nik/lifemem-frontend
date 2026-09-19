@@ -3,6 +3,7 @@ import { ROUTES } from '@/shared/router'
 
 export const SITE_NAME = 'Lifemem'
 export const SITE_SHORT_NAME = 'lifemem'
+export const SUPPORT_EMAIL = 'hello@lifemem.app'
 
 export const BRAND = {
     themeColor: '#5B9FB0',

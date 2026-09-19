@@ -2,73 +2,90 @@
 
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import { MapPin, Mic, Type } from 'lucide-react'
+import { Camera, MapPin } from 'lucide-react'
+import { CaptureTextCard } from './capture-text-card'
+import { CaptureVoiceCard } from './capture-voice-card'
+import { CapturePhotoCarousel } from './capture-photo-carousel'
 import { LANDING_PHOTOS } from './mock'
 import { Reveal } from './reveal'
+import { cn } from '@/shared/utils'
+import {
+    landingCardClass,
+    landingCardHoverClass,
+    landingKickerClass,
+    landingSectionClass,
+    landingSectionInnerClass,
+    landingSectionLeadClass,
+    landingSectionTitleClass
+} from './landing-layout'
 
 export const LandingCapture = () => {
     const t = useTranslations('landing')
 
     return (
-        <section className="mx-auto max-w-7xl px-4 py-20 md:px-6 md:py-28">
-            <Reveal>
-                <h2 className="max-w-xl text-3xl leading-tight font-semibold tracking-tight md:text-4xl">
-                    {t('capture.title')}
-                </h2>
-                <p className="text-muted-foreground mt-3 max-w-[42ch] text-base leading-relaxed">{t('capture.body')}</p>
-            </Reveal>
+        <section id="capture" className={landingSectionClass}>
+            <div className={landingSectionInnerClass}>
+                <Reveal>
+                    <p className={landingKickerClass}>{t('capture.kicker')}</p>
+                    <h2 className={cn(landingSectionTitleClass, 'max-w-xl')}>{t('capture.title')}</h2>
+                    <p className={cn(landingSectionLeadClass, 'max-w-[46ch]')}>{t('capture.body')}</p>
+                </Reveal>
 
-            <Reveal className="mt-10">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 lg:grid-rows-[minmax(220px,1fr)_minmax(180px,auto)]">
-                    <article className="border-hairline bg-card/70 relative overflow-hidden rounded-[var(--radius-card)] border sm:col-span-2 lg:col-span-5 lg:row-span-2">
-                        <div className="relative aspect-[4/3] h-full min-h-[240px] lg:aspect-auto">
-                            <Image
-                                src={LANDING_PHOTOS.evening}
-                                alt={t('stage.eveningAlt')}
-                                fill
-                                sizes="(min-width: 1024px) 40vw, 100vw"
-                                className="object-cover"
-                            />
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[color-mix(in_srgb,var(--background)_88%,transparent)] to-transparent px-4 pt-16 pb-4">
-                                <p className="text-sm font-medium tracking-tight">{t('capture.photo')}</p>
+                <Reveal className="mt-8 md:mt-10">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 lg:grid-rows-[minmax(200px,1fr)_auto]">
+                        <article
+                            className={cn(
+                                landingCardClass,
+                                landingCardHoverClass,
+                                'group relative overflow-hidden lg:col-span-5 lg:row-span-2'
+                            )}
+                        >
+                            <div className="relative aspect-[5/4] w-full overflow-hidden sm:aspect-[4/3] lg:aspect-auto lg:h-full lg:min-h-[280px]">
+                                <CapturePhotoCarousel alt={t('capture.photoAlt')} className="absolute inset-0 overflow-hidden" />
+                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[color-mix(in_srgb,var(--background)_90%,transparent)] to-transparent px-4 pt-14 pb-4">
+                                    <div className="flex items-center gap-2">
+                                        <Camera size={16} className="text-primary" strokeWidth={1.7} />
+                                        <p className="text-sm font-medium tracking-tight">{t('capture.photo')}</p>
+                                    </div>
+                                    <p className="text-muted-foreground mt-1 text-sm leading-snug">{t('capture.photoHint')}</p>
+                                </div>
                             </div>
-                        </div>
-                    </article>
+                        </article>
 
-                    <article className="border-hairline bg-muted/80 flex flex-col justify-between rounded-[var(--radius-card)] border p-5 lg:col-span-4">
-                        <Mic size={18} className="text-primary" strokeWidth={1.7} />
-                        <div className="mt-8">
-                            <p className="text-sm font-medium tracking-tight">{t('capture.voice')}</p>
-                            <p className="text-muted-foreground mt-1 text-sm leading-snug">{t('capture.voiceHint')}</p>
-                        </div>
-                    </article>
+                        <CaptureVoiceCard />
 
-                    <article className="border-hairline bg-card/70 flex flex-col justify-between rounded-[var(--radius-card)] border p-5 lg:col-span-3">
-                        <Type size={18} className="text-sage" strokeWidth={1.7} />
-                        <div className="mt-8">
-                            <p className="text-sm font-medium tracking-tight">{t('capture.text')}</p>
-                            <p className="text-muted-foreground mt-1 text-sm leading-snug">{t('capture.textHint')}</p>
-                        </div>
-                    </article>
+                        <CaptureTextCard />
 
-                    <article className="relative overflow-hidden rounded-[var(--radius-card)] sm:col-span-2 lg:col-span-7">
-                        <div className="relative aspect-[21/9] min-h-[160px]">
-                            <Image
-                                src={LANDING_PHOTOS.park}
-                                alt={t('stage.parkAlt')}
-                                fill
-                                sizes="(min-width: 1024px) 55vw, 100vw"
-                                className="object-cover"
-                            />
-                            <div className="absolute inset-x-0 bottom-0 flex items-center gap-1.5 bg-gradient-to-t from-[color-mix(in_srgb,var(--background)_85%,transparent)] to-transparent px-4 pt-12 pb-3">
-                                <MapPin size={12} className="text-sage" />
-                                <p className="text-sm font-medium tracking-tight">{t('capture.place')}</p>
-                                <p className="text-muted-foreground ml-1 hidden text-sm sm:inline">{t('capture.placeHint')}</p>
+                        <article
+                            className={cn(
+                                'group relative overflow-hidden rounded-[var(--radius-card)] sm:col-span-2 lg:col-span-7',
+                                'transition-all duration-200 hover:-translate-y-0.5'
+                            )}
+                        >
+                            <div className="relative aspect-[16/10] w-full sm:aspect-[21/9] sm:min-h-[140px]">
+                                <Image
+                                    src={LANDING_PHOTOS.place}
+                                    alt={t('capture.placeAlt')}
+                                    fill
+                                    sizes="(min-width: 1024px) 55vw, 100vw"
+                                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                                />
+                                <div className="absolute inset-x-0 bottom-0 px-3 pb-3 pt-16 sm:px-4 sm:pb-4">
+                                    <div className={cn(landingCardClass, 'bg-card/90 px-3 py-3 shadow-sm backdrop-blur-sm sm:px-4')}>
+                                        <div className="flex items-start gap-2">
+                                            <MapPin size={16} className="text-sage mt-0.5 shrink-0" />
+                                            <div>
+                                                <p className="text-foreground text-sm font-medium tracking-tight">{t('capture.place')}</p>
+                                                <p className="text-muted-foreground mt-1 text-sm leading-relaxed">{t('capture.placeHint')}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </article>
-                </div>
-            </Reveal>
+                        </article>
+                    </div>
+                </Reveal>
+            </div>
         </section>
     )
 }
