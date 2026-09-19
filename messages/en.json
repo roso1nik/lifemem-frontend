@@ -332,7 +332,9 @@
             "ask": "Search",
             "places": "Places",
             "pricing": "Pricing",
-            "privacy": "Privacy",
+            "trust": "Privacy",
+            "faq": "FAQ",
+            "privacy": "Details",
             "menu": "Open menu",
             "close": "Close menu",
             "getStartedShort": "Start",
@@ -342,7 +344,7 @@
             "eyebrow": "Memory that connects itself",
             "titleLead": "Capture a moment —",
             "titleAccent": "your graph and search already know the context",
-            "sub": "Voice, photos, and places in one feed. Lifemem finds what you mean and answers only from your notes — nothing invented.",
+            "sub": "You note a walk with Dasha in the park — a week later ask “when did we walk?” and get an answer from your Saturday note.",
             "proof": "300 free credits every month",
             "ctaPrimary": "Start free",
             "ctaSecondary": "See how it works",
@@ -356,7 +358,8 @@
         "how": {
             "kicker": "How it works",
             "title": "From capture to answer in three steps",
-            "body": "No folders or tags — links grow from what you already saved.",
+            "body": "No folders or tags — the same walk story continues in the graph and search below.",
+            "bodyShort": "Three steps, one story: capture → links → answer.",
             "stepLabel": "Step {step}",
             "steps": {
                 "capture": {
@@ -381,9 +384,9 @@
             "cafeAlt": "Interior of a city café by the window."
         },
         "capture": {
-            "kicker": "Ways to capture",
-            "title": "Save it the way that fits",
-            "body": "One tap is enough: voice memo, photo, map pin, or a short line — all in one place.",
+            "kicker": "How that walk was saved",
+            "title": "Voice, photo, or one line — one tap",
+            "body": "That evening in the park: dictate, snap a photo, or drop a pin — everything lands in one feed.",
             "voice": "Voice",
             "voiceHint": "Dictate on the go — audio is kept, text is searchable.",
             "photo": "Photo",
@@ -402,6 +405,7 @@
             "body": "Each entry is a node. People and places link automatically — you see context around what matters.",
             "caption": "Demo: a few days of entries — people, places, and notes linked together.",
             "scenario": "Example: open “Walk” — see Dasha, the park, and an evening entry. Context without folders.",
+            "scenarioShort": "Entry · people · places — context around “Walk” without folders.",
             "demoHint": "Demo: nodes highlight in turn — this is how context around an entry looks.",
             "interactiveHint": "In the app you can open a node and explore connections",
             "selectedNode": "Selected: {name}",
@@ -480,8 +484,9 @@
             "billingYearlyBadge": "−30%",
             "billingToggleLabel": "Billing period",
             "yearlyHint": "Pay yearly and save 30% compared to monthly billing.",
-            "swipeHint": "Swipe left for Pro and Max plans",
-            "priceRub": "${value}",
+            "planToggleLabel": "Choose plan",
+            "allLimits": "Technical limits & models",
+            "priceRub": "{value} ₽",
             "billedYearly": "${value} billed yearly",
             "plans": {
                 "free": {
@@ -496,6 +501,16 @@
                         "voiceFormat": "Voice transcript without auto-formatting",
                         "core": "Graph, places, export",
                         "yearly": "Monthly billing only"
+                    },
+                    "featuresOutcome": {
+                        "credits": "~30 short entries or searches a month — try without a card",
+                        "core": "Connection graph, places map, export",
+                        "voiceFormat": "Voice to text — no auto note structure",
+                        "processing": "Standard processing speed"
+                    },
+                    "featuresTechnical": {
+                        "models": "Lite STT and semantic search models",
+                        "yearly": "Monthly Free only"
                     }
                 },
                 "pro": {
@@ -510,6 +525,16 @@
                         "voiceFormat": "Auto-formatting after voice memos",
                         "core": "Everything in Free",
                         "yearly": "Annual plan with 30% off"
+                    },
+                    "featuresOutcome": {
+                        "credits": "Enough for daily capture and regular questions to your memory",
+                        "core": "All Free features plus ongoing improvements",
+                        "voiceFormat": "Voice memos read like tidy notes",
+                        "processing": "Faster voice and note answers"
+                    },
+                    "featuresTechnical": {
+                        "models": "Premium search and RAG models",
+                        "yearly": "30% off when billed yearly"
                     }
                 },
                 "max": {
@@ -524,7 +549,118 @@
                         "voiceFormat": "Auto-formatting and note structure",
                         "core": "Everything in Pro plus early access",
                         "yearly": "Annual plan with 30% off"
+                    },
+                    "featuresOutcome": {
+                        "credits": "Heavy flow: lots of voice, photos, and questions",
+                        "core": "All Pro plus early access",
+                        "voiceFormat": "Voice with headings and structure",
+                        "processing": "Top quality and priority"
+                    },
+                    "featuresTechnical": {
+                        "models": "Best models and priority queues",
+                        "yearly": "30% off when billed yearly"
                     }
+                }
+            }
+        },
+        "audience": {
+            "kicker": "Who it's for",
+            "title": "Personal memory without building a system",
+            "cards": {
+                "diary": {
+                    "title": "Life moments",
+                    "body": "Capture the day as it happens — find it later by meaning."
+                },
+                "people": {
+                    "title": "People & context",
+                    "body": "Names and meetups gather around entries on their own."
+                },
+                "trips": {
+                    "title": "Trips & places",
+                    "body": "Geo tags build a map of where the week lived."
+                }
+            }
+        },
+        "contrast": {
+            "kicker": "Not just notes",
+            "items": {
+                "folders": {
+                    "before": "Folders and tags by hand",
+                    "after": "Links grow from text and places"
+                },
+                "ai": {
+                    "before": "Generic chat invents facts",
+                    "after": "Answers only from your entries"
+                },
+                "search": {
+                    "before": "Remember date or title",
+                    "after": "“Walks with Dasha last summer” — by meaning"
+                }
+            }
+        },
+        "trust": {
+            "title": "Your entries stay yours",
+            "transportTitle": "HTTPS",
+            "transportBody": "Data between you and our servers uses an encrypted channel.",
+            "modelsTitle": "No training on you",
+            "modelsBody": "Content is not sold or used to train public models.",
+            "leaveTitle": "Export & delete",
+            "leaveBody": "Download an archive or delete your account anytime.",
+            "moreLink": "More on privacy →"
+        },
+        "credits": {
+            "title": "What credits are",
+            "body": "Credits are spent processing what you save. Free refreshes monthly — no card.",
+            "uses": {
+                "voice": "Speech recognition and turning voice into note text",
+                "files": "Photo and attachment processing",
+                "entities": "People, places, and links for the graph",
+                "processing": "Smart feed processing and background jobs"
+            },
+            "exampleFree": "On Free, roughly 25–35 short voice or photo entries per month — an estimate.",
+            "disclaimer": "Actual use depends on audio length, file size, and processing depth."
+        },
+        "afterSignup": {
+            "kicker": "After signup",
+            "title": "First value in a minute",
+            "steps": {
+                "account": {
+                    "title": "Account",
+                    "body": "Email and password — no card on Free."
+                },
+                "firstNote": {
+                    "title": "First entry",
+                    "body": "Voice, line, or photo — like the walk demo."
+                },
+                "discover": {
+                    "title": "Graph & search",
+                    "body": "Links and answers appear on your data."
+                }
+            }
+        },
+        "faq": {
+            "kicker": "Questions",
+            "title": "FAQ",
+            "items": {
+                "credits": {
+                    "q": "When do Free credits run out?",
+                    "a": "The limit resets each month. Need more? Upgrade to Pro or Max."
+                },
+                "cloud": {
+                    "q": "Cloud-only?",
+                    "a": "Yes — account sync is how search and the graph work across devices."
+                },
+                "export": {
+                    "q": "Can I take my data?",
+                    "a": "Yes — export and account deletion are in settings."
+                },
+                "languages": {
+                    "q": "Which languages?",
+                    "a": "UI in RU/EN; entries and search follow the language you write in."
+                },
+                "security": {
+                    "q": "Do you use my text for ads?",
+                    "a": "No. Models process requests; content is not sold or used for training."
                 }
             }
         },
@@ -544,6 +680,7 @@
             "kicker": "Start free",
             "title": "Your first entry in a minute",
             "body": "One line, a voice memo, or a photo from today. The graph and search kick in on their own.",
+            "bodyShort": "First entry in a minute — graph and search follow.",
             "primary": "Create account",
             "note": "No card required · delete your data anytime"
         },

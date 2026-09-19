@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { Camera, MapPin } from 'lucide-react'
+import { CaptureMobileShowcase } from './capture-mobile-showcase'
 import { CaptureTextCard } from './capture-text-card'
 import { CaptureVoiceCard } from './capture-voice-card'
 import { CapturePhotoCarousel } from './capture-photo-carousel'
@@ -32,7 +33,8 @@ export const LandingCapture = () => {
                 </Reveal>
 
                 <Reveal className="mt-8 md:mt-10">
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 lg:grid-rows-[minmax(200px,1fr)_auto]">
+                    <CaptureMobileShowcase />
+                    <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-2 lg:grid-cols-12 lg:grid-rows-[minmax(200px,1fr)_auto]">
                         <article
                             className={cn(
                                 landingCardClass,

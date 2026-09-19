@@ -19,6 +19,8 @@ const PINS = [
     { id: 'home', x: '46%', y: '72%', labelKey: 'places.pins.home' as const, detailKey: 'places.pinDetails.home' as const }
 ] as const
 
+const MOBILE_PIN_IDS = new Set(['park', 'cafe'])
+
 const STAT_KEYS = ['notes', 'cities', 'routes'] as const
 const HIGHLIGHT_KEYS = ['timeline', 'clusters', 'search'] as const
 
@@ -72,7 +74,10 @@ export const LandingPlaces = () => {
                             {PINS.map((pin, index) => (
                                 <motion.div
                                     key={pin.id}
-                                    className="group absolute z-10 -translate-x-1/2 -translate-y-1/2"
+                                    className={cn(
+                                        'group absolute z-10 -translate-x-1/2 -translate-y-1/2',
+                                        !MOBILE_PIN_IDS.has(pin.id) && 'hidden md:block'
+                                    )}
                                     style={{ left: pin.x, top: pin.y }}
                                     initial={reduce ? false : { opacity: 0, scale: 0.6 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
@@ -80,7 +85,7 @@ export const LandingPlaces = () => {
                                     transition={{ type: 'spring', bounce: 0.35, duration: 0.45, delay: index * 0.06 }}
                                 >
                                     <span className="bg-primary shadow-[0_0_0_6px_color-mix(in_srgb,var(--primary)_25%,transparent)] relative flex size-3.5 rounded-full ring-2 ring-[var(--background)]" />
-                                    <span className="bg-card/98 border-hairline pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden w-max max-w-[min(240px,calc(100vw-2rem))] -translate-x-1/2 rounded-lg border px-3 py-2 text-left shadow-md sm:block sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
+                                    <span className="bg-card/98 border-hairline pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 hidden w-max max-w-[min(240px,calc(100vw-2rem))] -translate-x-1/2 rounded-lg border px-3 py-2 text-left shadow-md lg:block lg:opacity-0 lg:transition-opacity lg:group-hover:opacity-100">
                                         <span className="text-foreground block text-xs font-semibold tracking-tight">
                                             {t(pin.labelKey)}
                                         </span>
@@ -101,11 +106,24 @@ export const LandingPlaces = () => {
                     </Reveal>
 
                     <Reveal className="flex min-h-0 flex-col justify-center gap-4 lg:min-h-[520px]">
-                        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+                            {STAT_KEYS.filter((key) => key === 'notes').map((key) => (
+                                <div
+                                    key={key}
+                                    className={cn(landingCardClass, 'px-3 py-3 text-center sm:px-4 sm:py-4 md:hidden')}
+                                >
+                                    <p className="text-primary text-lg font-semibold tabular-nums sm:text-xl">
+                                        {t(`places.stats.${key}.value`)}
+                                    </p>
+                                    <p className="text-muted-foreground mt-1 text-[11px] leading-snug sm:text-xs">
+                                        {t(`places.stats.${key}.label`)}
+                                    </p>
+                                </div>
+                            ))}
                             {STAT_KEYS.map((key) => (
                                 <div
                                     key={key}
-                                    className={cn(landingCardClass, 'px-3 py-3 text-center sm:px-4 sm:py-4')}
+                                    className={cn(landingCardClass, 'hidden px-3 py-3 text-center sm:px-4 sm:py-4 md:block')}
                                 >
                                     <p className="text-primary text-lg font-semibold tabular-nums sm:text-xl">
                                         {t(`places.stats.${key}.value`)}
@@ -117,7 +135,7 @@ export const LandingPlaces = () => {
                             ))}
                         </div>
 
-                        <ul className={cn(landingCardClass, 'divide-hairline max-h-[220px] divide-y overflow-y-auto sm:max-h-none')}>
+                        <ul className={cn(landingCardClass, 'divide-hairline hidden max-h-[220px] divide-y overflow-y-auto md:block sm:max-h-none')}>
                             {PINS.map((pin) => (
                                 <li key={pin.id} className="px-4 py-3 sm:px-5">
                                     <p className="text-sm font-medium tracking-tight">{t(pin.labelKey)}</p>
@@ -126,7 +144,7 @@ export const LandingPlaces = () => {
                             ))}
                         </ul>
 
-                        <div className="border-hairline bg-muted/40 rounded-[var(--radius-card)] border p-4 sm:p-5">
+                        <div className="border-hairline bg-muted/40 hidden rounded-[var(--radius-card)] border p-4 sm:p-5 md:block">
                             <p className="text-sm font-medium tracking-tight">{t('places.highlightsTitle')}</p>
                             <ul className="mt-3 space-y-2.5">
                                 {HIGHLIGHT_KEYS.map((key) => (

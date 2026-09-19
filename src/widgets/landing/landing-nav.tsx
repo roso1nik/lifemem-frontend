@@ -14,8 +14,8 @@ import { LanguageSwitcher } from '@/widgets/language-switcher'
 import { CtaLink } from './cta-link'
 import { LandingSectionLink } from './landing-section-link'
 
-const PRIMARY_ANCHORS = ['how', 'graph', 'ask', 'pricing'] as const
-const MORE_ANCHORS = ['capture', 'places', 'privacy'] as const
+const PRIMARY_ANCHORS = ['how', 'ask', 'pricing'] as const
+const MORE_ANCHORS = ['graph', 'capture', 'places', 'trust', 'faq'] as const
 
 export const LandingNav = () => {
     const t = useTranslations('landing')
@@ -26,7 +26,7 @@ export const LandingNav = () => {
 
     return (
         <header className="relative sticky top-0 z-40 px-3 pt-3 sm:px-4 md:px-6">
-            <div className="border-hairline bg-surface-frost/88 mx-auto flex max-w-7xl items-center gap-2 rounded-[var(--radius-card)] border px-2 py-2 shadow-[0_8px_32px_-12px_color-mix(in_srgb,var(--foreground)_18%,transparent)] backdrop-blur-xl sm:gap-3 sm:px-3">
+            <div className="border-hairline bg-surface-frost/95 mx-auto flex max-w-7xl items-center gap-2 rounded-[var(--radius-card)] border px-2 py-2 shadow-[0_8px_32px_-12px_color-mix(in_srgb,var(--foreground)_18%,transparent)] max-lg:backdrop-blur-md lg:bg-surface-frost/88 lg:backdrop-blur-xl sm:gap-3 sm:px-3">
                 <Link
                     href={ROUTES.WELCOME}
                     className="font-brand text-primary shrink-0 rounded-[var(--radius-button)] px-2 py-1.5 text-[17px] font-semibold tracking-tight lowercase no-underline"

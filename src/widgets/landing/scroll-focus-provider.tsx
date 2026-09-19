@@ -7,6 +7,7 @@ import {
     useEffect,
     useId,
     useRef,
+    useState,
     type ReactNode
 } from 'react'
 import { useReducedMotion } from 'framer-motion'
@@ -26,6 +27,7 @@ const ScrollFocusRegistry = createContext<RegisterFn | null>(null)
 export const ScrollFocusProvider = ({ children }: { children: ReactNode }) => {
     const reduce = useReducedMotion()
     const nodes = useRef(new Map<string, HTMLElement>())
+    const [enabled, setEnabled] = useState(false)
 
     const register = useCallback<RegisterFn>((key, node) => {
         if (node) nodes.current.set(key, node)
@@ -36,17 +38,18 @@ export const ScrollFocusProvider = ({ children }: { children: ReactNode }) => {
         if (reduce) return
 
         const desktop = window.matchMedia('(min-width: 1024px)')
+        const syncEnabled = () => setEnabled(desktop.matches)
+        syncEnabled()
+        desktop.addEventListener('change', syncEnabled)
+        return () => desktop.removeEventListener('change', syncEnabled)
+    }, [reduce])
+
+    useEffect(() => {
+        if (reduce || !enabled) return
+
         let raf = 0
 
         const apply = () => {
-            if (!desktop.matches) {
-                nodes.current.forEach((el) => {
-                    el.style.transform = ''
-                    el.style.opacity = ''
-                })
-                return
-            }
-
             const vh = window.innerHeight
             const viewCenter = vh / 2
             const range = vh * FOCUS_RANGE_RATIO
@@ -72,21 +75,19 @@ export const ScrollFocusProvider = ({ children }: { children: ReactNode }) => {
         schedule()
         window.addEventListener('scroll', schedule, { passive: true })
         window.addEventListener('resize', schedule)
-        desktop.addEventListener('change', schedule)
 
         return () => {
             cancelAnimationFrame(raf)
             window.removeEventListener('scroll', schedule)
             window.removeEventListener('resize', schedule)
-            desktop.removeEventListener('change', schedule)
             nodes.current.forEach((el) => {
                 el.style.transform = ''
                 el.style.opacity = ''
             })
         }
-    }, [reduce])
+    }, [enabled, reduce])
 
-    if (reduce) {
+    if (reduce || !enabled) {
         return <>{children}</>
     }
 
@@ -103,22 +104,28 @@ export const ScrollFocusSection = ({ children, className }: ScrollFocusSectionPr
     const register = useContext(ScrollFocusRegistry)
     const ref = useRef<HTMLDivElement>(null)
     const key = useId()
+    const [isLg, setIsLg] = useState(false)
 
     useEffect(() => {
-        if (reduce || !register) return
+        const media = window.matchMedia('(min-width: 1024px)')
+        const sync = () => setIsLg(media.matches)
+        sync()
+        media.addEventListener('change', sync)
+        return () => media.removeEventListener('change', sync)
+    }, [])
+
+    useEffect(() => {
+        if (reduce || !register || !isLg) return
         register(key, ref.current)
         return () => register(key, null)
-    }, [key, reduce, register])
+    }, [isLg, key, reduce, register])
 
-    if (reduce || !register) {
+    if (reduce || !register || !isLg) {
         return <div className={className}>{children}</div>
     }
 
     return (
-        <div
-            ref={ref}
-            className={cn('relative z-0 will-change-transform lg:origin-[50%_45%]', className)}
-        >
+        <div ref={ref} className={cn('relative z-0 origin-[50%_45%] will-change-transform lg:will-change-transform', className)}>
             {children}
         </div>
     )

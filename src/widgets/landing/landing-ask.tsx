@@ -25,7 +25,8 @@ export const LandingAsk = () => {
     const t = useTranslations('landing')
     const reduce = useReducedMotion()
     const demoRef = useRef<HTMLDivElement>(null)
-    const inView = useInView(demoRef, { once: false, amount: 0.32, margin: '0px 0px -6% 0px' })
+    const sequenceStartedRef = useRef(false)
+    const inView = useInView(demoRef, { once: true, amount: 0.28, margin: '0px 0px -4% 0px' })
 
     const notes = useMemo(
         () =>
@@ -52,21 +53,10 @@ export const LandingAsk = () => {
     const [sequenceDone, setSequenceDone] = useState(false)
 
     useEffect(() => {
-        if (!inView) {
-            if (reduce) return
-            setTypedQuery('')
-            setVisibleResults(0)
-            setRightActive(false)
-            setTypedPrompt('')
-            setShowAnswer(false)
-            setShowSource(false)
-            setQueryTyping(false)
-            setPromptTyping(false)
-            setSequenceDone(false)
-            return
-        }
+        if (!inView || sequenceStartedRef.current) return
 
         if (reduce) {
+            sequenceStartedRef.current = true
             setTypedQuery(fullQuery)
             setVisibleResults(results.length)
             setRightActive(true)
@@ -91,6 +81,8 @@ export const LandingAsk = () => {
                 await wait(ms)
             }
         }
+
+        sequenceStartedRef.current = true
 
         const run = async () => {
             setVisibleResults(0)
@@ -147,7 +139,8 @@ export const LandingAsk = () => {
 
                 <div
                     ref={demoRef}
-                    className="mt-10 grid grid-cols-1 items-stretch gap-4 lg:mt-12 lg:grid-cols-[1fr_auto_1fr] lg:gap-5"
+                    className="mt-10 grid grid-cols-1 items-stretch gap-4 [overflow-anchor:none] lg:mt-12 lg:grid-cols-[1fr_auto_1fr] lg:gap-5"
+                    style={{ overflowAnchor: 'none' }}
                 >
                     <Surface frost className="flex h-full flex-col overflow-hidden">
                         <div className="border-hairline flex items-center justify-between gap-3 border-b px-4 py-3 sm:px-5">
@@ -223,7 +216,7 @@ export const LandingAsk = () => {
                                 </span>
                             </div>
 
-                            <div className="flex flex-1 flex-col px-4 py-4 sm:px-5 sm:py-5">
+                            <div className="flex min-h-[20rem] flex-1 flex-col px-4 py-4 sm:min-h-[22rem] sm:px-5 sm:py-5">
                                 <div className="border-hairline bg-muted/30 min-h-[4.75rem] rounded-[var(--radius-card)] border px-4 py-3">
                                     <p className="text-muted-foreground text-[11px] font-medium tracking-tight uppercase">
                                         {t('ask.questionLabel')}

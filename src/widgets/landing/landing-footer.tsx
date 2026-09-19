@@ -11,7 +11,7 @@ import { cn } from '@/shared/utils'
 import { LandingSectionLink } from './landing-section-link'
 import { onLandingSectionAnchorClick } from './scroll-to-landing-section'
 
-const PRODUCT_LINKS = ['how', 'capture', 'graph', 'ask', 'places', 'pricing'] as const
+const PRODUCT_LINKS = ['how', 'ask', 'graph', 'capture', 'places', 'pricing', 'faq'] as const
 
 const LEGAL_LINKS = [
     { key: 'terms' as const, href: '#terms' },

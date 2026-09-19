@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { ROUTES } from '@/shared/router'
 import { cn } from '@/shared/utils'
 import { CtaLink } from './cta-link'
+import { LandingCreditsNote } from './landing-credits-note'
 import {
     landingCardClass,
     landingCardHoverClass,
@@ -24,16 +25,12 @@ import {
 } from './landing-pricing-plans'
 import { Reveal } from './reveal'
 
-const FEATURE_KEYS = ['credits', 'models', 'processing', 'voiceFormat', 'core', 'yearly'] as const
-type FeatureKey = (typeof FEATURE_KEYS)[number]
+const OUTCOME_KEYS = ['credits', 'core', 'voiceFormat', 'processing'] as const
+const TECH_KEYS = ['models', 'yearly'] as const
+type OutcomeKey = (typeof OUTCOME_KEYS)[number]
+type TechKey = (typeof TECH_KEYS)[number]
 
-const PLAN_FEATURES: Record<PricingPlanId, readonly FeatureKey[]> = {
-    free: ['credits', 'models', 'processing', 'voiceFormat', 'core'],
-    pro: ['credits', 'models', 'processing', 'voiceFormat', 'core', 'yearly'],
-    max: ['credits', 'models', 'processing', 'voiceFormat', 'core', 'yearly']
-}
-
-const MINUS_FEATURES: Record<PricingPlanId, readonly FeatureKey[]> = {
+const MINUS_FEATURES: Record<PricingPlanId, readonly OutcomeKey[]> = {
     free: ['voiceFormat'],
     pro: [],
     max: []
@@ -42,10 +39,25 @@ const MINUS_FEATURES: Record<PricingPlanId, readonly FeatureKey[]> = {
 const tabFocusClass =
     'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]'
 
+const planTabClass = (active: boolean) =>
+    cn(
+        'relative z-10 rounded-full px-2 py-2.5 text-sm transition-colors sm:px-3',
+        tabFocusClass,
+        active ? 'text-foreground font-semibold' : 'text-muted-foreground font-medium hover:text-foreground'
+    )
+
+const sliderClass = (reduce: boolean) =>
+    cn(
+        'bg-card pointer-events-none absolute inset-y-1 rounded-full shadow-sm ring-1 ring-primary/25',
+        reduce && 'transition-none',
+        !reduce && 'transition-[left] duration-300 ease-out'
+    )
+
 export const LandingPricing = () => {
     const t = useTranslations('landing')
     const reduce = useReducedMotion()
     const [yearly, setYearly] = useState(false)
+    const [selectedPlan, setSelectedPlan] = useState<PricingPlanId>('pro')
     const onMonthly = useCallback(() => setYearly(false), [])
     const onYearly = useCallback(() => setYearly(true), [])
 
@@ -60,16 +72,13 @@ export const LandingPricing = () => {
 
                 <Reveal className="mt-10 flex flex-col items-center gap-3">
                     <div
-                        className="bg-muted/70 border-hairline relative inline-flex rounded-full border p-1 shadow-inner"
+                        className="bg-muted/70 border-hairline relative grid w-full max-w-sm grid-cols-2 rounded-full border p-1 shadow-inner"
                         role="tablist"
                         aria-label={t('pricing.billingToggleLabel')}
                     >
                         <span
                             aria-hidden
-                            className={cn(
-                                'bg-card absolute inset-y-1 rounded-full shadow-sm transition-[left] duration-300 ease-out',
-                                reduce && 'transition-none'
-                            )}
+                            className={sliderClass(Boolean(reduce))}
                             style={{
                                 width: 'calc(50% - 4px)',
                                 left: yearly ? 'calc(50% + 2px)' : '4px'
@@ -80,11 +89,7 @@ export const LandingPricing = () => {
                             role="tab"
                             aria-selected={!yearly}
                             onClick={onMonthly}
-                            className={cn(
-                                'relative z-10 min-w-[7.5rem] rounded-full px-5 py-2.5 text-sm font-medium transition-colors sm:min-w-[8.5rem] sm:px-6',
-                                tabFocusClass,
-                                !yearly ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-                            )}
+                            className={cn(planTabClass(!yearly), 'text-center')}
                         >
                             {t('pricing.billingMonthly')}
                         </button>
@@ -93,13 +98,9 @@ export const LandingPricing = () => {
                             role="tab"
                             aria-selected={yearly}
                             onClick={onYearly}
-                            className={cn(
-                                'relative z-10 flex min-w-[7.5rem] items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors sm:min-w-[8.5rem] sm:px-6',
-                                tabFocusClass,
-                                yearly ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
-                            )}
+                            className={cn(planTabClass(yearly), 'flex flex-col items-center justify-center gap-0.5 text-center')}
                         >
-                            {t('pricing.billingYearly')}
+                            <span>{t('pricing.billingYearly')}</span>
                             <span className="bg-primary/15 text-primary rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide">
                                 {t('pricing.billingYearlyBadge')}
                             </span>
@@ -110,30 +111,54 @@ export const LandingPricing = () => {
                     </p>
                 </Reveal>
 
-                <div className="relative mt-8 md:mt-10">
+                <Reveal className="mt-8 flex flex-col items-center md:mt-10 md:hidden">
                     <div
-                        className={cn(
-                            'flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1',
-                            '-mx-4 px-4 [scrollbar-width:none] md:mx-0 md:grid md:snap-none md:grid-cols-3 md:items-stretch md:gap-4 md:overflow-visible md:px-0 md:pb-0',
-                            '[&::-webkit-scrollbar]:hidden'
-                        )}
+                        className="bg-muted/70 border-hairline relative grid w-full max-w-md grid-cols-3 rounded-full border p-1 shadow-inner"
+                        role="tablist"
+                        aria-label={t('pricing.planToggleLabel')}
                     >
-                        {PRICING_PLAN_IDS.map((planId, index) => (
-                            <Reveal
+                        <span
+                            aria-hidden
+                            className={sliderClass(Boolean(reduce))}
+                            style={{
+                                width: 'calc(33.333% - 4px)',
+                                left:
+                                    selectedPlan === 'free'
+                                        ? '4px'
+                                        : selectedPlan === 'pro'
+                                          ? 'calc(33.333% + 2px)'
+                                          : 'calc(66.666% + 0px)'
+                            }}
+                        />
+                        {PRICING_PLAN_IDS.map((planId) => (
+                            <button
                                 key={planId}
-                                delay={index * 0.06}
-                                className="w-[min(82vw,300px)] shrink-0 snap-center min-w-0 md:w-auto md:shrink"
+                                type="button"
+                                role="tab"
+                                aria-selected={selectedPlan === planId}
+                                onClick={() => setSelectedPlan(planId)}
+                                className={cn(planTabClass(selectedPlan === planId), 'text-center')}
                             >
-                                <PricingCard planId={planId} recommended={planId === 'pro'} yearly={yearly} />
-                            </Reveal>
+                                {t(`pricing.plans.${planId}.name`)}
+                            </button>
                         ))}
                     </div>
-                    <div
-                        aria-hidden
-                        className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-[var(--background)] to-transparent md:hidden"
-                    />
-                    <p className="text-muted-foreground mt-3 text-center text-xs md:hidden">{t('pricing.swipeHint')}</p>
+
+                    <div className="mt-6 w-full max-w-md">
+                        <PricingCard planId={selectedPlan} recommended={selectedPlan === 'pro'} yearly={yearly} />
+                    </div>
+
+                </Reveal>
+
+                <div className="mt-10 hidden w-full gap-4 md:grid md:grid-cols-3 md:items-stretch">
+                    {PRICING_PLAN_IDS.map((planId, index) => (
+                        <Reveal key={planId} delay={index * 0.06} className="min-w-0">
+                            <PricingCard planId={planId} recommended={planId === 'pro'} yearly={yearly} />
+                        </Reveal>
+                    ))}
                 </div>
+
+                <LandingCreditsNote />
             </div>
         </section>
     )
@@ -219,7 +244,7 @@ const PricingCard = ({ planId, recommended, yearly }: PricingCardProps) => {
             </div>
 
             <ul className="mt-4 flex flex-1 flex-col gap-3">
-                {PLAN_FEATURES[planId].map((key) => {
+                {OUTCOME_KEYS.map((key) => {
                     const isMinus = minusSet.has(key)
                     return (
                         <li key={key} className="flex gap-2.5 text-sm leading-snug">
@@ -229,12 +254,23 @@ const PricingCard = ({ planId, recommended, yearly }: PricingCardProps) => {
                                 <Check size={16} className="text-sage mt-0.5 shrink-0" strokeWidth={1.75} />
                             )}
                             <span className={cn(isMinus && 'text-muted-foreground')}>
-                                {t(`pricing.plans.${planId}.features.${key}`)}
+                                {t(`pricing.plans.${planId}.featuresOutcome.${key}`)}
                             </span>
                         </li>
                     )
                 })}
             </ul>
+
+            <div className="border-hairline mt-4 border-t pt-4">
+                <p className="text-muted-foreground text-xs font-semibold tracking-tight uppercase">{t('pricing.allLimits')}</p>
+                <ul className="mt-2 flex flex-col gap-2">
+                    {TECH_KEYS.map((key: TechKey) => (
+                        <li key={key} className="text-muted-foreground text-xs leading-snug">
+                            {t(`pricing.plans.${planId}.featuresTechnical.${key}`)}
+                        </li>
+                    ))}
+                </ul>
+            </div>
 
             <CtaLink
                 href={ROUTES.REGISTER}

@@ -105,7 +105,7 @@ export default async function RootLayout({ children, params }: LocaleLayoutProps
     return (
         <html lang={locale} {...mantineHtmlProps}>
             <head>
-                <ColorSchemeScript />
+                <ColorSchemeScript defaultColorScheme="dark" />
             </head>
             <body className={cn('antialiased', fontUi.variable, fontBrand.variable)}>
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
