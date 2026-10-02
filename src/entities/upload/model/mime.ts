@@ -15,9 +15,17 @@ const EXT_TO_MIME: Record<string, string> = {
     mp3: 'audio/mpeg',
     wav: 'audio/wav',
     ogg: 'audio/ogg',
-    m4a: 'audio/x-m4a',
+    m4a: 'audio/mp4',
     aac: 'audio/aac',
     flac: 'audio/flac'
+}
+
+/** Strip `;codecs=…` etc. — backend `@IsMimeType()` rejects parameters. */
+export const normalizeMimeType = (mime: string): string => {
+    const base = mime.trim().toLowerCase().split(';', 1)[0]?.trim() ?? ''
+    // Prefer IANA audio/mp4 over legacy audio/x-m4a for validators
+    if (base === 'audio/x-m4a' || base === 'audio/m4a') return 'audio/mp4'
+    return base
 }
 
 export const extensionFromFilename = (filename: string): string | null => {
@@ -29,11 +37,19 @@ export const extensionFromFilename = (filename: string): string | null => {
 
 /** MIME for API init — must match backend whitelist (not application/octet-stream). */
 export const resolveUploadMimeType = (file: File): string => {
-    const raw = file.type?.trim().toLowerCase()
-    if (raw && raw !== 'application/octet-stream') return raw
+    const raw = normalizeMimeType(file.type ?? '')
+    if (raw && raw !== 'application/octet-stream') {
+        // Recorded voice notes are often `*.webm` with empty/missing type, or wrongly
+        // inferred as video/webm from the extension map — keep audio when filename says voice.
+        if (raw === 'video/webm' && /^voice[-_.]/i.test(file.name)) return 'audio/webm'
+        return raw
+    }
 
     const ext = extensionFromFilename(file.name)
-    if (ext && EXT_TO_MIME[ext]) return EXT_TO_MIME[ext]
+    if (!ext) return ''
 
-    return ''
+    // Voice recordings from MediaRecorder are audio/webm, not video/webm
+    if (ext === 'webm' && /^voice[-_.]/i.test(file.name)) return 'audio/webm'
+
+    return EXT_TO_MIME[ext] ?? ''
 }

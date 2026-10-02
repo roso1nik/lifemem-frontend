@@ -1,3 +1,5 @@
+import { normalizeMimeType } from './mime'
+
 export type FileType = 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT' | 'OTHER'
 
 export type UploadFileStatus = 'READY' | string
@@ -51,7 +53,7 @@ const DOCUMENT_MIME = new Set([
 ])
 
 export const resolveFileType = (mimeType: string): FileType | null => {
-    const mime = mimeType.toLowerCase()
+    const mime = normalizeMimeType(mimeType)
     if (!mime) return null
     if (IMAGE_MIME.has(mime) || mime.startsWith('image/')) return 'IMAGE'
     if (VIDEO_MIME.has(mime) || mime.startsWith('video/')) return 'VIDEO'
@@ -60,7 +62,11 @@ export const resolveFileType = (mimeType: string): FileType | null => {
     return null
 }
 
-export { resolveUploadMimeType, extensionFromFilename } from './mime'
+export {
+    resolveUploadMimeType,
+    extensionFromFilename,
+    normalizeMimeType
+} from './mime'
 
 export const sanitizeUploadFilename = (name: string): string => {
     const cleaned = name.replace(/[\\/]/g, '_').replace(/\.\./g, '_').trim()

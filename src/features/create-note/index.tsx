@@ -13,25 +13,18 @@ import { IconButton, RichTextEditor, Surface, isEmptyHtml } from '@/shared/ui'
 import { cn } from '@/shared/utils'
 import { Menu, Tooltip } from '@mantine/core'
 import { AnimatePresence, motion } from 'framer-motion'
-import {
-    ArrowUp,
-    FileIcon,
-    MapPin,
-    Mic,
-    Paperclip,
-    Square,
-    Users,
-    X
-} from 'lucide-react'
+import { ArrowUp, FileIcon, MapPin, Mic, Paperclip, Users, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
+import { formatVoiceDuration, useVoiceRecorder, type VoicePreview } from './use-voice-recorder'
+import { VoiceRecorderPanel } from './voice-recorder-panel'
 
 type HintKey = 'file' | 'geo' | 'voice' | 'people'
 
 type PendingAttachment =
     | { id: string; kind: 'media'; file: File; name: string }
-    | { id: string; kind: 'voice'; file: File; name: string }
+    | { id: string; kind: 'voice'; file: File; name: string; durationMs: number }
     | { id: string; kind: 'geo'; name: string; location: EntryLocationInput }
 
 export type CreateNoteFormProps = {
@@ -73,12 +66,9 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
     const [showRelations, setShowRelations] = useState(false)
     const [focused, setFocused] = useState(false)
     const [uploading, setUploading] = useState(false)
-    const [recording, setRecording] = useState(false)
     const fileRef = useRef<HTMLInputElement>(null)
     const audioRef = useRef<HTMLInputElement>(null)
     const shellRef = useRef<HTMLDivElement>(null)
-    const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-    const chunksRef = useRef<Blob[]>([])
     const { mutateAsync: createEntry, isPending } = useCreateEntry()
 
     const hasText = !isEmptyHtml(content)
@@ -87,12 +77,33 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
     const locationCount = attachments.filter((item) => item.kind === 'geo').length
     const placeSlots = places.length + locationCount
     const hasMedia = mediaCount > 0
-    /** Backend requires text or audioId; media-only notes get a minimal text placeholder on submit. */
-    const canSend = !(hasText && hasVoice) && (hasText || hasVoice || hasMedia)
+
+    const voice = useVoiceRecorder({
+        onFallbackPick: () => audioRef.current?.click(),
+        onMaxDuration: () => toast(t('voiceRecorder.maxDuration'))
+    })
+
+    const voiceUiOpen = voice.isActive
+    const voiceMode = voiceUiOpen || hasVoice
+
+    /** Backend: text XOR audioId; media-only notes get a minimal text placeholder on submit. */
+    const canSend =
+        !voiceUiOpen && !(hasText && hasVoice) && (hasText || hasVoice || hasMedia)
     const isWriting =
-        focused || hasText || attachments.length > 0 || people.length > 0 || places.length > 0 || showRelations
-    const showHints = !hasText && attachments.length === 0 && people.length === 0 && places.length === 0
-    const busy = isPending || uploading || recording
+        focused ||
+        hasText ||
+        attachments.length > 0 ||
+        people.length > 0 ||
+        places.length > 0 ||
+        showRelations ||
+        voiceUiOpen
+    const showHints =
+        !hasText &&
+        attachments.length === 0 &&
+        people.length === 0 &&
+        places.length === 0 &&
+        !voiceUiOpen
+    const busy = isPending || uploading || voice.isRecording
 
     useEffect(() => {
         onWritingChange?.(isWriting)
@@ -104,18 +115,13 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
         const onPointerDown = (event: PointerEvent) => {
             if (shellRef.current?.contains(event.target as Node)) return
             if (isInOverlay(event.target)) return
+            if (voiceUiOpen) return
             setFocused(false)
         }
 
         document.addEventListener('pointerdown', onPointerDown)
         return () => document.removeEventListener('pointerdown', onPointerDown)
-    }, [focused])
-
-    useEffect(() => {
-        return () => {
-            mediaRecorderRef.current?.stop()
-        }
-    }, [])
+    }, [focused, voiceUiOpen])
 
     const addAttachment = (attachment: PendingAttachment) => {
         setAttachments((prev) => [...prev, attachment])
@@ -123,6 +129,35 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
 
     const removeAttachment = (id: string) => {
         setAttachments((prev) => prev.filter((a) => a.id !== id))
+    }
+
+    const startVoice = async () => {
+        if (hasText) {
+            toast.error(t('voiceXorText'))
+            return
+        }
+        if (hasVoice) {
+            toast.error(t('voiceOneOnly'))
+            return
+        }
+        setContent('')
+        setFocused(true)
+        const result = await voice.start()
+        if (!result.ok && result.error === 'permission_denied') {
+            toast.error(t('voiceRecorder.permissionDenied'))
+        }
+    }
+
+    const keepVoice = (preview: VoicePreview) => {
+        addAttachment({
+            id: crypto.randomUUID(),
+            kind: 'voice',
+            file: preview.file,
+            name: t('voice'),
+            durationMs: preview.durationMs
+        })
+        voice.discard()
+        setFocused(true)
     }
 
     const onHint = async (key: HintKey) => {
@@ -154,59 +189,8 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
             return
         }
         if (key === 'voice') {
-            if (hasText) {
-                toast.error(t('voiceXorText'))
-                return
-            }
-            if (hasVoice) {
-                toast.error(t('voiceOneOnly'))
-                return
-            }
-            await startOrPickVoice()
+            await startVoice()
         }
-    }
-
-    const startOrPickVoice = async () => {
-        if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
-            audioRef.current?.click()
-            return
-        }
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-            const mimeType = MediaRecorder.isTypeSupported('audio/webm')
-                ? 'audio/webm'
-                : MediaRecorder.isTypeSupported('audio/mp4')
-                  ? 'audio/mp4'
-                  : undefined
-            const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined)
-            chunksRef.current = []
-            recorder.ondataavailable = (event) => {
-                if (event.data.size > 0) chunksRef.current.push(event.data)
-            }
-            recorder.onstop = () => {
-                stream.getTracks().forEach((track) => track.stop())
-                const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' })
-                const ext = blob.type.includes('mp4') ? 'm4a' : 'webm'
-                const file = new File([blob], `voice-${Date.now()}.${ext}`, { type: blob.type })
-                addAttachment({
-                    id: crypto.randomUUID(),
-                    kind: 'voice',
-                    file,
-                    name: t('voice')
-                })
-                setRecording(false)
-                mediaRecorderRef.current = null
-            }
-            mediaRecorderRef.current = recorder
-            recorder.start()
-            setRecording(true)
-        } catch {
-            audioRef.current?.click()
-        }
-    }
-
-    const stopRecording = () => {
-        mediaRecorderRef.current?.stop()
     }
 
     const onSubmit = async () => {
@@ -244,11 +228,14 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                 audioId = await uploadFile(voiceItem.file, { allowedTypes: PRODUCT_VOICE_TYPES })
             }
 
-            const textPayload = hasText
-                ? content
-                : !audioId && mediaIds.length > 0
-                  ? t('mediaOnlyFallback')
-                  : undefined
+            // Voice notes never send text; media-only still needs a placeholder.
+            const textPayload = audioId
+                ? undefined
+                : hasText
+                  ? content
+                  : mediaIds.length > 0
+                    ? t('mediaOnlyFallback')
+                    : undefined
 
             await createEntry({
                 text: textPayload,
@@ -265,6 +252,7 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
             setPlaces([])
             setShowRelations(false)
             setFocused(false)
+            voice.discard()
         } catch (error) {
             if (error instanceof UploadValidationError) {
                 toast.error(error.message === 'File exceeds size limit' ? t('uploadTooLarge') : t('uploadInvalid'))
@@ -282,6 +270,11 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
         { key: 'people', label: t('hintPeople'), Icon: Users },
         { key: 'voice', label: t('hintVoice'), Icon: Mic }
     ]
+
+    const nonVoiceAttachments = attachments.filter((item) => item.kind !== 'voice')
+    const voiceAttachment = attachments.find(
+        (item): item is Extract<PendingAttachment, { kind: 'voice' }> => item.kind === 'voice'
+    )
 
     return (
         <motion.div
@@ -333,17 +326,34 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                 className={cn('overflow-hidden', isWriting && 'flex min-h-0 flex-1 flex-col')}
             >
                 <AnimatePresence>
-                    {attachments.length > 0 && (
+                    {(nonVoiceAttachments.length > 0 || (voiceAttachment && !voiceUiOpen)) && (
                         <div className="border-hairline flex shrink-0 flex-wrap gap-2 border-b px-3 pt-3 pb-2">
-                            {attachments.map((a) => (
+                            {voiceAttachment && !voiceUiOpen && (
+                                <span className="bg-primary/10 text-foreground inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs">
+                                    <Mic size={12} className="text-primary" />
+                                    {t('voiceRecorder.readyLabel')}
+                                    {voiceAttachment.durationMs > 0 && (
+                                        <span className="text-muted-foreground font-mono tabular-nums">
+                                            {formatVoiceDuration(voiceAttachment.durationMs)}
+                                        </span>
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeAttachment(voiceAttachment.id)}
+                                        aria-label={t('voiceRecorder.discard')}
+                                        className="text-muted-foreground hover:text-foreground"
+                                    >
+                                        <X size={12} />
+                                    </button>
+                                </span>
+                            )}
+                            {nonVoiceAttachments.map((a) => (
                                 <span
                                     key={a.id}
                                     className="bg-muted text-foreground inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs"
                                 >
                                     {a.kind === 'geo' ? (
                                         <MapPin size={12} className="text-sage" />
-                                    ) : a.kind === 'voice' ? (
-                                        <Mic size={12} className="text-sage" />
                                     ) : (
                                         <FileIcon size={12} className="text-sage" />
                                     )}
@@ -373,127 +383,156 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                     </div>
                 )}
 
-                <div className={cn(isWriting && 'min-h-0 flex-1 overflow-y-auto')}>
-                    <RichTextEditor
-                        value={content}
-                        onChange={setContent}
-                        placeholder={t('composerPlaceholder')}
-                        canvas={isWriting}
-                        minHeight={isWriting ? 220 : 48}
-                        onFocus={() => setFocused(true)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Escape' && !hasText && attachments.length === 0) {
-                                ;(e.target as HTMLElement).blur()
-                                setFocused(false)
-                                return
-                            }
-                            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                                e.preventDefault()
-                                void onSubmit()
-                            }
-                        }}
+                {voiceUiOpen ? (
+                    <VoiceRecorderPanel
+                        status={voice.status}
+                        levels={voice.levels}
+                        elapsedMs={voice.elapsedMs}
+                        preview={voice.preview}
+                        onStop={voice.stop}
+                        onCancel={voice.discard}
+                        onDiscard={voice.discard}
+                        onUse={keepVoice}
+                        className={cn(isWriting && 'min-h-0 flex-1')}
                     />
-                </div>
+                ) : (
+                    !voiceMode && (
+                        <div className={cn(isWriting && 'min-h-0 flex-1 overflow-y-auto')}>
+                            <RichTextEditor
+                                value={content}
+                                onChange={setContent}
+                                placeholder={t('composerPlaceholder')}
+                                canvas={isWriting}
+                                minHeight={isWriting ? 220 : 48}
+                                onFocus={() => setFocused(true)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Escape' && !hasText && attachments.length === 0) {
+                                        ;(e.target as HTMLElement).blur()
+                                        setFocused(false)
+                                        return
+                                    }
+                                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                                        e.preventDefault()
+                                        void onSubmit()
+                                    }
+                                }}
+                            />
+                        </div>
+                    )
+                )}
 
-                <div className="flex shrink-0 items-center justify-between gap-2 px-2 pb-2">
-                    <div className="flex items-center gap-0.5">
-                        <input
-                            ref={fileRef}
-                            type="file"
-                            accept="image/*,video/*"
-                            multiple
-                            className="hidden"
-                            onChange={(e) => {
-                                const files = Array.from(e.target.files ?? [])
-                                e.target.value = ''
-                                const room = 5 - mediaCount
-                                if (room <= 0) {
-                                    toast.error(t('mediaLimit'))
-                                    return
-                                }
-                                files.slice(0, room).forEach((file) => {
-                                    addAttachment({
-                                        id: crypto.randomUUID(),
-                                        kind: 'media',
-                                        file,
-                                        name: file.name
-                                    })
-                                })
-                                if (files.length > room) toast.error(t('mediaLimit'))
-                            }}
-                        />
-                        <input
-                            ref={audioRef}
-                            type="file"
-                            accept="audio/*"
-                            className="hidden"
-                            onChange={(e) => {
-                                const file = e.target.files?.[0]
-                                e.target.value = ''
-                                if (!file) return
-                                if (hasText) {
-                                    toast.error(t('voiceXorText'))
-                                    return
-                                }
-                                if (hasVoice) {
-                                    toast.error(t('voiceOneOnly'))
-                                    return
-                                }
-                                addAttachment({
-                                    id: crypto.randomUUID(),
-                                    kind: 'voice',
-                                    file,
-                                    name: file.name
-                                })
-                            }}
-                        />
-                        <Menu shadow="sm" width={180} position="top-start">
-                            <Menu.Target>
-                                <Tooltip label={t('attach')}>
-                                    <IconButton aria-label={t('attach')}>
-                                        <Paperclip size={18} />
-                                    </IconButton>
-                                </Tooltip>
-                            </Menu.Target>
-                            <Menu.Dropdown>
-                                <Menu.Item
-                                    leftSection={<FileIcon size={14} />}
-                                    onClick={() => fileRef.current?.click()}
+                {hasVoice && !voiceUiOpen && (
+                    <p className="text-muted-foreground px-4 py-3 text-[13px] leading-relaxed">
+                        {t('voiceRecorder.voiceNoteHint')}
+                    </p>
+                )}
+
+                <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                        const files = Array.from(e.target.files ?? [])
+                        e.target.value = ''
+                        const room = 5 - mediaCount
+                        if (room <= 0) {
+                            toast.error(t('mediaLimit'))
+                            return
+                        }
+                        files.slice(0, room).forEach((file) => {
+                            addAttachment({
+                                id: crypto.randomUUID(),
+                                kind: 'media',
+                                file,
+                                name: file.name
+                            })
+                        })
+                        if (files.length > room) toast.error(t('mediaLimit'))
+                    }}
+                />
+                <input
+                    ref={audioRef}
+                    type="file"
+                    accept="audio/*"
+                    className="hidden"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        e.target.value = ''
+                        if (!file) return
+                        if (hasText) {
+                            toast.error(t('voiceXorText'))
+                            return
+                        }
+                        if (hasVoice) {
+                            toast.error(t('voiceOneOnly'))
+                            return
+                        }
+                        setContent('')
+                        addAttachment({
+                            id: crypto.randomUUID(),
+                            kind: 'voice',
+                            file,
+                            name: file.name,
+                            durationMs: 0
+                        })
+                        setFocused(true)
+                    }}
+                />
+
+                {!voiceUiOpen && (
+                    <div className="flex shrink-0 items-center justify-between gap-2 px-2 pb-2">
+                        <div className="flex items-center gap-0.5">
+                            <Menu shadow="sm" width={180} position="top-start">
+                                <Menu.Target>
+                                    <Tooltip label={t('attach')}>
+                                        <IconButton aria-label={t('attach')}>
+                                            <Paperclip size={18} />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Menu.Target>
+                                <Menu.Dropdown>
+                                    <Menu.Item
+                                        leftSection={<FileIcon size={14} />}
+                                        onClick={() => fileRef.current?.click()}
+                                    >
+                                        {t('attachFile')}
+                                    </Menu.Item>
+                                    <Menu.Item leftSection={<MapPin size={14} />} onClick={() => void onHint('geo')}>
+                                        {t('attachGeo')}
+                                    </Menu.Item>
+                                    <Menu.Item leftSection={<Users size={14} />} onClick={() => void onHint('people')}>
+                                        {t('hintPeople')}
+                                    </Menu.Item>
+                                </Menu.Dropdown>
+                            </Menu>
+
+                            <Tooltip label={hasVoice ? t('voiceOneOnly') : t('voiceStart')}>
+                                <IconButton
+                                    aria-label={t('voiceStart')}
+                                    disabled={hasVoice}
+                                    onClick={() => void startVoice()}
                                 >
-                                    {t('attachFile')}
-                                </Menu.Item>
-                                <Menu.Item leftSection={<MapPin size={14} />} onClick={() => void onHint('geo')}>
-                                    {t('attachGeo')}
-                                </Menu.Item>
-                                <Menu.Item leftSection={<Users size={14} />} onClick={() => void onHint('people')}>
-                                    {t('hintPeople')}
-                                </Menu.Item>
-                            </Menu.Dropdown>
-                        </Menu>
+                                    <Mic size={18} />
+                                </IconButton>
+                            </Tooltip>
+                        </div>
 
-                        <Tooltip label={recording ? t('voiceStop') : t('voice')}>
+                        <Tooltip label={t('send')}>
                             <IconButton
-                                aria-label={t('voice')}
-                                onClick={() => (recording ? stopRecording() : void onHint('voice'))}
+                                tone="primary"
+                                disabled={!canSend}
+                                loading={busy}
+                                onClick={() => void onSubmit()}
+                                aria-label={t('send')}
+                                className="rounded-full!"
                             >
-                                {recording ? <Square size={16} className="text-red-500" /> : <Mic size={18} />}
+                                <ArrowUp size={18} />
                             </IconButton>
                         </Tooltip>
                     </div>
-
-                    <Tooltip label={t('send')}>
-                        <IconButton
-                            tone="primary"
-                            disabled={!canSend}
-                            loading={busy}
-                            onClick={() => void onSubmit()}
-                            aria-label={t('send')}
-                            className="rounded-full!"
-                        >
-                            <ArrowUp size={18} />
-                        </IconButton>
-                    </Tooltip>
-                </div>
+                )}
             </Surface>
         </motion.div>
     )
