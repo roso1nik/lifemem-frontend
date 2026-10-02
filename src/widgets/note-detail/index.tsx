@@ -1,18 +1,22 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Modal } from '@mantine/core'
-import { Pencil } from 'lucide-react'
+import { Paperclip, Pencil } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import toast from 'react-hot-toast'
 import { useGetEntry } from '@/entities/entry/api/use-get-entry'
+import { useAttachEntryMedia, useDetachEntryMedia } from '@/entities/entry/api/use-entry-media'
 import { getEntryPreviewText } from '@/entities/entry/model'
+import { PRODUCT_MEDIA_TYPES, UploadValidationError, uploadFile } from '@/entities/upload'
 import { DeleteNoteButton } from '@/features/delete-note'
 import { EditNoteForm } from '@/features/edit-note'
 import { useWorkspaceNavigation } from '@/features/workspace-tabs'
+import { getApiErrorMessage } from '@/shared/api/errors'
 import {
     Button,
     ImageGallery,
-    imageGalleryItemFromEntryPhoto,
+    imageGalleryItemFromEntryMedia,
     Loader,
     Surface
 } from '@/shared/ui'
@@ -26,16 +30,50 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
     const t = useTranslations('home')
     const { data: entry, isLoading, isError } = useGetEntry(noteId)
     const [editOpen, setEditOpen] = useState(false)
+    const [attaching, setAttaching] = useState(false)
+    const fileRef = useRef<HTMLInputElement>(null)
     const { goHome } = useWorkspaceNavigation()
+    const { mutateAsync: attachMedia } = useAttachEntryMedia()
+    const { mutate: detachMedia, isPending: detaching } = useDetachEntryMedia()
 
     const galleryItems = useMemo(() => {
-        if (!entry?.photos.length) return []
-        return entry.photos
-            .map((photo, index) =>
-                imageGalleryItemFromEntryPhoto(photo, t('note.photoAlt', { index: index + 1 }))
+        if (!entry?.media.length) return []
+        return entry.media
+            .map((media, index) =>
+                imageGalleryItemFromEntryMedia(
+                    media,
+                    t(media.firstFrameUrl || media.url.match(/\.(mp4|webm|mov)/i) ? 'note.videoAlt' : 'note.photoAlt', {
+                        index: index + 1
+                    })
+                )
             )
             .filter((item): item is NonNullable<typeof item> => item != null)
     }, [entry, t])
+
+    const onAttach = async (file: File) => {
+        if (!entry?.isReady) {
+            toast.error(t('note.attachWhenReady'))
+            return
+        }
+        if ((entry.media?.length ?? 0) >= 5) {
+            toast.error(t('mediaLimit'))
+            return
+        }
+        setAttaching(true)
+        try {
+            const fileId = await uploadFile(file, { allowedTypes: PRODUCT_MEDIA_TYPES })
+            await attachMedia({ entryId: entry.id, data: { fileId } })
+            toast.success(t('note.attachSuccess'))
+        } catch (error) {
+            if (error instanceof UploadValidationError) {
+                toast.error(error.message === 'File exceeds size limit' ? t('uploadTooLarge') : t('uploadInvalid'))
+            } else {
+                toast.error(getApiErrorMessage(error, t('uploadFailed')))
+            }
+        } finally {
+            setAttaching(false)
+        }
+    }
 
     if (isLoading) {
         return <Loader variant="section" />
@@ -52,6 +90,7 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
     const preview = getEntryPreviewText(entry)
     const body = entry.formattedText?.trim() || entry.text?.trim() || preview
     const hasMeta = entry.voice || entry.people.length > 0 || entry.places.length > 0
+    const doneJobs = entry.jobs.filter((job) => job.status === 'Done').length
 
     return (
         <div className="mx-auto flex w-full flex-1 flex-col px-4 py-8 md:w-4/5 md:px-6">
@@ -65,6 +104,27 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
                     </h1>
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
+                    <input
+                        ref={fileRef}
+                        type="file"
+                        accept="image/*,video/*"
+                        className="hidden"
+                        onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            e.target.value = ''
+                            if (file) void onAttach(file)
+                        }}
+                    />
+                    <Button
+                        variant="subtle"
+                        size="sm"
+                        aria-label={t('note.attachMedia')}
+                        loading={attaching}
+                        disabled={!entry.isReady || entry.media.length >= 5}
+                        onClick={() => fileRef.current?.click()}
+                    >
+                        <Paperclip size={16} />
+                    </Button>
                     <Button
                         variant="subtle"
                         size="sm"
@@ -84,17 +144,36 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
             {!entry.isReady && (
                 <p className="text-muted-foreground mt-2 text-sm">
                     {t('note.processing', {
-                        done: entry.jobs.filter((job) => job.status === 'Done').length,
+                        done: doneJobs,
                         total: entry.jobs.length
                     })}
                 </p>
             )}
 
             {galleryItems.length > 0 && (
-                <ImageGallery className="mt-6" items={galleryItems} columns={3} />
+                <ImageGallery
+                    className="mt-6"
+                    items={galleryItems}
+                    columns={3}
+                    removeLabel={t('note.detachMedia')}
+                    onRemove={
+                        entry.isReady && !detaching
+                            ? (mediaId) => detachMedia({ entryId: entry.id, mediaId })
+                            : undefined
+                    }
+                />
             )}
 
             <Surface className="mt-6 p-5">
+                {entry.voice?.url && (
+                    <div className="mb-4">
+                        <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
+                            {t('note.voice')}
+                        </p>
+                        <audio controls src={entry.voice.url} className="w-full" preload="metadata" />
+                    </div>
+                )}
+
                 {entry.formattedTextFormat === 'html' ? (
                     <div
                         className="text-[15px] leading-relaxed"
@@ -108,11 +187,6 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
 
                 {hasMeta && (
                     <div className="border-hairline mt-4 flex flex-wrap gap-2 border-t pt-4">
-                        {entry.voice && (
-                            <span className="bg-muted text-muted-foreground rounded-md px-2.5 py-1 text-xs">
-                                {t('note.voice')}
-                            </span>
-                        )}
                         {entry.people.map((person) => (
                             <span
                                 key={person.id}
@@ -137,8 +211,8 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
                 <EditNoteForm
                     entryId={entry.id}
                     initialTitle={entry.title}
-                    peopleIds={entry.people.map((person) => person.id)}
-                    placeIds={entry.places.map((place) => place.id)}
+                    initialPeople={entry.people.map((person) => ({ id: person.id, name: person.name }))}
+                    initialPlaces={entry.places.map((place) => ({ id: place.id, name: place.name }))}
                     onSuccess={() => setEditOpen(false)}
                     onCancel={() => setEditOpen(false)}
                 />

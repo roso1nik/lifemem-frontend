@@ -7,18 +7,24 @@ export type EntryProcessingJobType =
     | 'LocationAndPeopleDetect'
     | 'EmbedText'
     | 'EmbedTitle'
-    | 'EmbedImage'
+    | 'EmbedMedia'
+    | 'SlicePreview'
 
 export type EntryProcessingJobStatus = 'Pending' | 'Running' | 'Done' | 'Failed' | 'Cancelled'
 
-export interface EntryImage {
+export interface EntryMedia {
     id: string
     createdAt: string
     updatedAt: string
     fileId: string
     description: unknown
     url: string
+    /** Signed preview of the first frame for VIDEO; null for images / while SlicePreview runs */
+    firstFrameUrl: string | null
 }
+
+/** @deprecated use EntryMedia */
+export type EntryImage = EntryMedia
 
 export interface EntryVoice {
     id: string
@@ -69,7 +75,7 @@ export interface EntrySearchItem {
     formattedTextFormat: FormattedTextFormat | null
     createdAt: string
     isHasVoice: boolean
-    photoCount: number
+    mediaCount: number
     isReady: boolean
     processingStatus: EntryProcessingStatus
     peopleCount: number
@@ -88,7 +94,7 @@ export interface EntryDetail {
     formattedTextFormat: FormattedTextFormat | null
     isReady: boolean
     voice: EntryVoice | null
-    photos: EntryImage[]
+    media: EntryMedia[]
     jobs: EntryProcessingJob[]
     people: EntryDetailPerson[]
     places: EntryDetailPlace[]
@@ -104,7 +110,7 @@ export interface Entry {
     formattedText: string | null
     formattedTextFormat: FormattedTextFormat | null
     isHasVoice: boolean
-    images: EntryImage[]
+    media: EntryMedia[]
     isReady: boolean
     peoples: EntryRelation[]
     places: EntryRelation[]
@@ -132,4 +138,18 @@ export const getEntryPreviewText = (entry: EntryPreviewSource): string => {
 }
 
 export const getEntryAttachmentCount = (entry: EntrySearchItem): number =>
-    entry.photoCount + (entry.isHasVoice ? 1 : 0) + entry.placesCount
+    entry.mediaCount + (entry.isHasVoice ? 1 : 0) + entry.placesCount
+
+const VIDEO_URL_RE = /\.(mp4|webm|mov|m4v|avi|3gp|quicktime)(\?|#|$)/i
+
+export const isEntryMediaVideo = (media: Pick<EntryMedia, 'url' | 'firstFrameUrl'>): boolean => {
+    if (typeof media.firstFrameUrl === 'string' && media.firstFrameUrl.length > 0) return true
+    return VIDEO_URL_RE.test(media.url)
+}
+
+export const entryNeedsProcessingPoll = (entry: EntryDetail): boolean => {
+    if (!entry.isReady) return true
+    return entry.media.some(
+        (item) => isEntryMediaVideo(item) && !(typeof item.firstFrameUrl === 'string' && item.firstFrameUrl)
+    )
+}

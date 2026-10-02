@@ -2,6 +2,7 @@ export type {
     FormattedTextFormat,
     EntryProcessingJobType,
     EntryProcessingJobStatus,
+    EntryMedia,
     EntryImage,
     EntryVoice,
     EntryRelation,
@@ -13,4 +14,9 @@ export type {
     EntryDetail,
     Entry
 } from './entry'
-export { getEntryPreviewText, getEntryAttachmentCount } from './entry'
+export {
+    getEntryPreviewText,
+    getEntryAttachmentCount,
+    isEntryMediaVideo,
+    entryNeedsProcessingPoll
+} from './entry'

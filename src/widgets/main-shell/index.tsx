@@ -17,6 +17,7 @@ import {
     useWorkspaceTabs,
     type WorkspaceSection
 } from '@/features/workspace-tabs'
+import { UserSettingsLocaleSync } from '@/features/locale-sync/user-settings-locale-sync'
 
 interface MainShellProps {
     children: ReactNode
@@ -73,6 +74,7 @@ export const MainShell = ({ children }: MainShellProps) => {
             padding={0}
             className="min-h-screen"
         >
+            <UserSettingsLocaleSync />
             <AppShell.Header className="border-hairline bg-surface-frost/80 overflow-visible backdrop-blur-xl">
                 <div ref={headerRef}>
                     <AppHeader menuOpened={opened} onToggleMenu={toggle} />

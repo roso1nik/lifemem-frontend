@@ -1,8 +1,8 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Spotlight, type SpotlightActionData, spotlight } from '@mantine/spotlight'
 import { useDebouncedValue } from '@mantine/hooks'
+import { Spotlight, type SpotlightActionData, spotlight } from '@mantine/spotlight'
 import {
     Archive,
     GitBranch,
@@ -23,17 +23,14 @@ export const openSearchSpotlight = () => spotlight.open()
 export const SearchSpotlight = () => {
     const t = useTranslations('home')
     const { goHome, goNote, goSection } = useWorkspaceNavigation()
-    const { data } = useSearchEntries()
     const [query, setQuery] = useState('')
-    const [debouncedQuery] = useDebouncedValue(query.trim().toLowerCase(), 200)
+    const [debouncedQuery] = useDebouncedValue(query.trim(), 300)
+    const { data, isFetching } = useSearchEntries({
+        query: debouncedQuery || undefined,
+        count: 8
+    })
 
-    const notes = useMemo(() => {
-        const entries = data?.data ?? []
-        if (!debouncedQuery) return entries.slice(0, 8)
-        return entries
-            .filter((entry) => getEntryPreviewText(entry).toLowerCase().includes(debouncedQuery))
-            .slice(0, 8)
-    }, [data, debouncedQuery])
+    const notes = data?.data ?? []
 
     const actions = useMemo<(SpotlightActionData | { group: string; actions: SpotlightActionData[] })[]>(
         () => [
@@ -79,20 +76,30 @@ export const SearchSpotlight = () => {
             },
             {
                 group: t('spotlight.groupNotes'),
-                actions: notes.map((entry) => {
-                    const preview = getEntryPreviewText(entry)
-                    return {
-                        id: `note-${entry.id}`,
-                        label: preview.slice(0, 64) || t('tab.notes'),
-                        description: preview.slice(64, 120) || undefined,
-                        leftSection: <Notebook size={18} className="text-sage" />,
-                        onClick: () =>
-                            goNote({
-                                id: entry.id,
-                                title: preview.slice(0, 28) || t('tab.notes')
-                            })
-                    }
-                })
+                actions:
+                    notes.length > 0
+                        ? notes.map((entry) => {
+                              const preview = getEntryPreviewText(entry)
+                              return {
+                                  id: `note-${entry.id}`,
+                                  label: preview.slice(0, 64) || t('tab.notes'),
+                                  description: preview.slice(64, 120) || undefined,
+                                  leftSection: <Notebook size={18} className="text-sage" />,
+                                  onClick: () =>
+                                      goNote({
+                                          id: entry.id,
+                                          title: preview.slice(0, 28) || t('tab.notes')
+                                      })
+                              }
+                          })
+                        : [
+                              {
+                                  id: 'notes-empty',
+                                  label: isFetching ? t('spotlight.searching') : t('spotlight.empty'),
+                                  disabled: true,
+                                  onClick: () => undefined
+                              }
+                          ]
             },
             {
                 group: t('spotlight.groupAi'),
@@ -107,7 +114,7 @@ export const SearchSpotlight = () => {
                 ]
             }
         ],
-        [notes, goHome, goNote, goSection, t]
+        [notes, goHome, goNote, goSection, t, isFetching]
     )
 
     return (

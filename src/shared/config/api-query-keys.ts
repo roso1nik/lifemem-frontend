@@ -60,8 +60,16 @@ export const ApiQueryKeys = {
     CREATE_ENTRY: 'create-entry',
     UPDATE_ENTRY: 'update-entry',
     DELETE_ENTRY: 'delete-entry',
+    ATTACH_ENTRY_MEDIA: 'attach-entry-media',
+    DETACH_ENTRY_MEDIA: 'detach-entry-media',
+
+    // Upload
+    UPLOAD_FILE: 'upload-file',
 
     // Person / Place
     PERSON_LIST: 'person-list',
-    PLACE_LIST: 'place-list'
+    PERSON_CREATE: 'person-create',
+    PERSON_DELETE: 'person-delete',
+    PLACE_LIST: 'place-list',
+    PLACE_DELETE: 'place-delete'
 } as const

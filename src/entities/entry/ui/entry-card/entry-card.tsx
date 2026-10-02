@@ -30,7 +30,7 @@ export const EntryCard = ({ entry, selected, onSelect }: EntryCardProps) => {
                 </span>
                 {attachmentCount > 0 && (
                     <span className="text-muted-foreground flex items-center gap-1">
-                        {entry.photoCount > 0 && (
+                        {entry.mediaCount > 0 && (
                             <span className="text-sage">
                                 <FileIcon size={12} />
                             </span>

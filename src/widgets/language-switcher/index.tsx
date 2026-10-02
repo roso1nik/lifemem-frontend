@@ -1,21 +1,36 @@
 'use client'
 
 import { useLocale } from 'next-intl'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter } from '@/i18n/navigation'
 import { ActionIcon, Menu } from '@mantine/core'
 import { Languages } from 'lucide-react'
+import { useUpdateUserSettings } from '@/entities/user-settings/api/use-user-settings'
 
 export const LanguageSwitcher = () => {
     const locale = useLocale()
     const pathname = usePathname()
     const router = useRouter()
-
-    const pathWithoutLocale = pathname?.replace(new RegExp(`^/${locale}`), '') || '/'
+    const { mutate: updateSettings } = useUpdateUserSettings()
 
     const languages = [
-        { value: 'en', label: 'EN' },
-        { value: 'ru', label: 'RU' }
+        { value: 'en' as const, label: 'EN' },
+        { value: 'ru' as const, label: 'RU' }
     ]
+
+    const switchTo = (lang: 'en' | 'ru') => {
+        if (lang === locale) return
+        updateSettings(
+            { lang },
+            {
+                onSuccess: () => {
+                    router.replace(pathname, { locale: lang })
+                },
+                onError: () => {
+                    router.replace(pathname, { locale: lang })
+                }
+            }
+        )
+    }
 
     return (
         <Menu shadow="md" width={120} position="top-end" withinPortal>
@@ -29,7 +44,7 @@ export const LanguageSwitcher = () => {
                     <Menu.Item
                         key={lang.value}
                         disabled={locale === lang.value}
-                        onClick={() => router.push(`/${lang.value}${pathWithoutLocale}`)}
+                        onClick={() => switchTo(lang.value)}
                     >
                         {lang.label}
                     </Menu.Item>

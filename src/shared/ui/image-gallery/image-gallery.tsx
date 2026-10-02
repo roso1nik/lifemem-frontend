@@ -2,17 +2,20 @@
 
 import { useMemo, useState, type HTMLAttributes } from 'react'
 import { useTranslations } from 'next-intl'
-import Lightbox, { type SlideImage } from 'yet-another-react-lightbox'
+import { Play } from 'lucide-react'
+import Lightbox, { type Slide } from 'yet-another-react-lightbox'
 import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
 import Counter from 'yet-another-react-lightbox/plugins/counter'
 import Captions from 'yet-another-react-lightbox/plugins/captions'
+import Video from 'yet-another-react-lightbox/plugins/video'
 import 'yet-another-react-lightbox/styles.css'
 import 'yet-another-react-lightbox/plugins/thumbnails.css'
 import 'yet-another-react-lightbox/plugins/counter.css'
 import 'yet-another-react-lightbox/plugins/captions.css'
 import './image-gallery-lightbox.css'
 import { cn } from '@/shared/utils'
+import { isEntryMediaVideo, type EntryMedia } from '@/entities/entry/model'
 import classes from './image-gallery.module.css'
 
 export type ImageGalleryItem = {
@@ -20,11 +23,15 @@ export type ImageGalleryItem = {
     src: string
     alt?: string
     caption?: string
+    type?: 'image' | 'video'
+    poster?: string | null
 }
 
 export type ImageGalleryProps = Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
     items: ImageGalleryItem[]
     columns?: 2 | 3 | 4
+    onRemove?: (id: string) => void
+    removeLabel?: string
 }
 
 const toCaption = (value: unknown): string | undefined => {
@@ -39,28 +46,63 @@ const toCaption = (value: unknown): string | undefined => {
     return undefined
 }
 
+/** @deprecated use imageGalleryItemFromEntryMedia */
 export const imageGalleryItemFromEntryPhoto = (
-    photo: { id: string; url: string; description?: unknown },
+    photo: { id: string; url: string; description?: unknown; firstFrameUrl?: string | null },
+    fallbackAlt: string
+): ImageGalleryItem | null => imageGalleryItemFromEntryMedia(photo, fallbackAlt)
+
+export const imageGalleryItemFromEntryMedia = (
+    media: Pick<EntryMedia, 'id' | 'url' | 'description' | 'firstFrameUrl'> | {
+        id: string
+        url: string
+        description?: unknown
+        firstFrameUrl?: string | null
+    },
     fallbackAlt: string
 ): ImageGalleryItem | null => {
-    if (!photo.url) return null
-    const caption = toCaption(photo.description)
+    if (!media.url) return null
+    const caption = toCaption(media.description)
+    const video = isEntryMediaVideo({
+        url: media.url,
+        firstFrameUrl: media.firstFrameUrl ?? null
+    })
     return {
-        id: photo.id,
-        src: photo.url,
+        id: media.id,
+        src: media.url,
         alt: caption || fallbackAlt,
-        caption
+        caption,
+        type: video ? 'video' : 'image',
+        poster: typeof media.firstFrameUrl === 'string' ? media.firstFrameUrl : null
     }
 }
 
-export const ImageGallery = ({ items, columns = 3, className, ...props }: ImageGalleryProps) => {
+export const ImageGallery = ({
+    items,
+    columns = 3,
+    className,
+    onRemove,
+    removeLabel,
+    ...props
+}: ImageGalleryProps) => {
     const t = useTranslations('common.gallery')
     const [index, setIndex] = useState(-1)
 
-    const slides = useMemo<SlideImage[]>(
+    const slides = useMemo<Slide[]>(
         () =>
             items.map((item) => {
-                const slide: SlideImage = {
+                if (item.type === 'video') {
+                    return {
+                        type: 'video',
+                        width: 1280,
+                        height: 720,
+                        poster: item.poster || undefined,
+                        sources: [{ src: item.src, type: 'video/mp4' }],
+                        title: item.caption,
+                        description: item.caption
+                    }
+                }
+                const slide: Slide = {
                     src: item.src,
                     alt: item.alt
                 }
@@ -88,28 +130,53 @@ export const ImageGallery = ({ items, columns = 3, className, ...props }: ImageG
                 )}
                 aria-label={t('label')}
             >
-                {items.map((item, i) => (
-                    <li key={item.id}>
-                        <button
-                            type="button"
-                            className={classes.thumb}
-                            onClick={() => setIndex(i)}
-                            aria-label={t('open', { index: i + 1, total: items.length })}
-                        >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={item.src}
-                                alt={item.alt || ''}
-                                loading={i < 3 ? 'eager' : 'lazy'}
-                                decoding="async"
-                                className={classes.image}
-                            />
-                            {i === 0 && items.length > 1 && (
-                                <span className={classes.badge}>{items.length}</span>
+                {items.map((item, i) => {
+                    const thumbSrc =
+                        item.type === 'video' ? item.poster || item.src : item.src
+                    return (
+                        <li key={item.id} className={classes.item}>
+                            <button
+                                type="button"
+                                className={classes.thumb}
+                                onClick={() => setIndex(i)}
+                                aria-label={t('open', { index: i + 1, total: items.length })}
+                            >
+                                {item.type === 'video' && !item.poster ? (
+                                    <span className={classes.videoFallback}>
+                                        <Play size={22} />
+                                    </span>
+                                ) : (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img
+                                        src={thumbSrc}
+                                        alt={item.alt || ''}
+                                        loading={i < 3 ? 'eager' : 'lazy'}
+                                        decoding="async"
+                                        className={classes.image}
+                                    />
+                                )}
+                                {item.type === 'video' && (
+                                    <span className={classes.playBadge} aria-hidden>
+                                        <Play size={14} fill="currentColor" />
+                                    </span>
+                                )}
+                                {i === 0 && items.length > 1 && (
+                                    <span className={classes.badge}>{items.length}</span>
+                                )}
+                            </button>
+                            {onRemove && (
+                                <button
+                                    type="button"
+                                    className={classes.remove}
+                                    onClick={() => onRemove(item.id)}
+                                    aria-label={removeLabel || t('close')}
+                                >
+                                    ×
+                                </button>
                             )}
-                        </button>
-                    </li>
-                ))}
+                        </li>
+                    )
+                })}
             </ul>
 
             <Lightbox
@@ -118,7 +185,7 @@ export const ImageGallery = ({ items, columns = 3, className, ...props }: ImageG
                 close={() => setIndex(-1)}
                 index={index}
                 slides={slides}
-                plugins={[Zoom, Thumbnails, Counter, Captions]}
+                plugins={[Zoom, Thumbnails, Counter, Captions, Video]}
                 carousel={{ finite: items.length <= 1, padding: '4%' }}
                 controller={{ closeOnBackdropClick: true }}
                 animation={{ fade: 220, swipe: 280 }}
