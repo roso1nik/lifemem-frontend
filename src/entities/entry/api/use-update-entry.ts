@@ -50,6 +50,7 @@ const buildUpdatePayload = (data: UpdateEntryRequest): Record<string, unknown> =
     return payload
 }
 
+/** PATCH /entry/:id/base — только пока заметка ещё в обработке (!isReady). */
 export const updateEntry = async (id: string, data: UpdateEntryRequest): AxiosPromise<Entry> => {
     const parsed = updateEntrySchema.parse(data)
     const res = await apiClient.patch(`/entry/${id}/base`, buildUpdatePayload(parsed))

@@ -125,14 +125,16 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
                     >
                         <Paperclip size={16} />
                     </Button>
-                    <Button
-                        variant="subtle"
-                        size="sm"
-                        aria-label={t('note.edit')}
-                        onClick={() => setEditOpen(true)}
-                    >
-                        <Pencil size={16} />
-                    </Button>
+                    {!entry.isReady && (
+                        <Button
+                            variant="subtle"
+                            size="sm"
+                            aria-label={t('note.edit')}
+                            onClick={() => setEditOpen(true)}
+                        >
+                            <Pencil size={16} />
+                        </Button>
+                    )}
                     <DeleteNoteButton
                         entryId={entry.id}
                         onDeleted={() => goHome()}
@@ -207,7 +209,12 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
                 )}
             </Surface>
 
-            <Modal opened={editOpen} onClose={() => setEditOpen(false)} title={t('note.editTitle')} centered>
+            <Modal
+                opened={editOpen && !entry.isReady}
+                onClose={() => setEditOpen(false)}
+                title={t('note.editTitle')}
+                centered
+            >
                 <EditNoteForm
                     entryId={entry.id}
                     initialTitle={entry.title}

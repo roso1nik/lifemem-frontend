@@ -113,7 +113,7 @@
         "note": {
             "edit": "Edit",
             "editTitle": "Edit note",
-            "editHint": "You can change the title, people, places, and add a location. Text, voice, and media aren’t edited here.",
+            "editHint": "While the note is processing, you can adjust the title, people, places, and add a location. Text, voice, and media aren’t edited here.",
             "titleLabel": "Title",
             "titlePlaceholder": "Note title",
             "save": "Save",
