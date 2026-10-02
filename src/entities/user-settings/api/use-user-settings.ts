@@ -2,7 +2,9 @@ import z from 'zod'
 import { AxiosPromise } from 'axios'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 import apiClient from '@/shared/api'
+import { getApiErrorMessage } from '@/shared/api/errors'
 import { ApiQueryKeys } from '@/shared/config'
 import { UserSettings } from '../model'
 
@@ -31,14 +33,15 @@ export const updateUserSettings = async (data: UserSettingsUpdateRequest): Axios
 
 export const useUpdateUserSettings = () => {
     const queryClient = useQueryClient()
+    const t = useTranslations('profile')
 
     return useMutation({
         mutationKey: [ApiQueryKeys.UPDATE_USER_SETTINGS],
         mutationFn: (data: UserSettingsUpdateRequest) => updateUserSettings(data),
         onSuccess: (response) => {
             queryClient.setQueryData([ApiQueryKeys.USER_SETTINGS], response.data)
-            toast.success('Настройки сохранены')
+            toast.success(t('success.settingsUpdated'))
         },
-        onError: () => toast.error('Не удалось сохранить настройки')
+        onError: (error) => toast.error(getApiErrorMessage(error, t('errors.updateSettings')))
     })
 }

@@ -243,10 +243,14 @@
         "title": "Profile",
         "subtitle": "Account settings and personal details.",
         "nickname": "Nickname",
+        "nicknameHint": "How you appear in the product.",
         "settings": "Settings",
+        "settingsHint": "Notifications and interface language.",
         "notifications": "Notifications",
+        "notificationsHint": "System and product alerts.",
         "language": "Language",
         "contacts": "Contacts",
+        "contactsHint": "Email and phone for sign-in.",
         "email": "Email",
         "phone": "Phone",
         "verified": "Verified",
@@ -277,6 +281,7 @@
         "logout": "Sign out",
         "success": {
             "nicknameUpdated": "Profile updated",
+            "settingsUpdated": "Settings saved",
             "emailAdded": "Email added",
             "phoneAdded": "Phone added",
             "phoneConfirmed": "Phone confirmed",
@@ -291,6 +296,7 @@
         },
         "errors": {
             "updateNickname": "Could not update profile",
+            "updateSettings": "Could not save settings",
             "addEmail": "Could not add email",
             "addPhone": "Could not add phone",
             "confirmCode": "Invalid code",
@@ -306,6 +312,7 @@
     },
     "admin": {
         "title": "Admin",
+        "subtitle": "Manage the service and users.",
         "placeholder": "Under construction. Design comes later.",
         "back": "Back to notes",
         "noAccess": "No access",
@@ -320,6 +327,25 @@
         "prev": "Prev",
         "next": "Next",
         "pagination": "Page {page} of {totalPages} · {total}",
+        "section": {
+            "users": "Search, edit, and delete accounts.",
+            "settings": "App version, auth methods, and AI models.",
+            "models": "Activate models for analysis and embeddings.",
+            "logs": "HTTP request logs.",
+            "authLogs": "Sign-in and OAuth event history.",
+            "health": "App and dependency status."
+        },
+        "toast": {
+            "userUpdated": "User updated",
+            "userUpdateFailed": "Could not update user",
+            "userSoftDeleted": "User soft-deleted",
+            "userHardDeleted": "User permanently deleted",
+            "userDeleteFailed": "Could not delete user",
+            "settingsSaved": "Service settings saved",
+            "settingsFailed": "Could not save service settings",
+            "modelUpdated": "Model updated",
+            "modelUpdateFailed": "Could not update model"
+        },
         "nav": {
             "users": "Users",
             "settings": "Settings",
@@ -339,8 +365,14 @@
             "phoneVerified": "Phone verified",
             "softDelete": "Soft delete",
             "hardDelete": "Hard delete",
+            "softDeleteTitle": "Soft delete",
+            "hardDeleteTitle": "Hard delete",
             "confirmSoft": "Mark this user as deleted?",
-            "confirmHard": "Permanently delete this user? This cannot be undone."
+            "confirmHard": "Permanently delete this user? This cannot be undone.",
+            "confirmSoftNamed": "Mark “{name}” as deleted?",
+            "confirmHardNamed": "Permanently delete “{name}”? This cannot be undone.",
+            "verified": "Ok",
+            "unverified": "No"
         },
         "settings": {
             "appVersion": "App version",
@@ -349,10 +381,11 @@
             "registrationEnabled": "Registration enabled",
             "models": "AI models",
             "provider": "Provider",
-            "analyzePremium": "Analyze premium (UUID)",
-            "analyzeLite": "Analyze lite (UUID)",
-            "embeddingPremium": "Embedding premium (UUID)",
-            "embeddingLite": "Embedding lite (UUID)",
+            "analyzePremium": "Analyze premium",
+            "analyzeLite": "Analyze lite",
+            "embeddingPremium": "Embedding premium",
+            "embeddingLite": "Embedding lite",
+            "modelNone": "None",
             "auth": {
                 "email": "Email",
                 "freshCall": "Phone",
@@ -364,7 +397,8 @@
         "models": {
             "name": "Name",
             "type": "Type",
-            "active": "Active"
+            "active": "Active",
+            "allTypes": "All"
         },
         "logs": {
             "path": "Path",
@@ -373,7 +407,8 @@
             "userId": "User ID",
             "time": "Time",
             "duration": "Duration",
-            "user": "User"
+            "user": "User",
+            "allMethods": "All"
         },
         "authLogs": {
             "userId": "User ID",
@@ -394,7 +429,9 @@
                 "redis": "Redis",
                 "s3": "S3"
             }
-        }
+        },
+        "queryPlaceholder": "Search…",
+        "advancedFilters": "Filters"
     },
     "main-page": "Home",
     "change-language-title": "Language",
@@ -489,7 +526,11 @@
             "placeAlt": "City street from above — geo tag metaphor.",
             "text": "Text",
             "textHint": "One sentence is enough to start.",
-            "textSamples": ["Walk after the rain", "Pick up bread", "Project idea"]
+            "textSamples": [
+                "Walk after the rain",
+                "Pick up bread",
+                "Project idea"
+            ]
         },
         "graph": {
             "kicker": "Connection graph",
@@ -553,9 +594,18 @@
                 "home": "Evening by the window"
             },
             "stats": {
-                "notes": { "value": "48", "label": "geo-tagged notes" },
-                "cities": { "value": "6", "label": "cities this year" },
-                "routes": { "value": "12", "label": "routes" }
+                "notes": {
+                    "value": "48",
+                    "label": "geo-tagged notes"
+                },
+                "cities": {
+                    "value": "6",
+                    "label": "cities this year"
+                },
+                "routes": {
+                    "value": "12",
+                    "label": "routes"
+                }
             },
             "highlightsTitle": "What the map gives you",
             "highlights": {

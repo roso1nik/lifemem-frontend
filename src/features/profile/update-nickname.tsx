@@ -27,7 +27,10 @@ export const UpdateNicknameForm = () => {
     }, [self?.info.nickname, form])
 
     return (
-        <form className="flex flex-col gap-3" onSubmit={form.handleSubmit((data) => updateSelf(data))}>
+        <form
+            className="flex flex-col gap-3 sm:flex-row sm:items-end"
+            onSubmit={form.handleSubmit((data) => updateSelf(data))}
+        >
             <Controller
                 control={form.control}
                 name="nickname"
@@ -37,10 +40,11 @@ export const UpdateNicknameForm = () => {
                         label={t('nickname')}
                         error={form.formState.errors.nickname?.message}
                         leftSection={<User size={16} />}
+                        className="min-w-0 flex-1"
                     />
                 )}
             />
-            <Button type="submit" loading={isPending} className="self-start">
+            <Button type="submit" loading={isPending} className="shrink-0 rounded-full sm:mb-0.5">
                 {t('save')}
             </Button>
         </form>

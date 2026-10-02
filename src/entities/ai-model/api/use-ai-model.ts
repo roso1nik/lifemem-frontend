@@ -2,7 +2,9 @@ import z from 'zod'
 import { AxiosPromise } from 'axios'
 import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
+import { useTranslations } from 'next-intl'
 import apiClient from '@/shared/api'
+import { getApiErrorMessage } from '@/shared/api/errors'
 import { ApiQueryKeys } from '@/shared/config'
 import { SearchRequest, SortDirection, SearchResponse } from '@/shared/types'
 import { AiModel, AiModelType } from '../model'
@@ -42,10 +44,13 @@ export const updateAiModel = async (id: string, data: AiModelUpdateRequest): Axi
     return res
 }
 
-export const useUpdateAiModel = () =>
-    useMutation({
+export const useUpdateAiModel = () => {
+    const t = useTranslations('admin')
+
+    return useMutation({
         mutationKey: [ApiQueryKeys.AI_MODEL_UPDATE],
         mutationFn: ({ id, data }: { id: string; data: AiModelUpdateRequest }) => updateAiModel(id, data),
-        onSuccess: () => toast.success('Модель обновлена'),
-        onError: () => toast.error('Не удалось обновить модель')
+        onSuccess: () => toast.success(t('toast.modelUpdated')),
+        onError: (error) => toast.error(getApiErrorMessage(error, t('toast.modelUpdateFailed')))
     })
+}

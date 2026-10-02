@@ -43,7 +43,6 @@ export const ProfileBindings = () => {
     const { mutate: unlinkTelegram, isPending: isTelegramUnlinkPending } = useTelegramUnlink()
 
     const [unlinkProvider, setUnlinkProvider] = useState<OAuthProvider | null>(null)
-    const [linkingProvider, setLinkingProvider] = useState<OAuthProvider | null>(null)
 
     const visibleProviders = useMemo(
         () => PROVIDERS.filter((provider) => isOAuthProviderConfigured(PROVIDER_KEYS[provider])),
@@ -52,21 +51,12 @@ export const ProfileBindings = () => {
 
     const getBinding = (provider: OAuthProvider) => bindings.find((b) => b.provider === provider)
 
-    const isPending =
-        isGoogleLinkPending ||
-        isAppleLinkPending ||
-        isTelegramLinkPending ||
-        isGoogleUnlinkPending ||
-        isAppleUnlinkPending ||
-        isTelegramUnlinkPending
+    const isUnlinkPending = isGoogleUnlinkPending || isAppleUnlinkPending || isTelegramUnlinkPending
 
     const handleGoogleLink = useCallback(
         (response: CredentialResponse) => {
             if (!response.credential) return
-            linkGoogle(
-                { idToken: response.credential },
-                { onSettled: () => setLinkingProvider(null) }
-            )
+            linkGoogle({ idToken: response.credential })
         },
         [linkGoogle]
     )
@@ -74,15 +64,15 @@ export const ProfileBindings = () => {
     const handleAppleLink = useCallback(async () => {
         try {
             const result = await signInApple()
-            linkApple({ idToken: result.idToken }, { onSettled: () => setLinkingProvider(null) })
+            linkApple({ idToken: result.idToken })
         } catch {
-            setLinkingProvider(null)
+            // user cancelled or SDK error
         }
     }, [linkApple, signInApple])
 
     const handleTelegramLink = useCallback(
         (data: TelegramLoginData) => {
-            linkTelegram({ telegramData: data }, { onSettled: () => setLinkingProvider(null) })
+            linkTelegram({ telegramData: data })
         },
         [linkTelegram]
     )
@@ -96,11 +86,49 @@ export const ProfileBindings = () => {
         if (unlinkProvider === 'Telegram') unlinkTelegram(undefined, { onSettled })
     }
 
+    const renderLinkControl = (provider: OAuthProvider) => {
+        if (provider === 'Google') {
+            return (
+                <GoogleLoginButton
+                    onSuccess={handleGoogleLink}
+                    label={t('linkGoogle')}
+                    className={isGoogleLinkPending ? 'pointer-events-none opacity-60' : undefined}
+                />
+            )
+        }
+
+        if (provider === 'Apple' && isAppleConfigured) {
+            return (
+                <Button
+                    type="button"
+                    variant="subtle"
+                    fullWidth
+                    loading={isAppleSdkLoading || isAppleLinkPending}
+                    onClick={handleAppleLink}
+                >
+                    {t('linkApple')}
+                </Button>
+            )
+        }
+
+        if (provider === 'Telegram') {
+            return (
+                <TelegramLoginWidget
+                    onAuth={handleTelegramLink}
+                    label={t('linkTelegram')}
+                    className={isTelegramLinkPending ? 'pointer-events-none opacity-60' : undefined}
+                />
+            )
+        }
+
+        return null
+    }
+
     if (visibleProviders.length === 0) return null
 
     return (
         <GoogleOAuthProviderWrapper>
-            <Surface className="p-4">
+            <Surface frost capsule className="p-4 sm:p-5">
                 <h3 className="mb-3 text-sm font-medium">{t('bindings')}</h3>
                 {isLoading ? (
                     <p className="text-muted-foreground text-sm">{t('loading')}</p>
@@ -112,76 +140,40 @@ export const ProfileBindings = () => {
                             return (
                                 <div
                                     key={provider}
-                                    className="border-hairline flex items-center justify-between gap-3 rounded-xl px-3 py-2"
+                                    className="border-hairline flex flex-col gap-2 rounded-xl px-3 py-2.5"
                                 >
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-medium">{provider}</p>
+                                    <div className="flex items-center justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-medium">{provider}</p>
+                                            {binding ? (
+                                                <p className="text-muted-foreground truncate text-xs">
+                                                    {binding.providerEmail ??
+                                                        binding.providerUsername ??
+                                                        binding.providerUserId}
+                                                </p>
+                                            ) : (
+                                                <p className="text-muted-foreground text-xs">{t('notLinked')}</p>
+                                            )}
+                                        </div>
                                         {binding ? (
-                                            <p className="text-muted-foreground truncate text-xs">
-                                                {binding.providerEmail ??
-                                                    binding.providerUsername ??
-                                                    binding.providerUserId}
-                                            </p>
-                                        ) : (
-                                            <p className="text-muted-foreground text-xs">{t('notLinked')}</p>
-                                        )}
+                                            <Button
+                                                type="button"
+                                                variant="subtle"
+                                                size="sm"
+                                                loading={isUnlinkPending}
+                                                onClick={() => setUnlinkProvider(provider)}
+                                            >
+                                                {t('unlink')}
+                                            </Button>
+                                        ) : null}
                                     </div>
-                                    {binding ? (
-                                        <Button
-                                            type="button"
-                                            variant="subtle"
-                                            size="sm"
-                                            loading={isPending}
-                                            onClick={() => setUnlinkProvider(provider)}
-                                        >
-                                            {t('unlink')}
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            type="button"
-                                            variant="subtle"
-                                            size="sm"
-                                            loading={isPending}
-                                            onClick={() => setLinkingProvider(provider)}
-                                        >
-                                            {t('link')}
-                                        </Button>
-                                    )}
+                                    {!binding ? renderLinkControl(provider) : null}
                                 </div>
                             )
                         })}
                     </div>
                 )}
             </Surface>
-
-            <Modal
-                opened={linkingProvider === 'Google'}
-                onClose={() => setLinkingProvider(null)}
-                title={t('linkGoogle')}
-                centered
-            >
-                <GoogleLoginButton onSuccess={handleGoogleLink} onError={() => setLinkingProvider(null)} label={t('linkGoogle')} />
-            </Modal>
-
-            <Modal
-                opened={linkingProvider === 'Apple' && isAppleConfigured}
-                onClose={() => setLinkingProvider(null)}
-                title={t('linkApple')}
-                centered
-            >
-                <Button fullWidth loading={isAppleSdkLoading || isAppleLinkPending} onClick={handleAppleLink}>
-                    {t('linkApple')}
-                </Button>
-            </Modal>
-
-            <Modal
-                opened={linkingProvider === 'Telegram'}
-                onClose={() => setLinkingProvider(null)}
-                title={t('linkTelegram')}
-                centered
-            >
-                <TelegramLoginWidget onAuth={handleTelegramLink} label={t('linkTelegram')} />
-            </Modal>
 
             <Modal
                 opened={unlinkProvider !== null}
@@ -194,7 +186,7 @@ export const ProfileBindings = () => {
                     <Button variant="subtle" onClick={() => setUnlinkProvider(null)}>
                         {t('cancel')}
                     </Button>
-                    <Button variant="danger" loading={isPending} onClick={confirmUnlink}>
+                    <Button variant="danger" loading={isUnlinkPending} onClick={confirmUnlink}>
                         {t('unlink')}
                     </Button>
                 </div>
