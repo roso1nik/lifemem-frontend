@@ -172,20 +172,20 @@
         "insightGraphPreview": "Connection graph",
         "insight": {
             "links": {
-                "title": "Links between notes",
-                "body": "People, places, and themes weave together — no manual tags."
+                "title": "Links",
+                "body": "People, places, and themes weave together."
             },
             "fact": {
-                "title": "Interesting fact",
-                "body": "For example: you write about walks most often on Friday evenings."
+                "title": "Insight",
+                "body": "E.g. you write most on Friday evenings."
             },
             "graph": {
-                "title": "Memory map",
-                "body": "A living graph of everything you saved — from coffee to trips."
+                "title": "Map",
+                "body": "A living graph of everything you saved."
             },
             "places": {
-                "title": "Places this week",
-                "body": "Where you spent time — from geo tags and mentions."
+                "title": "Places",
+                "body": "Where you’ve been — geo tags and mentions."
             }
         },
         "navTabs": "Tabs",
@@ -234,10 +234,16 @@
             "placeholder": "Ask about your notes…",
             "submit": "Ask",
             "emptyTitle": "Ask your memory",
-            "emptyHint": "AI answers from your notes and shows the sources.",
+            "emptyHint": "Answers come from your notes — with sources you can open.",
             "emptyQuestion": "Type a question in search first",
             "questionLabel": "Question",
             "answerLabel": "Answer",
+            "suggestionsLabel": "Try asking",
+            "suggestions": {
+                "week": "What mattered this week?",
+                "people": "Who have I written about most?",
+                "places": "Which places showed up lately?"
+            },
             "sourcesLabel": "{count, plural, one {# source} other {# sources}}",
             "error": "Could not get an answer"
         },
