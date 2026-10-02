@@ -141,7 +141,8 @@
             "remove": "Remove",
             "placeLimit": "Up to 3 places and locations total",
             "loadError": "Couldn’t load the list",
-            "placesEmptyHint": "No places found. Add a location with the geo button, or pick an existing place."
+            "placesEmptyHint": "No places found. Add a location with the geo button, or pick an existing place.",
+            "invalidIds": "People or places have invalid ids — remove and add them again"
         },
         "hintFile": "Photo or video",
         "hintMusic": "Music",

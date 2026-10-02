@@ -8,13 +8,11 @@ import { ApiQueryKeys } from '@/shared/config'
 import { Entry } from '../model'
 import { entryLocationSchema } from './use-create-entry'
 
-const idListSchema = z.array(z.string().min(1)).max(10)
-
 export const updateEntrySchema = z
     .object({
         title: z.string().optional(),
-        peoples: idListSchema.optional(),
-        places: z.array(z.string().min(1)).max(3).optional(),
+        peoples: z.array(z.string().uuid()).max(10).optional(),
+        places: z.array(z.string().uuid()).max(3).optional(),
         location: z.array(entryLocationSchema).max(3).optional()
     })
     .superRefine((data, ctx) => {
@@ -35,16 +33,9 @@ const buildUpdatePayload = (data: UpdateEntryRequest): Record<string, unknown> =
 
     if (data.title !== undefined) payload.title = data.title
 
-    // OpenAPI: peoples / places. Create uses personIds / placeIds — send both
-    // so a DTO naming drift on the backend still links relations.
-    if (data.peoples !== undefined) {
-        payload.peoples = data.peoples
-        payload.personIds = data.peoples
-    }
-    if (data.places !== undefined) {
-        payload.places = data.places
-        payload.placeIds = data.places
-    }
+    // BaseEntryUpdateDto — только эти поля для связей
+    if (data.peoples !== undefined) payload.peoples = data.peoples
+    if (data.places !== undefined) payload.places = data.places
 
     if (data.location?.length) {
         payload.location = data.location

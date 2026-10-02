@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
 import { useUpdateEntry } from '@/entities/entry/api/use-update-entry'
@@ -16,6 +16,12 @@ type EditNoteFormProps = {
     onSuccess?: () => void
     onCancel?: () => void
 }
+
+const UUID_RE =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+const toUuidList = (items: RelationOption[]): string[] =>
+    items.map((item) => item.id.trim()).filter((id) => UUID_RE.test(id))
 
 const readCurrentLocation = (): Promise<EntryLocationInput> =>
     new Promise((resolve, reject) => {
@@ -34,20 +40,6 @@ const readCurrentLocation = (): Promise<EntryLocationInput> =>
             { enableHighAccuracy: true, timeout: 12_000 }
         )
     })
-
-const sortedIds = (items: RelationOption[]) =>
-    items
-        .map((item) => item.id)
-        .filter((id) => typeof id === 'string' && id.trim().length > 0)
-        .slice()
-        .sort()
-
-const sameIds = (a: RelationOption[], b: RelationOption[]) => {
-    const left = sortedIds(a)
-    const right = sortedIds(b)
-    if (left.length !== right.length) return false
-    return left.every((id, index) => id === right[index])
-}
 
 export const EditNoteForm = ({
     entryId,
@@ -71,13 +63,6 @@ export const EditNoteForm = ({
 
     const placeSlots = places.length + (location ? 1 : 0)
 
-    const peopleChanged = useMemo(() => !sameIds(people, initialPeople), [people, initialPeople])
-    const placesChanged = useMemo(
-        () => !sameIds(places, initialPlaces) || location != null,
-        [places, initialPlaces, location]
-    )
-    const titleChanged = title.trim() !== (initialTitle ?? '').trim()
-
     return (
         <form
             className="flex flex-col gap-4"
@@ -87,42 +72,32 @@ export const EditNoteForm = ({
                     toast.error(t('relations.placeLimit'))
                     return
                 }
-                if (!titleChanged && !peopleChanged && !placesChanged) {
-                    onSuccess?.()
+
+                const peoples = toUuidList(people)
+                const placeIds = toUuidList(places)
+
+                if (people.length !== peoples.length || places.length !== placeIds.length) {
+                    toast.error(t('relations.invalidIds'))
                     return
                 }
-
-                const peopleIds = sortedIds(people)
-                const placeIds = places
-                    .map((item) => item.id)
-                    .filter((id) => typeof id === 'string' && id.trim().length > 0)
 
                 void mutateAsync({
                     id: entryId,
                     data: {
-                        ...(titleChanged ? { title: title.trim() } : {}),
-                        // Always send full relation lists when either side changed —
-                        // backend replaces the set. Omit when untouched so title-only
-                        // PATCH never trips person/place lookups.
-                        ...(peopleChanged ? { peoples: peopleIds } : {}),
-                        ...(placesChanged
+                        title: title.trim(),
+                        peoples,
+                        places: placeIds,
+                        ...(location && location.latitude != null && location.longitude != null
                             ? {
-                                  places: placeIds,
-                                  ...(location &&
-                                  location.latitude != null &&
-                                  location.longitude != null
-                                      ? {
-                                            location: [
-                                                {
-                                                    latitude: location.latitude,
-                                                    longitude: location.longitude,
-                                                    ...(location.locationLabel
-                                                        ? { locationLabel: location.locationLabel }
-                                                        : {})
-                                                }
-                                            ]
-                                        }
-                                      : {})
+                                  location: [
+                                      {
+                                          latitude: location.latitude,
+                                          longitude: location.longitude,
+                                          ...(location.locationLabel
+                                              ? { locationLabel: location.locationLabel }
+                                              : {})
+                                      }
+                                  ]
                               }
                             : {})
                     }
