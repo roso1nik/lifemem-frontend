@@ -1,7 +1,5 @@
 'use client'
 
-import { Loader as MantineLoader } from '@mantine/core'
-import { useTranslations } from 'next-intl'
 import { type HTMLAttributes, type ReactNode } from 'react'
 import { cn } from '@/shared/utils'
 import classes from './loader.module.css'
@@ -12,14 +10,14 @@ export type LoaderSize = 'sm' | 'md' | 'lg'
 export type LoaderProps = Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
     variant?: LoaderVariant
     size?: LoaderSize
-    /** Custom label. `false` hides text. Default: `common.loading` for page/section; hidden for inline */
+    /** Custom label. `false` hides text. Default for page/section; hidden for inline */
     label?: ReactNode | false
 }
 
-const mantineSize: Record<LoaderSize, number> = {
-    sm: 18,
-    md: 28,
-    lg: 40
+const spinnerSizeClass: Record<LoaderSize, string> = {
+    sm: classes.spinnerSm,
+    md: classes.spinnerMd,
+    lg: classes.spinnerLg
 }
 
 const defaultSize: Record<LoaderVariant, LoaderSize> = {
@@ -28,6 +26,8 @@ const defaultSize: Record<LoaderVariant, LoaderSize> = {
     inline: 'sm'
 }
 
+const defaultLabel = 'Loading…'
+
 export const Loader = ({
     variant = 'section',
     size,
@@ -35,7 +35,6 @@ export const Loader = ({
     className,
     ...props
 }: LoaderProps) => {
-    const t = useTranslations('common')
     const resolvedSize = size ?? defaultSize[variant]
 
     const resolvedLabel =
@@ -45,7 +44,7 @@ export const Loader = ({
               ? label
               : variant === 'inline'
                 ? null
-                : t('loading')
+                : defaultLabel
 
     return (
         <div
@@ -55,7 +54,7 @@ export const Loader = ({
             className={cn(classes.root, classes[variant], className)}
             {...props}
         >
-            <MantineLoader color="brandColors" type="oval" size={mantineSize[resolvedSize]} />
+            <span className={cn(classes.spinner, spinnerSizeClass[resolvedSize])} aria-hidden />
             {resolvedLabel != null && <p className={classes.label}>{resolvedLabel}</p>}
         </div>
     )

@@ -12,6 +12,8 @@ import { cn } from '@/shared/utils'
 
 export type RelationOption = { id: string; name: string }
 
+const isUsableId = (id: unknown): id is string => typeof id === 'string' && id.trim().length > 0
+
 type PeoplePickerProps = {
     value: RelationOption[]
     onChange: (next: RelationOption[]) => void
@@ -22,27 +24,33 @@ export const PeoplePicker = ({ value, onChange, max = 10 }: PeoplePickerProps) =
     const t = useTranslations('home.relations')
     const [query, setQuery] = useState('')
     const [debounced] = useDebouncedValue(query.trim(), 250)
-    const { data, isFetching } = useListPersons({ query: debounced || undefined, count: 8 })
+    const { data, isFetching, isError } = useListPersons({
+        query: debounced || undefined,
+        count: 8
+    })
     const { mutateAsync: createPerson, isPending } = useCreatePerson()
 
     const options = useMemo(() => {
         const selected = new Set(value.map((item) => item.id))
-        return (data?.pages.flatMap((page) => page.data) ?? []).filter((person) => !selected.has(person.id))
+        return (data?.pages.flatMap((page) => page.data) ?? []).filter(
+            (person) => isUsableId(person.id) && !selected.has(person.id)
+        )
     }, [data, value])
 
     const canAdd = value.length < max
 
     const add = (person: RelationOption) => {
-        if (!canAdd) return
-        onChange([...value, person])
+        if (!canAdd || !isUsableId(person.id)) return
+        if (value.some((item) => item.id === person.id)) return
+        onChange([...value, { id: person.id, name: person.name }])
         setQuery('')
     }
 
     const create = async () => {
         const name = query.trim()
         if (!name || !canAdd) return
-        const res = await createPerson({ name })
-        add({ id: res.data.id, name: res.data.name })
+        const person = await createPerson({ name })
+        add({ id: person.id, name: person.name })
     }
 
     return (
@@ -77,6 +85,9 @@ export const PeoplePicker = ({ value, onChange, max = 10 }: PeoplePickerProps) =
                         placeholder={t('peoplePlaceholder')}
                         rightSection={isFetching ? <MantineLoader size={14} /> : null}
                     />
+                    {isError && (
+                        <p className="text-destructive text-xs">{t('loadError')}</p>
+                    )}
                     {(options.length > 0 || query.trim()) && (
                         <ul className="border-hairline bg-card max-h-36 overflow-y-auto rounded-xl border p-1">
                             {options.map((person) => (
@@ -126,11 +137,16 @@ export const PlacesPicker = ({ value, onChange, max = 3 }: PlacesPickerProps) =>
     const t = useTranslations('home.relations')
     const [query, setQuery] = useState('')
     const [debounced] = useDebouncedValue(query.trim(), 250)
-    const { data, isFetching } = useListPlaces({ query: debounced || undefined, count: 8 })
+    const { data, isFetching, isError } = useListPlaces({
+        query: debounced || undefined,
+        count: 8
+    })
 
     const options = useMemo(() => {
         const selected = new Set(value.map((item) => item.id))
-        return (data?.pages.flatMap((page) => page.data) ?? []).filter((place) => !selected.has(place.id))
+        return (data?.pages.flatMap((page) => page.data) ?? []).filter(
+            (place) => isUsableId(place.id) && !selected.has(place.id)
+        )
     }, [data, value])
 
     const canAdd = value.length < max
@@ -167,6 +183,9 @@ export const PlacesPicker = ({ value, onChange, max = 3 }: PlacesPickerProps) =>
                         placeholder={t('placesPlaceholder')}
                         rightSection={isFetching ? <MantineLoader size={14} /> : null}
                     />
+                    {isError && (
+                        <p className="text-destructive text-xs">{t('loadError')}</p>
+                    )}
                     {options.length > 0 && (
                         <ul className="border-hairline bg-card max-h-36 overflow-y-auto rounded-xl border p-1">
                             {options.map((place) => (
@@ -184,6 +203,9 @@ export const PlacesPicker = ({ value, onChange, max = 3 }: PlacesPickerProps) =>
                                 </li>
                             ))}
                         </ul>
+                    )}
+                    {!isFetching && !isError && debounced && options.length === 0 && (
+                        <p className="text-muted-foreground text-xs">{t('placesEmptyHint')}</p>
                     )}
                 </div>
             )}

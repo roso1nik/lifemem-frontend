@@ -1,13 +1,13 @@
 'use client'
 
-/** Soft Mist Aqua / Sage wash — not a mesh blob hero. */
+/** Full-viewport soft wash — no clipped blobs or hard edges. */
 export const LandingAtmosphere = () => {
     return (
-        <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
             <div className="bg-background absolute inset-0" />
-            <div className="absolute top-[-12%] left-[50%] h-[560px] w-[920px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,color-mix(in_srgb,var(--primary)_20%,transparent)_0%,transparent_68%)] blur-2xl" />
-            <div className="absolute top-[28%] right-[-8%] h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--sage)_16%,transparent)_0%,transparent_70%)] blur-3xl" />
-            <div className="absolute bottom-[-10%] left-[-6%] h-[380px] w-[520px] rounded-full bg-[radial-gradient(ellipse_at_center,color-mix(in_srgb,var(--primary)_10%,transparent)_0%,transparent_72%)] blur-3xl" />
+            <div
+                className="absolute -inset-[35%] bg-[radial-gradient(ellipse_90%_72%_at_8%_16%,color-mix(in_srgb,var(--primary)_14%,transparent),transparent_68%),radial-gradient(ellipse_82%_64%_at_96%_20%,color-mix(in_srgb,var(--sage)_11%,transparent),transparent_66%),radial-gradient(ellipse_88%_58%_at_48%_108%,color-mix(in_srgb,var(--primary)_9%,transparent),transparent_64%),radial-gradient(ellipse_70%_52%_at_78%_72%,color-mix(in_srgb,var(--sage)_7%,transparent),transparent_62%)]"
+            />
         </div>
     )
 }

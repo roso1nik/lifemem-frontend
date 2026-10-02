@@ -94,4 +94,11 @@ jobs:
             docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-frontend-prod --env-file .env pull
             docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-frontend-prod --env-file .env up -d --no-build --remove-orphans
             docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-frontend-prod --env-file .env ps
+
+            IMAGE_REPO="${FRONTEND_IMAGE%%:*}"
+            docker images "$IMAGE_REPO" --format '{{.Repository}}:{{.Tag}}' | while read -r ref; do
+              docker rmi "$ref" 2>/dev/null || true
+            done
+            docker images "$IMAGE_REPO" -f dangling=true -q | xargs -r docker rmi -f 2>/dev/null || true
+
             docker logout ghcr.io || true

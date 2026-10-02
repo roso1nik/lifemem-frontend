@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
 import { useUpdateEntry } from '@/entities/entry/api/use-update-entry'
@@ -35,6 +35,20 @@ const readCurrentLocation = (): Promise<EntryLocationInput> =>
         )
     })
 
+const sortedIds = (items: RelationOption[]) =>
+    items
+        .map((item) => item.id)
+        .filter((id) => typeof id === 'string' && id.trim().length > 0)
+        .slice()
+        .sort()
+
+const sameIds = (a: RelationOption[], b: RelationOption[]) => {
+    const left = sortedIds(a)
+    const right = sortedIds(b)
+    if (left.length !== right.length) return false
+    return left.every((id, index) => id === right[index])
+}
+
 export const EditNoteForm = ({
     entryId,
     initialTitle,
@@ -45,13 +59,24 @@ export const EditNoteForm = ({
 }: EditNoteFormProps) => {
     const t = useTranslations('home')
     const [title, setTitle] = useState(initialTitle)
-    const [people, setPeople] = useState<RelationOption[]>(initialPeople)
-    const [places, setPlaces] = useState<RelationOption[]>(initialPlaces)
+    const [people, setPeople] = useState<RelationOption[]>(() =>
+        initialPeople.filter((item) => item.id && item.name)
+    )
+    const [places, setPlaces] = useState<RelationOption[]>(() =>
+        initialPlaces.filter((item) => item.id && item.name)
+    )
     const [location, setLocation] = useState<EntryLocationInput | null>(null)
     const [locating, setLocating] = useState(false)
-    const { mutate, isPending } = useUpdateEntry()
+    const { mutateAsync, isPending } = useUpdateEntry()
 
     const placeSlots = places.length + (location ? 1 : 0)
+
+    const peopleChanged = useMemo(() => !sameIds(people, initialPeople), [people, initialPeople])
+    const placesChanged = useMemo(
+        () => !sameIds(places, initialPlaces) || location != null,
+        [places, initialPlaces, location]
+    )
+    const titleChanged = title.trim() !== (initialTitle ?? '').trim()
 
     return (
         <form
@@ -62,18 +87,48 @@ export const EditNoteForm = ({
                     toast.error(t('relations.placeLimit'))
                     return
                 }
-                mutate(
-                    {
-                        id: entryId,
-                        data: {
-                            title: title.trim(),
-                            peoples: people.map((item) => item.id),
-                            places: places.map((item) => item.id),
-                            location: location ? [location] : undefined
-                        }
-                    },
-                    { onSuccess: () => onSuccess?.() }
-                )
+                if (!titleChanged && !peopleChanged && !placesChanged) {
+                    onSuccess?.()
+                    return
+                }
+
+                const peopleIds = sortedIds(people)
+                const placeIds = places
+                    .map((item) => item.id)
+                    .filter((id) => typeof id === 'string' && id.trim().length > 0)
+
+                void mutateAsync({
+                    id: entryId,
+                    data: {
+                        ...(titleChanged ? { title: title.trim() } : {}),
+                        // Always send full relation lists when either side changed —
+                        // backend replaces the set. Omit when untouched so title-only
+                        // PATCH never trips person/place lookups.
+                        ...(peopleChanged ? { peoples: peopleIds } : {}),
+                        ...(placesChanged
+                            ? {
+                                  places: placeIds,
+                                  ...(location &&
+                                  location.latitude != null &&
+                                  location.longitude != null
+                                      ? {
+                                            location: [
+                                                {
+                                                    latitude: location.latitude,
+                                                    longitude: location.longitude,
+                                                    ...(location.locationLabel
+                                                        ? { locationLabel: location.locationLabel }
+                                                        : {})
+                                                }
+                                            ]
+                                        }
+                                      : {})
+                              }
+                            : {})
+                    }
+                })
+                    .then(() => onSuccess?.())
+                    .catch(() => undefined)
             }}
         >
             <TextInput

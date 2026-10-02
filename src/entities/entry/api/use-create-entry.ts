@@ -84,8 +84,12 @@ export const createEntry = async (data: CreateEntryRequest): AxiosPromise<Create
     if (data.text?.trim()) payload.text = data.text
     if (data.audioId) payload.audioId = data.audioId
     if (data.media?.length) payload.media = data.media
-    if (data.personIds?.length) payload.personIds = data.personIds
-    if (data.placeIds?.length) payload.placeIds = data.placeIds
+    if (data.personIds?.length) {
+        payload.personIds = data.personIds.filter((id) => typeof id === 'string' && id.trim().length > 0)
+    }
+    if (data.placeIds?.length) {
+        payload.placeIds = data.placeIds.filter((id) => typeof id === 'string' && id.trim().length > 0)
+    }
     if (data.location?.length) {
         payload.location = data.location.map((item) => ({
             ...(item.latitude != null && item.longitude != null

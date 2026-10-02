@@ -1,23 +1,28 @@
 'use client'
 
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { usePathname, useRouter } from '@/i18n/navigation'
 import { ActionIcon, Menu } from '@mantine/core'
 import { Languages } from 'lucide-react'
 import { useUpdateUserSettings } from '@/entities/user-settings/api/use-user-settings'
+import { cn } from '@/shared/utils'
 
-export const LanguageSwitcher = () => {
+type LanguageSwitcherProps = {
+    /** One click toggles RU ↔ EN (no dropdown). */
+    instant?: boolean
+    className?: string
+}
+
+const LOCALES = ['ru', 'en'] as const
+
+export const LanguageSwitcher = ({ instant = false, className }: LanguageSwitcherProps) => {
     const locale = useLocale()
     const pathname = usePathname()
     const router = useRouter()
+    const t = useTranslations()
     const { mutate: updateSettings } = useUpdateUserSettings()
 
-    const languages = [
-        { value: 'en' as const, label: 'EN' },
-        { value: 'ru' as const, label: 'RU' }
-    ]
-
-    const switchTo = (lang: 'en' | 'ru') => {
+    const applyLocale = (lang: (typeof LOCALES)[number]) => {
         if (lang === locale) return
         updateSettings(
             { lang },
@@ -32,10 +37,41 @@ export const LanguageSwitcher = () => {
         )
     }
 
+    if (instant) {
+        const next = locale === 'ru' ? 'en' : 'ru'
+        const nextLabel = next.toUpperCase()
+
+        return (
+            <button
+                type="button"
+                onClick={() => applyLocale(next)}
+                className={cn(
+                    'text-muted-foreground hover:text-foreground hover:bg-muted/60 inline-flex size-9 items-center justify-center rounded-[var(--radius-button)] transition-colors',
+                    className
+                )}
+                aria-label={`${t('change-language-title')}: ${nextLabel}`}
+                title={`${t('change-language-title')} → ${nextLabel}`}
+            >
+                <Languages size={18} strokeWidth={1.75} />
+            </button>
+        )
+    }
+
+    const languages = [
+        { value: 'en' as const, label: 'EN' },
+        { value: 'ru' as const, label: 'RU' }
+    ]
+
     return (
         <Menu shadow="md" width={120} position="top-end" withinPortal>
             <Menu.Target>
-                <ActionIcon variant="subtle" color="gray" size="lg" aria-label="Language">
+                <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    size="lg"
+                    aria-label={t('change-language-title')}
+                    className={className}
+                >
                     <Languages size={18} />
                 </ActionIcon>
             </Menu.Target>
@@ -44,7 +80,7 @@ export const LanguageSwitcher = () => {
                     <Menu.Item
                         key={lang.value}
                         disabled={locale === lang.value}
-                        onClick={() => switchTo(lang.value)}
+                        onClick={() => applyLocale(lang.value)}
                     >
                         {lang.label}
                     </Menu.Item>

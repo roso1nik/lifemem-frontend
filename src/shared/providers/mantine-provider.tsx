@@ -6,7 +6,7 @@ import { ReactNode } from 'react'
 
 export const MantineAppProvider = ({ children }: { children: ReactNode }) => {
     return (
-        <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver}>
+        <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver} defaultColorScheme="dark">
             {children}
         </MantineProvider>
     )

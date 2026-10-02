@@ -1,51 +1,74 @@
 'use client'
 
 import { motion, useReducedMotion } from 'framer-motion'
+import { Mic, Network, Search, Sparkles } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { APP_NAME } from '@/shared/config'
 import { ROUTES } from '@/shared/router'
 import { CtaLink } from './cta-link'
 import { ProductStage } from './product-stage'
+
+const FEATURES = [
+    { key: 'voice' as const, Icon: Mic },
+    { key: 'graph' as const, Icon: Network },
+    { key: 'search' as const, Icon: Search }
+] as const
 
 export const LandingHero = () => {
     const t = useTranslations('landing')
     const reduce = useReducedMotion()
 
     return (
-        <section className="relative mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-4 pt-14 pb-16 md:px-6 md:pt-16 lg:min-h-[calc(100dvh-4rem)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-12 lg:pt-10 lg:pb-16">
-            <motion.div
-                className="max-w-xl"
-                initial={reduce ? false : { opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ type: 'spring', bounce: 0, duration: 0.45 }}
-            >
-                <p className="font-brand text-primary text-2xl font-semibold tracking-tight lowercase md:text-3xl">
-                    {APP_NAME}
-                </p>
-                <h1 className="mt-3 text-4xl leading-[1.06] font-semibold tracking-tight md:text-5xl lg:text-[3.25rem]">
-                    {t('hero.title')}
-                </h1>
-                <p className="text-muted-foreground mt-4 max-w-[38ch] text-base leading-relaxed md:text-lg">
-                    {t('hero.sub')}
-                </p>
-                <div className="mt-8 flex flex-wrap items-center gap-3">
-                    <CtaLink href={ROUTES.REGISTER} size="lg">
-                        {t('getStarted')}
-                    </CtaLink>
-                    <CtaLink href={ROUTES.LOGIN} variant="subtle" size="lg">
-                        {t('signIn')}
-                    </CtaLink>
-                </div>
-            </motion.div>
+        <section className="relative w-full">
+            <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-8 px-4 pt-6 pb-12 sm:gap-10 sm:pt-8 md:px-6 md:pb-16 lg:min-h-[calc(100dvh-5.5rem)] lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-12 lg:pt-4 lg:pb-14">
+                <motion.div
+                    className="max-w-xl lg:max-w-none"
+                    initial={reduce ? false : { opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: 'spring', bounce: 0, duration: 0.45 }}
+                >
+                    <p className="text-primary inline-flex items-center gap-2 text-sm font-medium tracking-tight">
+                        <Sparkles size={15} strokeWidth={1.75} className="opacity-90" />
+                        {t('hero.eyebrow')}
+                    </p>
+                    <h1 className="mt-4 text-[1.85rem] leading-[1.06] font-semibold tracking-tight sm:text-4xl md:text-[2.65rem] lg:text-[3.25rem]">
+                        {t('hero.titleLead')}{' '}
+                        <span className="text-primary">{t('hero.titleAccent')}</span>
+                    </h1>
+                    <p className="text-muted-foreground mt-4 max-w-[42ch] text-[15px] leading-relaxed sm:text-base md:text-lg">
+                        {t('hero.sub')}
+                    </p>
+                    <p className="text-foreground/85 mt-3 text-sm font-medium tracking-tight">{t('hero.proof')}</p>
 
-            <motion.div
-                initial={reduce ? false : { opacity: 0, y: 22 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ type: 'spring', bounce: 0, duration: 0.5, delay: 0.06 }}
-                className="min-w-0"
-            >
-                <ProductStage />
-            </motion.div>
+                    <div className="mt-7 flex flex-col gap-3 min-[420px]:flex-row min-[420px]:flex-wrap sm:mt-8">
+                        <CtaLink href={ROUTES.REGISTER} size="lg" className="w-full min-[420px]:w-auto">
+                            {t('hero.ctaPrimary')}
+                        </CtaLink>
+                        <CtaLink href={`#how`} variant="subtle" size="lg" className="w-full min-[420px]:w-auto">
+                            {t('hero.ctaSecondary')}
+                        </CtaLink>
+                    </div>
+
+                    <ul className="mt-8 hidden flex-wrap gap-2 sm:mt-9 sm:flex">
+                        {FEATURES.map(({ key, Icon }) => (
+                            <li key={key}>
+                                <span className="border-hairline bg-card/75 text-foreground inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-medium sm:text-sm">
+                                    <Icon size={14} className="text-primary shrink-0" strokeWidth={1.75} />
+                                    {t(`hero.features.${key}`)}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </motion.div>
+
+                <motion.div
+                    initial={reduce ? false : { opacity: 0, y: 22 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: 'spring', bounce: 0, duration: 0.5, delay: 0.06 }}
+                    className="min-w-0 lg:justify-self-end"
+                >
+                    <ProductStage />
+                </motion.div>
+            </div>
         </section>
     )
 }
