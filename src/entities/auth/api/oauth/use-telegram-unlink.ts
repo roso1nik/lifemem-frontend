@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl'
 import { completeOAuthUnlink } from '@/shared/lib/oauth'
 
 export const telegramUnlink = async (): AxiosPromise<AlertBaseDto> => {
-    const res = await apiClient.delete('/auth/telegram/unlink')
+    const res = await apiClient.post('/auth/telegram/unlink')
     return res
 }
 

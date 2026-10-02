@@ -62,6 +62,7 @@ export const ApiQueryKeys = {
     DELETE_ENTRY: 'delete-entry',
     ATTACH_ENTRY_MEDIA: 'attach-entry-media',
     DETACH_ENTRY_MEDIA: 'detach-entry-media',
+    ASK_ENTRY: 'ask-entry',
 
     // Upload
     UPLOAD_FILE: 'upload-file',

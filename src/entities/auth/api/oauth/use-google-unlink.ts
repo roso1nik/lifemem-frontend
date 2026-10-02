@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl'
 import { completeOAuthUnlink } from '@/shared/lib/oauth'
 
 export const googleUnlink = async (): AxiosPromise<AlertBaseDto> => {
-    const res = await apiClient.delete('/auth/google/unlink')
+    const res = await apiClient.post('/auth/google/unlink')
     return res
 }
 

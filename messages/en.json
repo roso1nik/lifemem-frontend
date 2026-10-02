@@ -206,7 +206,21 @@
         },
         "searchLabel": "Search",
         "searchPlaceholder": "Search or ask AI…",
-        "searchSoon": "AI ask coming soon",
+        "mode": {
+            "write": "Write",
+            "ask": "Ask"
+        },
+        "ask": {
+            "placeholder": "Ask about your notes…",
+            "submit": "Ask",
+            "emptyTitle": "Ask your memory",
+            "emptyHint": "AI answers from your notes and shows the sources.",
+            "emptyQuestion": "Type a question in search first",
+            "questionLabel": "Question",
+            "answerLabel": "Answer",
+            "sourcesLabel": "{count, plural, one {# source} other {# sources}}",
+            "error": "Could not get an answer"
+        },
         "spotlight": {
             "empty": "Nothing found",
             "searching": "Searching…",
@@ -215,7 +229,8 @@
             "groupAi": "AI",
             "homeDesc": "Today and new note",
             "askAi": "Ask AI",
-            "askAiDesc": "Find meaning or links across your notes"
+            "askAiDesc": "Find meaning or links across your notes",
+            "askAiWithQuery": "Ask: “{query}”"
         }
     },
     "account": {

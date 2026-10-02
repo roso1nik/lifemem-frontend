@@ -16,6 +16,7 @@ import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
 import { useSearchEntries } from '@/entities/entry/api/use-search-entries'
 import { getEntryPreviewText } from '@/entities/entry/model'
+import { useAskNotesStore } from '@/features/ask-notes'
 import { useWorkspaceNavigation } from '@/features/workspace-tabs'
 
 export const openSearchSpotlight = () => spotlight.open()
@@ -23,6 +24,7 @@ export const openSearchSpotlight = () => spotlight.open()
 export const SearchSpotlight = () => {
     const t = useTranslations('home')
     const { goHome, goNote, goSection } = useWorkspaceNavigation()
+    const requestAsk = useAskNotesStore((s) => s.requestAsk)
     const [query, setQuery] = useState('')
     const [debouncedQuery] = useDebouncedValue(query.trim(), 300)
     const { data, isFetching } = useSearchEntries({
@@ -33,7 +35,19 @@ export const SearchSpotlight = () => {
     const notes = data?.data ?? []
 
     const actions = useMemo<(SpotlightActionData | { group: string; actions: SpotlightActionData[] })[]>(
-        () => [
+        () => {
+            const runAsk = () => {
+                const question = query.trim()
+                if (!question) {
+                    toast(t('ask.emptyQuestion'))
+                    return
+                }
+                requestAsk(question)
+                goHome()
+                spotlight.close()
+            }
+
+            return [
             {
                 group: t('spotlight.groupNavigate'),
                 actions: [
@@ -107,14 +121,17 @@ export const SearchSpotlight = () => {
                     {
                         id: 'ask-ai',
                         label: t('spotlight.askAi'),
-                        description: t('spotlight.askAiDesc'),
+                        description: query.trim()
+                            ? t('spotlight.askAiWithQuery', { query: query.trim() })
+                            : t('spotlight.askAiDesc'),
                         leftSection: <Sparkles size={18} className="text-primary" />,
-                        onClick: () => toast(t('searchSoon'))
+                        onClick: runAsk
                     }
                 ]
             }
-        ],
-        [notes, goHome, goNote, goSection, t, isFetching]
+        ]
+        },
+        [notes, goHome, goNote, goSection, t, isFetching, query, requestAsk]
     )
 
     return (

@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl'
 import { completeOAuthUnlink } from '@/shared/lib/oauth'
 
 export const appleUnlink = async (): AxiosPromise<AlertBaseDto> => {
-    const res = await apiClient.delete('/auth/apple/unlink')
+    const res = await apiClient.post('/auth/apple/unlink')
     return res
 }
 

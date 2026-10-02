@@ -206,7 +206,21 @@
         },
         "searchLabel": "Поиск",
         "searchPlaceholder": "Найти или спросить ИИ…",
-        "searchSoon": "Вопрос к ИИ скоро подключим",
+        "mode": {
+            "write": "Записать",
+            "ask": "Спросить"
+        },
+        "ask": {
+            "placeholder": "Спросите о своих заметках…",
+            "submit": "Спросить",
+            "emptyTitle": "Спросите свою память",
+            "emptyHint": "ИИ ответит по вашим заметкам и покажет источники.",
+            "emptyQuestion": "Введите вопрос в поиск",
+            "questionLabel": "Вопрос",
+            "answerLabel": "Ответ",
+            "sourcesLabel": "{count, plural, one {# источник} few {# источника} many {# источников} other {# источников}}",
+            "error": "Не удалось получить ответ"
+        },
         "spotlight": {
             "empty": "Ничего не найдено",
             "searching": "Ищем…",
@@ -215,7 +229,8 @@
             "groupAi": "ИИ",
             "homeDesc": "Сегодня и новая запись",
             "askAi": "Спросить ИИ",
-            "askAiDesc": "Найти смысл или связи в ваших записях"
+            "askAiDesc": "Найти смысл или связи в ваших записях",
+            "askAiWithQuery": "Спросить: «{query}»"
         }
     },
     "account": {
