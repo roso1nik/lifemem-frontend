@@ -17,20 +17,25 @@ export const PlaceCard = ({ place, className }: PlaceCardProps) => {
     return (
         <div
             className={cn(
-                'active:scale-[0.97] rounded-xl px-3 py-2.5 transition-transform duration-100',
-                'hover:bg-sidebar-accent',
+                'active:scale-[0.97] rounded-2xl px-2.5 py-2.5 transition-transform duration-100',
+                'hover:bg-[color-mix(in_srgb,var(--sage)_7%,transparent)]',
                 className
             )}
         >
-            <div className="flex items-start gap-2">
-                {hasCoords && (
-                    <span className="text-sage mt-0.5 shrink-0">
-                        <MapPin size={14} />
-                    </span>
-                )}
+            <div className="flex items-center gap-3">
+                <span
+                    className={cn(
+                        'flex size-10 shrink-0 items-center justify-center rounded-2xl',
+                        hasCoords
+                            ? 'bg-sage/18 text-sage ring-1 ring-[color-mix(in_srgb,var(--sage)_22%,transparent)]'
+                            : 'bg-muted/60 text-muted-foreground'
+                    )}
+                >
+                    <MapPin size={18} strokeWidth={1.7} />
+                </span>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                        <p className="text-foreground min-w-0 flex-1 truncate text-sm leading-snug font-medium">
+                        <p className="text-foreground min-w-0 flex-1 truncate text-[15px] leading-snug font-medium tracking-tight">
                             {place.name}
                         </p>
                         {place.autodetected && (

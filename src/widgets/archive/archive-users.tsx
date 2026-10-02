@@ -2,10 +2,12 @@
 
 import { useMemo, useState } from 'react'
 import { Modal } from '@mantine/core'
+import { Trash2, Users } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { motion } from 'framer-motion'
 import { useDeletePerson, useListPersons } from '@/entities/person/api'
 import { PersonCard } from '@/entities/person/ui/person-card'
-import { Button, Loader } from '@/shared/ui'
+import { Button, IconButton, Loader, Surface } from '@/shared/ui'
 
 type ArchiveUsersProps = {
     query: string
@@ -26,37 +28,63 @@ export const ArchiveUsers = ({ query }: ArchiveUsersProps) => {
     }
 
     if (isError) {
-        return <p className="text-muted-foreground px-1 py-6 text-sm">{t('error')}</p>
+        return (
+            <Surface frost capsule className="px-4 py-8 text-center">
+                <p className="text-muted-foreground text-sm">{t('error')}</p>
+            </Surface>
+        )
     }
 
     if (people.length === 0) {
-        return <p className="text-muted-foreground px-1 py-6 text-sm">{t('emptyPeople')}</p>
+        return (
+            <Surface frost capsule className="flex flex-col items-center px-5 py-12 text-center">
+                <span className="bg-primary/12 text-primary mb-4 flex size-14 items-center justify-center rounded-[18px]">
+                    <Users size={24} strokeWidth={1.6} />
+                </span>
+                <p className="text-sm font-medium tracking-tight">{t('emptyPeople')}</p>
+                <p className="text-muted-foreground mt-1.5 max-w-xs text-xs leading-relaxed">{t('emptyPeopleHint')}</p>
+            </Surface>
+        )
     }
 
     return (
-        <div className="flex flex-col gap-1">
-            <ul className="flex flex-col">
-                {people.map((person) => (
-                    <li key={person.id} className="group flex items-center gap-1">
-                        <div className="min-w-0 flex-1">
-                            <PersonCard person={person} />
-                        </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-                            onClick={() => setPendingId(person.id)}
+        <div className="flex flex-col gap-3">
+            <Surface frost capsule className="overflow-hidden p-1.5 sm:p-2">
+                <ul className="flex flex-col">
+                    {people.map((person, index) => (
+                        <motion.li
+                            key={person.id}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{
+                                type: 'spring',
+                                bounce: 0,
+                                duration: 0.32,
+                                delay: Math.min(index * 0.03, 0.24)
+                            }}
+                            className="group border-hairline flex items-center gap-1 border-b last:border-b-0"
                         >
-                            {t('delete')}
-                        </Button>
-                    </li>
-                ))}
-            </ul>
+                            <div className="min-w-0 flex-1">
+                                <PersonCard person={person} />
+                            </div>
+                            <IconButton
+                                size="sm"
+                                aria-label={t('delete')}
+                                className="mr-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+                                onClick={() => setPendingId(person.id)}
+                            >
+                                <Trash2 size={15} />
+                            </IconButton>
+                        </motion.li>
+                    ))}
+                </ul>
+            </Surface>
+
             {hasNextPage && (
                 <Button
                     variant="subtle"
                     size="sm"
-                    className="mt-3 self-center"
+                    className="self-center"
                     loading={isFetchingNextPage}
                     onClick={() => fetchNextPage()}
                 >
