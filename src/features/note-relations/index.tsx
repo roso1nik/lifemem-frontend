@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useDebouncedValue } from '@mantine/hooks'
 import { Loader as MantineLoader } from '@mantine/core'
-import { Plus, X } from 'lucide-react'
+import { MapPinned, Plus, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useListPersons, useCreatePerson } from '@/entities/person/api'
 import { useListPlaces } from '@/entities/place/api'
@@ -135,9 +135,16 @@ type PlacesPickerProps = {
     onChange: (next: RelationOption[]) => void
     max?: number
     hideLabel?: boolean
+    onOpenMap?: () => void
 }
 
-export const PlacesPicker = ({ value, onChange, max = 3, hideLabel = false }: PlacesPickerProps) => {
+export const PlacesPicker = ({
+    value,
+    onChange,
+    max = 3,
+    hideLabel = false,
+    onOpenMap
+}: PlacesPickerProps) => {
     const t = useTranslations('home.relations')
     const [query, setQuery] = useState('')
     const [debounced] = useDebouncedValue(query.trim(), 250)
@@ -158,9 +165,21 @@ export const PlacesPicker = ({ value, onChange, max = 3, hideLabel = false }: Pl
     return (
         <div className="flex flex-col gap-2">
             {!hideLabel && (
-                <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-                    {t('places')}
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                    <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                        {t('places')}
+                    </p>
+                    {onOpenMap && canAdd && (
+                        <Button type="button" variant="ghost" size="sm" leftSection={<MapPinned size={14} />} onClick={onOpenMap}>
+                            {t('openMap')}
+                        </Button>
+                    )}
+                </div>
+            )}
+            {hideLabel && onOpenMap && canAdd && (
+                <Button type="button" variant="subtle" size="sm" leftSection={<MapPinned size={14} />} onClick={onOpenMap}>
+                    {t('openMap')}
+                </Button>
             )}
             {value.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">

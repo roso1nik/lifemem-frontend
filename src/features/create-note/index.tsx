@@ -7,6 +7,7 @@ import {
     UploadValidationError,
     uploadFile
 } from '@/entities/upload'
+import { PlaceMapPicker, type PlaceMapSelection } from '@/features/place-map'
 import { PeoplePicker, PlacesPicker, type RelationOption } from '@/features/note-relations'
 import { getApiErrorMessage } from '@/shared/api/errors'
 import { IconButton, RichTextEditor, Surface, isEmptyHtml } from '@/shared/ui'
@@ -35,27 +36,10 @@ const isInOverlay = (target: EventTarget | null) => {
     if (!(target instanceof Element)) return false
     return Boolean(
         target.closest(
-            '.mantine-Menu-dropdown, .mantine-Popover-dropdown, .mantine-Tooltip-tooltip, [data-portal]'
+            '.mantine-Menu-dropdown, .mantine-Popover-dropdown, .mantine-Tooltip-tooltip, .mantine-Modal-root, [data-portal]'
         )
     )
 }
-
-const readCurrentLocation = (): Promise<EntryLocationInput> =>
-    new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-            reject(new Error('geolocation_unavailable'))
-            return
-        }
-        navigator.geolocation.getCurrentPosition(
-            (pos) =>
-                resolve({
-                    latitude: pos.coords.latitude,
-                    longitude: pos.coords.longitude
-                }),
-            () => reject(new Error('geolocation_denied')),
-            { enableHighAccuracy: true, timeout: 12_000 }
-        )
-    })
 
 export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
     const t = useTranslations('home')
@@ -64,6 +48,7 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
     const [people, setPeople] = useState<RelationOption[]>([])
     const [places, setPlaces] = useState<RelationOption[]>([])
     const [showRelations, setShowRelations] = useState(false)
+    const [mapPickerOpen, setMapPickerOpen] = useState(false)
     const [focused, setFocused] = useState(false)
     const [uploading, setUploading] = useState(false)
     const fileRef = useRef<HTMLInputElement>(null)
@@ -97,11 +82,12 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
         places.length > 0 ||
         showRelations ||
         voiceUiOpen
+    const hasRelations = people.length > 0 || places.length > 0
     const showHints =
         !hasText &&
         attachments.length === 0 &&
-        people.length === 0 &&
-        places.length === 0 &&
+        !hasRelations &&
+        !showRelations &&
         !voiceUiOpen
     const busy = isPending || uploading || voice.isRecording
 
@@ -175,17 +161,9 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                 toast.error(t('relations.placeLimit'))
                 return
             }
-            try {
-                const location = await readCurrentLocation()
-                addAttachment({
-                    id: crypto.randomUUID(),
-                    kind: 'geo',
-                    name: t('hintGeo'),
-                    location: { ...location, locationLabel: t('hintGeo') }
-                })
-            } catch {
-                toast.error(t('geoError'))
-            }
+            setFocused(true)
+            setShowRelations(true)
+            setMapPickerOpen(true)
             return
         }
         if (key === 'voice') {
@@ -323,11 +301,10 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
             <Surface
                 frost
                 capsule
+                borderless
                 className={cn(
-                    'overflow-hidden',
-                    isWriting
-                        ? 'flex min-h-0 flex-1 flex-col'
-                        : 'border-primary/10 shadow-[inset_0_1px_0_color-mix(in_srgb,var(--primary)_10%,transparent)]'
+                    'overflow-hidden bg-transparent',
+                    isWriting && 'flex min-h-0 flex-1 flex-col'
                 )}
             >
                 <AnimatePresence>
@@ -377,14 +354,105 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                     )}
                 </AnimatePresence>
 
-                {(showRelations || people.length > 0 || places.length > 0) && (
+                {showRelations && (
                     <div className="border-hairline flex shrink-0 flex-col gap-3 border-b px-3 py-3">
+                        <div className="flex items-center justify-between gap-2">
+                            <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                                {t('relations.panelTitle')}
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowRelations(false)
+                                    if (
+                                        !hasText &&
+                                        attachments.length === 0 &&
+                                        people.length === 0 &&
+                                        places.length === 0 &&
+                                        !voiceUiOpen
+                                    ) {
+                                        setFocused(false)
+                                    }
+                                }}
+                                aria-label={t('relations.collapse')}
+                                className={cn(
+                                    'text-muted-foreground hover:text-foreground flex size-7 items-center justify-center rounded-full',
+                                    'hover:bg-muted/70 active:scale-[0.97] transition-[background-color,color,transform] duration-100'
+                                )}
+                            >
+                                <X size={14} strokeWidth={2} />
+                            </button>
+                        </div>
                         <PeoplePicker value={people} onChange={setPeople} />
                         <PlacesPicker
                             value={places}
                             onChange={setPlaces}
                             max={Math.max(0, 3 - locationCount)}
+                            onOpenMap={() => {
+                                if (placeSlots >= 3 && locationCount === 0) {
+                                    toast.error(t('relations.placeLimit'))
+                                    return
+                                }
+                                setMapPickerOpen(true)
+                            }}
                         />
+                    </div>
+                )}
+
+                {!showRelations && hasRelations && (
+                    <div className="border-hairline flex shrink-0 flex-wrap items-center gap-1.5 border-b px-3 py-2.5">
+                        {people.map((person) => (
+                            <span
+                                key={person.id}
+                                className="bg-sage/15 text-sage inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs"
+                            >
+                                <Users size={11} strokeWidth={2} />
+                                {person.name}
+                                <button
+                                    type="button"
+                                    aria-label={t('relations.remove')}
+                                    className="hover:text-foreground"
+                                    onClick={() =>
+                                        setPeople((prev) => prev.filter((item) => item.id !== person.id))
+                                    }
+                                >
+                                    <X size={12} />
+                                </button>
+                            </span>
+                        ))}
+                        {places.map((place) => (
+                            <span
+                                key={place.id}
+                                className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs"
+                            >
+                                <MapPin size={11} strokeWidth={2} />
+                                {place.name}
+                                <button
+                                    type="button"
+                                    aria-label={t('relations.remove')}
+                                    className="hover:text-foreground"
+                                    onClick={() =>
+                                        setPlaces((prev) => prev.filter((item) => item.id !== place.id))
+                                    }
+                                >
+                                    <X size={12} />
+                                </button>
+                            </span>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setShowRelations(true)
+                                setFocused(true)
+                            }}
+                            aria-label={t('relations.expand')}
+                            className={cn(
+                                'text-muted-foreground hover:text-foreground ml-auto inline-flex items-center rounded-full px-2 py-1 text-[11px] font-medium',
+                                'hover:bg-muted/70 active:scale-[0.97] transition-[background-color,color,transform] duration-100'
+                            )}
+                        >
+                            {t('relations.expand')}
+                        </button>
                     </div>
                 )}
 
@@ -539,6 +607,41 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                     </div>
                 )}
             </Surface>
+
+            <PlaceMapPicker
+                opened={mapPickerOpen}
+                onClose={() => setMapPickerOpen(false)}
+                max={Math.max(0, 3 - places.length)}
+                initial={attachments
+                    .filter((item): item is Extract<PendingAttachment, { kind: 'geo' }> => item.kind === 'geo')
+                    .map((item) => ({
+                        clientId: item.id,
+                        latitude: item.location.latitude,
+                        longitude: item.location.longitude,
+                        locationLabel: item.location.locationLabel ?? item.name
+                    }))}
+                onConfirm={(selections: PlaceMapSelection[]) => {
+                    setAttachments((prev) => {
+                        const rest = prev.filter((item) => item.kind !== 'geo')
+                        const nextGeo: PendingAttachment[] = selections
+                            .filter((item) => item.latitude != null && item.longitude != null)
+                            .slice(0, Math.max(0, 3 - places.length))
+                            .map((item) => ({
+                                id: item.clientId,
+                                kind: 'geo',
+                                name: item.locationLabel || t('hintGeo'),
+                                location: {
+                                    latitude: item.latitude,
+                                    longitude: item.longitude,
+                                    ...(item.locationLabel ? { locationLabel: item.locationLabel } : {})
+                                }
+                            }))
+                        return [...rest, ...nextGeo]
+                    })
+                    setShowRelations(true)
+                    setFocused(true)
+                }}
+            />
         </motion.div>
     )
 }

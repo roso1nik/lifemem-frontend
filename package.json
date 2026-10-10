@@ -8,7 +8,10 @@
   },
   "scripts": {
     "dev": "next dev",
+    "predev": "node scripts/copy-maplibre-worker.mjs",
     "build": "next build",
+    "prebuild": "node scripts/copy-maplibre-worker.mjs",
+    "postinstall": "node scripts/copy-maplibre-worker.mjs",
     "start": "next start -p 8000 -H 0.0.0.0",
     "docker:prod:deploy": "docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-frontend-prod --env-file .env pull && docker compose --project-directory . -f deploy/docker-compose.yml -p lifemem-frontend-prod --env-file .env up -d --no-build --remove-orphans",
     "lint": "eslint",
@@ -39,6 +42,7 @@
     "js-cookie": "^3.0.5",
     "libphonenumber-js": "^1.13.12",
     "lucide-react": "^0.562.0",
+    "maplibre-gl": "^5.6.2",
     "next": "^16.2.2",
     "next-intl": "^4.7.0",
     "react": "19.2.3",

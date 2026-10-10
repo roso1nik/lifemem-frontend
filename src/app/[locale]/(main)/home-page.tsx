@@ -58,7 +58,7 @@ const HomePage = () => {
                             ? 'flex min-h-0 flex-1 flex-col'
                             : cn(
                                   'border-hairline overflow-hidden rounded-[26px] border p-2.5',
-                                  'bg-surface-frost/80 shadow-[0_16px_48px_color-mix(in_srgb,var(--foreground)_7%,transparent),0_0_0_1px_color-mix(in_srgb,var(--primary)_8%,transparent)]',
+                                  'bg-surface-frost/80 shadow-[0_16px_48px_color-mix(in_srgb,var(--foreground)_7%,transparent)]',
                                   'backdrop-blur-xl'
                               )
                     )}
@@ -78,7 +78,7 @@ const HomePage = () => {
 
                     <div className={cn('relative', expanded && 'flex min-h-0 flex-1 flex-col')}>
                         {!expanded && (
-                            <p className="text-muted-foreground mb-2 px-1 text-[11px] font-medium tracking-wide uppercase">
+                            <p className="text-muted-foreground/80 mb-1.5 px-1 text-[10px] font-medium tracking-[0.08em] uppercase">
                                 {t('composer.writeKicker')}
                             </p>
                         )}
@@ -89,10 +89,7 @@ const HomePage = () => {
                                 if (askBusy && value === 'write') return
                                 setMode(value as HomeComposerMode)
                             }}
-                            className={cn(
-                                'mb-2.5 shrink-0',
-                                !expanded && 'border-hairline bg-card/70 border shadow-sm'
-                            )}
+                            className="mb-2.5 shrink-0"
                             options={[
                                 { value: 'write', label: t('mode.write') },
                                 { value: 'ask', label: t('mode.ask') }
@@ -109,16 +106,22 @@ const HomePage = () => {
                                             setMode(option.value as HomeComposerMode)
                                         }}
                                         className={cn(
-                                            'flex w-full items-center justify-center gap-2 rounded-[12px] px-3 py-2.5 text-sm font-medium transition-[background-color,color,transform,box-shadow] duration-150',
+                                            'flex w-full items-center justify-center gap-2 rounded-[10px] px-3 py-2 text-sm font-medium',
+                                            'transition-[background-color,color,transform,box-shadow] duration-150',
                                             'active:scale-[0.97]',
                                             active
-                                                ? option.value === 'ask'
-                                                    ? 'bg-primary text-primary-foreground shadow-[0_6px_16px_color-mix(in_srgb,var(--primary)_28%,transparent)]'
-                                                    : 'bg-card text-foreground shadow-[0_1px_2px_color-mix(in_srgb,var(--foreground)_8%,transparent)]'
+                                                ? 'bg-card text-foreground shadow-[0_1px_2px_color-mix(in_srgb,var(--foreground)_8%,transparent)]'
                                                 : 'text-muted-foreground hover:text-foreground'
                                         )}
                                     >
-                                        <Icon size={15} strokeWidth={1.75} />
+                                        <Icon
+                                            size={15}
+                                            strokeWidth={1.75}
+                                            className={cn(
+                                                active &&
+                                                    (option.value === 'ask' ? 'text-primary' : 'text-sage')
+                                            )}
+                                        />
                                         {option.label}
                                     </button>
                                 )

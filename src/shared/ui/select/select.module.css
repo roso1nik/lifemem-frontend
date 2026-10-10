@@ -1,0 +1,42 @@
+.wrapper :global(.mantine-Input-input),
+.wrapper :global(.mantine-Select-input) {
+    background: var(--input-background);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-input);
+    min-height: 44px;
+    font-size: 15px;
+    transition:
+        border-color 150ms ease,
+        box-shadow 150ms ease;
+}
+
+.wrapper :global(.mantine-Input-input:focus),
+.wrapper :global(.mantine-Select-input:focus) {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 22%, transparent);
+}
+
+.wrapper :global(.mantine-InputWrapper-label) {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    margin-bottom: 6px;
+}
+
+.wrapper :global(.mantine-InputWrapper-error) {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.dropdown {
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-input);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
+.option {
+    border-radius: 10px;
+    font-size: 14px;
+}

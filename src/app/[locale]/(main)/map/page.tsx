@@ -1,4 +1,4 @@
-import { SectionPlaceholder } from '@/widgets/section-placeholder'
+import { PlacesMap } from '@/widgets/places-map'
 import { getAppSectionMetadata } from '@/shared/config/seo'
 
 type PageProps = {
@@ -11,5 +11,5 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default function MapPage() {
-    return <SectionPlaceholder section="map" />
+    return <PlacesMap />
 }

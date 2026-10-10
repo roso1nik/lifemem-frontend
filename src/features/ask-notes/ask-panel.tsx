@@ -372,7 +372,7 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
                 </AnimatePresence>
             </div>
 
-            <Surface frost capsule className="shrink-0 overflow-hidden">
+            <Surface frost capsule borderless className="bg-muted/40 shrink-0 overflow-hidden">
                 <div className="flex items-end gap-2 px-2 py-2">
                     <textarea
                         value={question}

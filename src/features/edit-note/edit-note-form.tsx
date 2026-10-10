@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
 import { useUpdateEntry } from '@/entities/entry/api/use-update-entry'
 import type { EntryLocationInput } from '@/entities/entry/api/use-create-entry'
+import { PlaceMapPicker, type PlaceMapSelection } from '@/features/place-map'
 import { PeoplePicker, PlacesPicker, type RelationOption } from '@/features/note-relations'
 import { Button, Surface, TextInput } from '@/shared/ui'
 
@@ -24,24 +25,6 @@ const UUID_RE =
 const toUuidList = (items: RelationOption[]): string[] =>
     items.map((item) => item.id.trim()).filter((id) => UUID_RE.test(id))
 
-const readCurrentLocation = (): Promise<EntryLocationInput> =>
-    new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-            reject(new Error('geolocation_unavailable'))
-            return
-        }
-        navigator.geolocation.getCurrentPosition(
-            (pos) =>
-                resolve({
-                    latitude: pos.coords.latitude,
-                    longitude: pos.coords.longitude,
-                    locationLabel: undefined
-                }),
-            () => reject(new Error('geolocation_denied')),
-            { enableHighAccuracy: true, timeout: 12_000 }
-        )
-    })
-
 export const EditNoteForm = ({
     entryId,
     initialTitle,
@@ -58,11 +41,11 @@ export const EditNoteForm = ({
     const [places, setPlaces] = useState<RelationOption[]>(() =>
         initialPlaces.filter((item) => item.id && item.name)
     )
-    const [location, setLocation] = useState<EntryLocationInput | null>(null)
-    const [locating, setLocating] = useState(false)
+    const [locations, setLocations] = useState<PlaceMapSelection[]>([])
+    const [mapPickerOpen, setMapPickerOpen] = useState(false)
     const { mutateAsync, isPending } = useUpdateEntry()
 
-    const placeSlots = places.length + (location ? 1 : 0)
+    const placeSlots = places.length + locations.length
 
     return (
         <form
@@ -82,25 +65,21 @@ export const EditNoteForm = ({
                     return
                 }
 
+                const locationPayload: EntryLocationInput[] = locations
+                    .filter((item) => item.latitude != null && item.longitude != null)
+                    .map(({ latitude, longitude, locationLabel }) => ({
+                        latitude,
+                        longitude,
+                        ...(locationLabel ? { locationLabel } : {})
+                    }))
+
                 void mutateAsync({
                     id: entryId,
                     data: {
                         title: title.trim(),
                         peoples,
                         places: placeIds,
-                        ...(location && location.latitude != null && location.longitude != null
-                            ? {
-                                  location: [
-                                      {
-                                          latitude: location.latitude,
-                                          longitude: location.longitude,
-                                          ...(location.locationLabel
-                                              ? { locationLabel: location.locationLabel }
-                                              : {})
-                                      }
-                                  ]
-                              }
-                            : {})
+                        ...(locationPayload.length ? { location: locationPayload } : {})
                     }
                 })
                     .then(() => onSuccess?.())
@@ -134,42 +113,39 @@ export const EditNoteForm = ({
                         <PlacesPicker
                             value={places}
                             onChange={setPlaces}
-                            max={Math.max(0, 3 - (location ? 1 : 0))}
+                            max={Math.max(0, 3 - locations.length)}
                             hideLabel
+                            onOpenMap={() => {
+                                if (places.length >= 3 && locations.length === 0) {
+                                    toast.error(t('relations.placeLimit'))
+                                    return
+                                }
+                                setMapPickerOpen(true)
+                            }}
                         />
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                            <Button
-                                type="button"
-                                variant="subtle"
-                                size="sm"
-                                loading={locating}
-                                onClick={() => {
-                                    if (places.length >= 3) {
-                                        toast.error(t('relations.placeLimit'))
-                                        return
-                                    }
-                                    setLocating(true)
-                                    void readCurrentLocation()
-                                        .then((coords) => {
-                                            setLocation({ ...coords, locationLabel: t('hintGeo') })
-                                        })
-                                        .catch(() => toast.error(t('geoError')))
-                                        .finally(() => setLocating(false))
-                                }}
-                            >
-                                {location ? t('note.locationSet') : t('attachGeo')}
-                            </Button>
-                            {location && (
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setLocation(null)}
-                                >
-                                    {t('note.clearLocation')}
-                                </Button>
-                            )}
-                        </div>
+                        {locations.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-1.5">
+                                {locations.map((item) => (
+                                    <span
+                                        key={item.clientId}
+                                        className="bg-primary/12 text-primary inline-flex max-w-full items-center gap-1 rounded-full px-2.5 py-1 text-xs"
+                                    >
+                                        <span className="truncate">{item.locationLabel || t('hintGeo')}</span>
+                                        <button
+                                            type="button"
+                                            aria-label={t('relations.remove')}
+                                            onClick={() =>
+                                                setLocations((prev) =>
+                                                    prev.filter((row) => row.clientId !== item.clientId)
+                                                )
+                                            }
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </Surface>
                 </div>
                 <p className="text-muted-foreground text-xs">{t('note.editHint')}</p>
@@ -183,6 +159,14 @@ export const EditNoteForm = ({
                     {t('note.save')}
                 </Button>
             </div>
+
+            <PlaceMapPicker
+                opened={mapPickerOpen}
+                onClose={() => setMapPickerOpen(false)}
+                max={Math.max(0, 3 - places.length)}
+                initial={locations}
+                onConfirm={(selections) => setLocations(selections)}
+            />
         </form>
     )
 }

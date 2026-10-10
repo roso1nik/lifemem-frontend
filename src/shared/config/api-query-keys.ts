@@ -80,5 +80,7 @@ export const ApiQueryKeys = {
     PERSON_CREATE: 'person-create',
     PERSON_DELETE: 'person-delete',
     PLACE_LIST: 'place-list',
-    PLACE_DELETE: 'place-delete'
+    PLACE_DELETE: 'place-delete',
+    PLACE_MAP: 'place-map',
+    PLACE_MAP_FILTERS: 'place-map-filters'
 } as const

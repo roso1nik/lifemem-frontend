@@ -4,21 +4,39 @@ import { Place } from '../../model'
 import { cn } from '@/shared/utils'
 import { MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-
 export type PlaceCardProps = {
     place: Place
     className?: string
+    selected?: boolean
+    onClick?: () => void
 }
 
-export const PlaceCard = ({ place, className }: PlaceCardProps) => {
+export const PlaceCard = ({ place, className, selected, onClick }: PlaceCardProps) => {
     const t = useTranslations('home.archive')
     const hasCoords = place.latitude != null && place.longitude != null
+    const interactive = Boolean(onClick)
 
     return (
         <div
+            role={interactive ? 'button' : undefined}
+            tabIndex={interactive ? 0 : undefined}
+            onClick={onClick}
+            onKeyDown={
+                interactive
+                    ? (event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault()
+                              onClick?.()
+                          }
+                      }
+                    : undefined
+            }
             className={cn(
-                'active:scale-[0.97] rounded-2xl px-2.5 py-2.5 transition-transform duration-100',
+                'rounded-2xl px-2.5 py-2.5 transition-[transform,background-color,box-shadow] duration-100',
+                interactive && 'active:scale-[0.97] cursor-pointer',
                 'hover:bg-[color-mix(in_srgb,var(--sage)_7%,transparent)]',
+                selected &&
+                    'bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--primary)_28%,transparent)]',
                 className
             )}
         >
@@ -26,9 +44,11 @@ export const PlaceCard = ({ place, className }: PlaceCardProps) => {
                 <span
                     className={cn(
                         'flex size-10 shrink-0 items-center justify-center rounded-2xl',
-                        hasCoords
-                            ? 'bg-sage/18 text-sage ring-1 ring-[color-mix(in_srgb,var(--sage)_22%,transparent)]'
-                            : 'bg-muted/60 text-muted-foreground'
+                        selected
+                            ? 'bg-primary text-primary-foreground'
+                            : hasCoords
+                              ? 'bg-sage/18 text-sage ring-1 ring-[color-mix(in_srgb,var(--sage)_22%,transparent)]'
+                              : 'bg-muted/60 text-muted-foreground'
                     )}
                 >
                     <MapPin size={18} strokeWidth={1.7} />
