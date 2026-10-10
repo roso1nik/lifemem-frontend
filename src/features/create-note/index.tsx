@@ -276,7 +276,7 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                        className="overflow-hidden"
+                        className="hidden overflow-hidden md:block"
                     >
                         <p className="text-muted-foreground mb-2 px-1 text-[11px] font-medium tracking-wide uppercase">
                             {t('hintsLabel')}
@@ -613,7 +613,7 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                 />
 
                 {!voiceUiOpen && (
-                    <div className="flex shrink-0 items-center justify-between gap-2 px-2 pb-2">
+                    <div className="flex shrink-0 items-center justify-between gap-1 px-1 pb-1 md:gap-2 md:px-2 md:pb-2">
                         <div className="flex items-center gap-0.5">
                             <Menu shadow="sm" width={180} position="top-start">
                                 <Menu.Target>

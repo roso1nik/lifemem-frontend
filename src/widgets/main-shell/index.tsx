@@ -1,13 +1,14 @@
 'use client'
 
 import { AppShell, UnstyledButton } from '@mantine/core'
-import { useDisclosure, useElementSize } from '@mantine/hooks'
+import { useDisclosure, useElementSize, useMediaQuery } from '@mantine/hooks'
 import { ReactNode, useEffect } from 'react'
 import { NotesList } from '@/widgets/notes-list'
 import { AccountMenu } from '@/widgets/account-menu'
 import { AppHeader } from '@/widgets/header'
 import { EntrySearchItem, getEntryPreviewText } from '@/entities/entry/model'
 import { useSelf } from '@/entities/user/api/use-self'
+import { useBodyScrollLock } from '@/shared/hooks'
 import { IconButton } from '@/shared/ui'
 import { Archive, GitBranch, MapPinned, SunMedium } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -23,8 +24,6 @@ import { UserSettingsLocaleSync } from '@/features/locale-sync/user-settings-loc
 interface MainShellProps {
     children: ReactNode
 }
-
-type NavId = 'home' | WorkspaceSection
 
 const SECTION_ICONS: { id: WorkspaceSection; icon: typeof GitBranch }[] = [
     { id: 'graph', icon: GitBranch },
@@ -42,6 +41,10 @@ export const MainShell = ({ children }: MainShellProps) => {
     const tabs = useWorkspaceTabs((s) => s.tabs)
     const bindUser = useWorkspaceTabs((s) => s.bindUser)
     const { ref: headerRef, height: headerHeight } = useElementSize<HTMLDivElement>()
+    const isMobile = useMediaQuery('(max-width: 47.99em)')
+    const mobileMenuOpen = Boolean(isMobile && opened)
+
+    useBodyScrollLock(mobileMenuOpen)
 
     useEffect(() => {
         bindUser(self?.info.id ?? null)
@@ -58,6 +61,16 @@ export const MainShell = ({ children }: MainShellProps) => {
             id: entry.id,
             title: getEntryPreviewText(entry).slice(0, 28) || t('tab.notes')
         })
+        close()
+    }
+
+    const navigateHome = () => {
+        goHome()
+        close()
+    }
+
+    const navigateSection = (id: WorkspaceSection) => {
+        goSection(id)
         close()
     }
 
@@ -85,7 +98,7 @@ export const MainShell = ({ children }: MainShellProps) => {
             <AppShell.Navbar className="border-sidebar-border bg-sidebar/90 flex h-full min-h-0 flex-col backdrop-blur-xl">
                 <div className="border-sidebar-border flex shrink-0 items-center gap-1.5 border-b px-2.5 py-2.5">
                     <UnstyledButton
-                        onClick={() => goHome()}
+                        onClick={navigateHome}
                         aria-label={t('tab.home')}
                         aria-pressed={homeActive}
                         className={cn(
@@ -118,7 +131,7 @@ export const MainShell = ({ children }: MainShellProps) => {
                                     size="sm"
                                     aria-label={t(`tab.${id}`)}
                                     aria-pressed={sectionActive}
-                                    onClick={() => goSection(id)}
+                                    onClick={() => navigateSection(id)}
                                     className={cn(sectionActive && 'bg-accent text-primary')}
                                 >
                                     <Icon size={16} strokeWidth={1.75} />
@@ -131,7 +144,14 @@ export const MainShell = ({ children }: MainShellProps) => {
                 <AccountMenu />
             </AppShell.Navbar>
 
-            <AppShell.Main className="bg-background flex min-h-0 flex-1 flex-col">{children}</AppShell.Main>
+            <AppShell.Main
+                className={cn(
+                    'bg-background flex min-h-0 flex-1 flex-col',
+                    mobileMenuOpen && 'overflow-hidden pointer-events-none'
+                )}
+            >
+                {children}
+            </AppShell.Main>
         </AppShell>
     )
 }

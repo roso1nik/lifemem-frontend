@@ -22,7 +22,7 @@ const HomePage = () => {
     return (
         <div
             className={cn(
-                'mx-auto flex w-full flex-1 flex-col px-4 pt-5 pb-4 md:w-4/5 md:px-6 md:pt-8',
+                'mx-auto flex w-full flex-1 flex-col px-2 pt-2 pb-0 md:w-4/5 md:px-6 md:pt-8 md:pb-4',
                 expanded && 'min-h-0'
             )}
         >
@@ -34,21 +34,21 @@ const HomePage = () => {
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
-                        className="overflow-hidden"
+                        className="hidden overflow-hidden md:block"
                     >
                         <TodaySummary />
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {mode === 'write' && !isWriting && <div className="flex-1" />}
+            {mode === 'write' && !isWriting && <div className="hidden flex-1 md:block" />}
 
             <div
                 className={cn(
                     'pb-[env(safe-area-inset-bottom)]',
                     expanded
-                        ? 'flex min-h-0 flex-1 flex-col pt-2'
-                        : 'sticky bottom-3 mt-5 md:bottom-5'
+                        ? 'flex min-h-0 flex-1 flex-col pt-1 md:pt-2'
+                        : 'mt-auto md:sticky md:bottom-5 md:mt-5'
                 )}
             >
                 <div
@@ -57,16 +57,16 @@ const HomePage = () => {
                         expanded
                             ? 'flex min-h-0 flex-1 flex-col'
                             : cn(
-                                  'border-hairline overflow-hidden rounded-[26px] border p-2.5',
-                                  'bg-surface-frost/80 shadow-[0_16px_48px_color-mix(in_srgb,var(--foreground)_7%,transparent)]',
-                                  'backdrop-blur-xl'
+                                  'border-hairline bg-surface-frost/70 overflow-hidden rounded-2xl border p-1.5 backdrop-blur-xl',
+                                  'md:rounded-[26px] md:bg-surface-frost/80 md:p-2.5',
+                                  'md:shadow-[0_16px_48px_color-mix(in_srgb,var(--foreground)_7%,transparent)]'
                               )
                     )}
                 >
                     {!expanded && (
                         <div
                             aria-hidden
-                            className="pointer-events-none absolute inset-0"
+                            className="pointer-events-none absolute inset-0 hidden md:block"
                             style={{
                                 background: `
                                     radial-gradient(ellipse 80% 70% at 12% 0%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 55%),
@@ -78,7 +78,7 @@ const HomePage = () => {
 
                     <div className={cn('relative', expanded && 'flex min-h-0 flex-1 flex-col')}>
                         {!expanded && (
-                            <p className="text-muted-foreground/80 mb-1.5 px-1 text-[10px] font-medium tracking-[0.08em] uppercase">
+                            <p className="text-muted-foreground/80 mb-1.5 hidden px-1 text-[10px] font-medium tracking-[0.08em] uppercase md:block">
                                 {t('composer.writeKicker')}
                             </p>
                         )}
@@ -89,7 +89,7 @@ const HomePage = () => {
                                 if (askBusy && value === 'write') return
                                 setMode(value as HomeComposerMode)
                             }}
-                            className="mb-2.5 shrink-0"
+                            className="mb-2 shrink-0 md:mb-2.5"
                             options={[
                                 { value: 'write', label: t('mode.write') },
                                 { value: 'ask', label: t('mode.ask') }

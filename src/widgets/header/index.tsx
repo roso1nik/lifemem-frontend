@@ -2,8 +2,8 @@
 
 import { APP_NAME } from '@/shared/config'
 import { cn } from '@/shared/utils'
-import { Burger } from '@mantine/core'
-import { Archive, GitBranch, MapPinned, Notebook, Search, User, X } from 'lucide-react'
+import { IconButton } from '@/shared/ui'
+import { Archive, GitBranch, MapPinned, Menu, Notebook, Search, User, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useWorkspaceNavigation, useWorkspaceTabs, type WorkspaceTab } from '@/features/workspace-tabs'
 import { openSearchSpotlight, SearchSpotlight } from '@/widgets/search-spotlight'
@@ -36,14 +36,15 @@ export const AppHeader = ({ menuOpened, onToggleMenu }: AppHeaderProps) => {
     return (
         <>
             <div className="flex gap-1 bg-[color-mix(in_srgb,var(--muted)_55%,transparent)] px-2 pt-1 sm:px-3">
-                <Burger
-                    opened={menuOpened}
-                    onClick={onToggleMenu}
-                    hiddenFrom="sm"
+                <IconButton
                     size="sm"
-                    className="mb-1.5 shrink-0"
+                    onClick={onToggleMenu}
                     aria-label={t('openNotes')}
-                />
+                    aria-expanded={menuOpened}
+                    className="mb-1.5 shrink-0 sm:hidden"
+                >
+                    {menuOpened ? <X size={18} strokeWidth={1.75} /> : <Menu size={18} strokeWidth={1.75} />}
+                </IconButton>
 
                 <div
                     className="flex min-w-0 flex-1 items-end gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -71,7 +72,7 @@ export const AppHeader = ({ menuOpened, onToggleMenu }: AppHeaderProps) => {
                                     closeTab(tab.id)
                                 }}
                                 className={cn(
-                                    'group relative flex max-w-[200px] min-w-[120px] flex-1 items-center gap-1.5 rounded-t-lg px-2.5 py-1.5 text-left transition-colors sm:flex-none',
+                                    'group relative flex max-w-[140px] min-w-[72px] flex-1 items-center gap-1 rounded-t-lg px-1.5 py-1.5 text-left transition-colors sm:max-w-[200px] sm:min-w-[120px] sm:flex-none sm:gap-1.5 sm:px-2.5',
                                     active
                                         ? 'bg-background text-foreground'
                                         : 'text-muted-foreground hover:bg-background/50 hover:text-foreground'
@@ -80,7 +81,7 @@ export const AppHeader = ({ menuOpened, onToggleMenu }: AppHeaderProps) => {
                                 <button
                                     type="button"
                                     onClick={() => goTab(tab.id)}
-                                    className="flex min-w-0 flex-1 items-center gap-1.5"
+                                    className="flex min-w-0 flex-1 items-center gap-1 sm:gap-1.5"
                                     title={titleOf(tab)}
                                 >
                                     <Icon size={13} className={cn('shrink-0', active ? 'text-primary' : undefined)} />
@@ -98,7 +99,9 @@ export const AppHeader = ({ menuOpened, onToggleMenu }: AppHeaderProps) => {
                                         }}
                                         className={cn(
                                             'text-muted-foreground hover:bg-muted hover:text-foreground flex size-5 shrink-0 items-center justify-center rounded-md transition-colors',
-                                            active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                                            active
+                                                ? 'opacity-100'
+                                                : 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
                                         )}
                                     >
                                         <X size={12} />
