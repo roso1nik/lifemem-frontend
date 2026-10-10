@@ -98,6 +98,7 @@
         "notesToday": "{count, plural, one {# note} other {# notes}}",
         "emptyDay": "It's quiet — the first thought of the day can be anything.",
         "composerPlaceholder": "What should we keep from this moment?",
+        "formatHint": "Select text to format",
         "attach": "Attach",
         "attachFile": "Photo or video",
         "attachMusic": "Music",

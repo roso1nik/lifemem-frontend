@@ -31,6 +31,8 @@ export const createEntrySchema = z
     .object({
         title: z.string().optional(),
         text: z.string().optional(),
+        formattedText: z.string().nullable().optional(),
+        formattedTextFormat: z.enum(['plain', 'markdown', 'html']).nullable().optional(),
         audioId: z.string().uuid().nullable().optional(),
         media: z.array(createEntryMediaItemSchema).max(5).optional(),
         personIds: z.array(z.string().uuid()).max(10).optional(),
@@ -52,6 +54,13 @@ export const createEntrySchema = z
                 code: z.ZodIssueCode.custom,
                 message: 'text_or_voice_only',
                 path: ['audioId']
+            })
+        }
+        if (data.formattedText?.trim() && !data.formattedTextFormat) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'formatted_text_format_required',
+                path: ['formattedTextFormat']
             })
         }
         const placeSlots = (data.placeIds?.length ?? 0) + (data.location?.length ?? 0)
@@ -82,6 +91,13 @@ export const createEntry = async (data: CreateEntryRequest): AxiosPromise<Create
     const payload: Record<string, unknown> = {}
     if (data.title) payload.title = data.title
     if (data.text?.trim()) payload.text = data.text
+    const formattedText = data.formattedText?.trim()
+    if (formattedText) {
+        payload.formattedText = formattedText
+        if (data.formattedTextFormat) {
+            payload.formattedTextFormat = data.formattedTextFormat
+        }
+    }
     if (data.audioId) payload.audioId = data.audioId
     if (data.media?.length) payload.media = data.media
     if (data.personIds?.length) {

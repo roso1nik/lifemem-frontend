@@ -98,6 +98,7 @@
         "notesToday": "{count, plural, one {# заметка} few {# заметки} many {# заметок} other {# заметок}}",
         "emptyDay": "Пока тихо — первая мысль дня может быть любой.",
         "composerPlaceholder": "Что сохранить из этого момента?",
+        "formatHint": "Выделите текст — появится форматирование",
         "attach": "Прикрепить",
         "attachFile": "Фото или видео",
         "attachMusic": "Музыка",

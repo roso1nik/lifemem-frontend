@@ -10,7 +10,7 @@ import {
 import { PlaceMapPicker, type PlaceMapSelection } from '@/features/place-map'
 import { PeoplePicker, PlacesPicker, type RelationOption } from '@/features/note-relations'
 import { getApiErrorMessage } from '@/shared/api/errors'
-import { IconButton, RichTextEditor, Surface, isEmptyHtml } from '@/shared/ui'
+import { IconButton, RichTextEditor, Surface, htmlToPlainText, isEmptyHtml } from '@/shared/ui'
 import { cn } from '@/shared/utils'
 import { Menu, Tooltip } from '@mantine/core'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -206,17 +206,23 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                 audioId = await uploadFile(voiceItem.file, { allowedTypes: PRODUCT_VOICE_TYPES })
             }
 
-            // Voice notes never send text; media-only still needs a placeholder.
+            // Voice notes never send text; media-only still needs a plain placeholder.
             const textPayload = audioId
                 ? undefined
                 : hasText
-                  ? content
+                  ? htmlToPlainText(content)
                   : mediaIds.length > 0
                     ? t('mediaOnlyFallback')
                     : undefined
 
             await createEntry({
                 text: textPayload,
+                ...(hasText && !audioId
+                    ? {
+                          formattedText: content,
+                          formattedTextFormat: 'html' as const
+                      }
+                    : {}),
                 audioId,
                 media: mediaIds.length ? mediaIds : undefined,
                 personIds: people.length ? people.map((item) => item.id) : undefined,
@@ -257,7 +263,6 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
     return (
         <motion.div
             ref={shellRef}
-            layout
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
@@ -270,7 +275,7 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                        transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                         className="overflow-hidden"
                     >
                         <p className="text-muted-foreground mb-2 px-1 text-[11px] font-medium tracking-wide uppercase">
@@ -354,107 +359,145 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                     )}
                 </AnimatePresence>
 
-                {showRelations && (
-                    <div className="border-hairline flex shrink-0 flex-col gap-3 border-b px-3 py-3">
-                        <div className="flex items-center justify-between gap-2">
-                            <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-                                {t('relations.panelTitle')}
-                            </p>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setShowRelations(false)
-                                    if (
-                                        !hasText &&
-                                        attachments.length === 0 &&
-                                        people.length === 0 &&
-                                        places.length === 0 &&
-                                        !voiceUiOpen
-                                    ) {
-                                        setFocused(false)
-                                    }
-                                }}
-                                aria-label={t('relations.collapse')}
-                                className={cn(
-                                    'text-muted-foreground hover:text-foreground flex size-7 items-center justify-center rounded-full',
-                                    'hover:bg-muted/70 active:scale-[0.97] transition-[background-color,color,transform] duration-100'
-                                )}
-                            >
-                                <X size={14} strokeWidth={2} />
-                            </button>
-                        </div>
-                        <PeoplePicker value={people} onChange={setPeople} />
-                        <PlacesPicker
-                            value={places}
-                            onChange={setPlaces}
-                            max={Math.max(0, 3 - locationCount)}
-                            onOpenMap={() => {
-                                if (placeSlots >= 3 && locationCount === 0) {
-                                    toast.error(t('relations.placeLimit'))
-                                    return
-                                }
-                                setMapPickerOpen(true)
-                            }}
-                        />
-                    </div>
-                )}
-
-                {!showRelations && hasRelations && (
-                    <div className="border-hairline flex shrink-0 flex-wrap items-center gap-1.5 border-b px-3 py-2.5">
-                        {people.map((person) => (
-                            <span
-                                key={person.id}
-                                className="bg-sage/15 text-sage inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs"
-                            >
-                                <Users size={11} strokeWidth={2} />
-                                {person.name}
-                                <button
-                                    type="button"
-                                    aria-label={t('relations.remove')}
-                                    className="hover:text-foreground"
-                                    onClick={() =>
-                                        setPeople((prev) => prev.filter((item) => item.id !== person.id))
-                                    }
-                                >
-                                    <X size={12} />
-                                </button>
-                            </span>
-                        ))}
-                        {places.map((place) => (
-                            <span
-                                key={place.id}
-                                className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs"
-                            >
-                                <MapPin size={11} strokeWidth={2} />
-                                {place.name}
-                                <button
-                                    type="button"
-                                    aria-label={t('relations.remove')}
-                                    className="hover:text-foreground"
-                                    onClick={() =>
-                                        setPlaces((prev) => prev.filter((item) => item.id !== place.id))
-                                    }
-                                >
-                                    <X size={12} />
-                                </button>
-                            </span>
-                        ))}
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setShowRelations(true)
-                                setFocused(true)
-                            }}
-                            aria-label={t('relations.expand')}
-                            className={cn(
-                                'text-muted-foreground hover:text-foreground ml-auto inline-flex items-center rounded-full px-2 py-1 text-[11px] font-medium',
-                                'hover:bg-muted/70 active:scale-[0.97] transition-[background-color,color,transform] duration-100'
-                            )}
+                <AnimatePresence initial={false}>
+                    {showRelations && (
+                        <motion.div
+                            key="relations-panel"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+                            className="shrink-0 overflow-hidden"
                         >
-                            {t('relations.expand')}
-                        </button>
-                    </div>
-                )}
+                            <div className="border-hairline flex flex-col gap-3 border-b px-3 py-3">
+                                <div className="flex items-center justify-between gap-2">
+                                    <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                                        {t('relations.panelTitle')}
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowRelations(false)
+                                            if (
+                                                !hasText &&
+                                                attachments.length === 0 &&
+                                                people.length === 0 &&
+                                                places.length === 0 &&
+                                                !voiceUiOpen
+                                            ) {
+                                                setFocused(false)
+                                            }
+                                        }}
+                                        aria-label={t('relations.collapse')}
+                                        className={cn(
+                                            'text-muted-foreground hover:text-foreground flex size-7 items-center justify-center rounded-full',
+                                            'hover:bg-muted/70 active:scale-[0.97] transition-[background-color,color,transform] duration-100'
+                                        )}
+                                    >
+                                        <X size={14} strokeWidth={2} />
+                                    </button>
+                                </div>
+                                <PeoplePicker value={people} onChange={setPeople} />
+                                <PlacesPicker
+                                    value={places}
+                                    onChange={setPlaces}
+                                    max={Math.max(0, 3 - locationCount)}
+                                    onOpenMap={() => {
+                                        if (placeSlots >= 3 && locationCount === 0) {
+                                            toast.error(t('relations.placeLimit'))
+                                            return
+                                        }
+                                        setMapPickerOpen(true)
+                                    }}
+                                />
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                <AnimatePresence initial={false}>
+                    {!showRelations && hasRelations && (
+                        <motion.div
+                            key="relations-chips"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+                            className="shrink-0 overflow-hidden"
+                        >
+                            <div className="border-hairline flex flex-wrap items-center gap-1.5 border-b px-3 py-2.5">
+                                <AnimatePresence initial={false} mode="popLayout">
+                                    {people.map((person) => (
+                                        <motion.span
+                                            key={person.id}
+                                            layout="position"
+                                            initial={{ opacity: 0, scale: 0.94 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.94 }}
+                                            transition={{ duration: 0.16, ease: [0.25, 0.1, 0.25, 1] }}
+                                            className="bg-sage/15 text-sage inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs"
+                                        >
+                                            <Users size={11} strokeWidth={2} />
+                                            {person.name}
+                                            <button
+                                                type="button"
+                                                aria-label={t('relations.remove')}
+                                                className="hover:text-foreground"
+                                                onClick={() =>
+                                                    setPeople((prev) =>
+                                                        prev.filter((item) => item.id !== person.id)
+                                                    )
+                                                }
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </motion.span>
+                                    ))}
+                                    {places.map((place) => (
+                                        <motion.span
+                                            key={place.id}
+                                            layout="position"
+                                            initial={{ opacity: 0, scale: 0.94 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.94 }}
+                                            transition={{ duration: 0.16, ease: [0.25, 0.1, 0.25, 1] }}
+                                            className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs"
+                                        >
+                                            <MapPin size={11} strokeWidth={2} />
+                                            {place.name}
+                                            <button
+                                                type="button"
+                                                aria-label={t('relations.remove')}
+                                                className="hover:text-foreground"
+                                                onClick={() =>
+                                                    setPlaces((prev) =>
+                                                        prev.filter((item) => item.id !== place.id)
+                                                    )
+                                                }
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </motion.span>
+                                    ))}
+                                </AnimatePresence>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowRelations(true)
+                                        setFocused(true)
+                                    }}
+                                    aria-label={t('relations.expand')}
+                                    className={cn(
+                                        'text-muted-foreground hover:text-foreground ml-auto inline-flex items-center rounded-full px-2 py-1 text-[11px] font-medium',
+                                        'hover:bg-muted/70 active:scale-[0.97] transition-[background-color,color,transform] duration-100'
+                                    )}
+                                >
+                                    {t('relations.expand')}
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {voiceUiOpen ? (
                     <VoiceRecorderPanel
@@ -499,6 +542,21 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                         {t('voiceRecorder.voiceNoteHint')}
                     </p>
                 )}
+
+                <AnimatePresence initial={false}>
+                    {isWriting && hasText && !voiceMode && !voiceUiOpen && (
+                        <motion.p
+                            key="format-hint"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                            className="text-muted-foreground/60 shrink-0 overflow-hidden px-4 text-[11px] leading-snug tracking-wide"
+                        >
+                            <span className="block pb-1">{t('formatHint')}</span>
+                        </motion.p>
+                    )}
+                </AnimatePresence>
 
                 <input
                     ref={fileRef}
@@ -575,11 +633,34 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                                     <Menu.Item leftSection={<MapPin size={14} />} onClick={() => void onHint('geo')}>
                                         {t('attachGeo')}
                                     </Menu.Item>
-                                    <Menu.Item leftSection={<Users size={14} />} onClick={() => void onHint('people')}>
-                                        {t('hintPeople')}
-                                    </Menu.Item>
                                 </Menu.Dropdown>
                             </Menu>
+
+                            <Tooltip label={t('hintPeople')}>
+                                <IconButton
+                                    aria-label={t('hintPeople')}
+                                    aria-pressed={showRelations || hasRelations}
+                                    onClick={() => {
+                                        if (showRelations) {
+                                            setShowRelations(false)
+                                            if (
+                                                !hasText &&
+                                                attachments.length === 0 &&
+                                                !hasRelations &&
+                                                !voiceUiOpen
+                                            ) {
+                                                setFocused(false)
+                                            }
+                                            return
+                                        }
+                                        setShowRelations(true)
+                                        setFocused(true)
+                                    }}
+                                    className={cn((showRelations || hasRelations) && 'text-sage')}
+                                >
+                                    <Users size={18} />
+                                </IconButton>
+                            </Tooltip>
 
                             <Tooltip label={hasVoice ? t('voiceOneOnly') : t('voiceStart')}>
                                 <IconButton

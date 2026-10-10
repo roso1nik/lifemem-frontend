@@ -16,7 +16,7 @@ import type { FormattedTextFormat } from '@/entities/entry/model'
 import { PRODUCT_MEDIA_TYPES, UploadValidationError, uploadFile } from '@/entities/upload'
 import { PeoplePicker, PlacesPicker, type RelationOption } from '@/features/note-relations'
 import { getApiErrorMessage } from '@/shared/api/errors'
-import { Button, RichTextEditor, Surface, TextInput, isEmptyHtml } from '@/shared/ui'
+import { Button, RichTextEditor, Surface, TextInput, htmlToPlainText, isEmptyHtml } from '@/shared/ui'
 import { cn } from '@/shared/utils'
 
 type EditReadyNoteFormProps = {
@@ -36,16 +36,6 @@ const UUID_RE =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 const isUuid = (id: string) => UUID_RE.test(id.trim())
-
-const stripHtml = (html: string): string =>
-    html
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/&nbsp;/gi, ' ')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+\n/g, '\n')
-        .replace(/\n\s+/g, '\n')
-        .replace(/[ \t]+/g, ' ')
-        .trim()
 
 const toEditorHtml = (body: string, format: FormattedTextFormat | null): string => {
     const trimmed = body.trim()
@@ -169,7 +159,7 @@ export const EditReadyNoteForm = ({
                     })
                 }
             } else if (titleChanged || bodyChanged) {
-                const plain = stripHtml(body)
+                const plain = htmlToPlainText(body)
                 await updateContent({
                     id: entryId,
                     data: {
