@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { MapPin, Users } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import toast from 'react-hot-toast'
 import { useUpdateEntry } from '@/entities/entry/api/use-update-entry'
 import type { EntryLocationInput } from '@/entities/entry/api/use-create-entry'
 import { PeoplePicker, PlacesPicker, type RelationOption } from '@/features/note-relations'
-import { Button, TextInput } from '@/shared/ui'
+import { Button, Surface, TextInput } from '@/shared/ui'
 
 type EditNoteFormProps = {
     entryId: string
@@ -65,7 +66,7 @@ export const EditNoteForm = ({
 
     return (
         <form
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-5"
             onSubmit={(event) => {
                 event.preventDefault()
                 if (placeSlots > 3) {
@@ -112,41 +113,68 @@ export const EditNoteForm = ({
                 onChange={(event) => setTitle(event.currentTarget.value)}
                 placeholder={t('note.titlePlaceholder')}
             />
-            <PeoplePicker value={people} onChange={setPeople} />
-            <PlacesPicker
-                value={places}
-                onChange={setPlaces}
-                max={Math.max(0, 3 - (location ? 1 : 0))}
-            />
-            <div className="flex items-center gap-2">
-                <Button
-                    type="button"
-                    variant="subtle"
-                    size="sm"
-                    loading={locating}
-                    onClick={() => {
-                        if (places.length >= 3) {
-                            toast.error(t('relations.placeLimit'))
-                            return
-                        }
-                        setLocating(true)
-                        void readCurrentLocation()
-                            .then((coords) => {
-                                setLocation({ ...coords, locationLabel: t('hintGeo') })
-                            })
-                            .catch(() => toast.error(t('geoError')))
-                            .finally(() => setLocating(false))
-                    }}
-                >
-                    {location ? t('note.locationSet') : t('attachGeo')}
-                </Button>
-                {location && (
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setLocation(null)}>
-                        {t('note.clearLocation')}
-                    </Button>
-                )}
+
+            <div className="border-hairline flex flex-col gap-3 border-t pt-4">
+                <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                    {t('note.editRelationsLabel')}
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                    <Surface frost capsule className="p-3.5">
+                        <div className="text-muted-foreground mb-2 flex items-center gap-1.5 text-[11px] font-medium tracking-wide uppercase">
+                            <Users size={12} strokeWidth={1.75} />
+                            {t('relations.people')}
+                        </div>
+                        <PeoplePicker value={people} onChange={setPeople} hideLabel />
+                    </Surface>
+                    <Surface frost capsule className="p-3.5">
+                        <div className="text-muted-foreground mb-2 flex items-center gap-1.5 text-[11px] font-medium tracking-wide uppercase">
+                            <MapPin size={12} strokeWidth={1.75} />
+                            {t('relations.places')}
+                        </div>
+                        <PlacesPicker
+                            value={places}
+                            onChange={setPlaces}
+                            max={Math.max(0, 3 - (location ? 1 : 0))}
+                            hideLabel
+                        />
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <Button
+                                type="button"
+                                variant="subtle"
+                                size="sm"
+                                loading={locating}
+                                onClick={() => {
+                                    if (places.length >= 3) {
+                                        toast.error(t('relations.placeLimit'))
+                                        return
+                                    }
+                                    setLocating(true)
+                                    void readCurrentLocation()
+                                        .then((coords) => {
+                                            setLocation({ ...coords, locationLabel: t('hintGeo') })
+                                        })
+                                        .catch(() => toast.error(t('geoError')))
+                                        .finally(() => setLocating(false))
+                                }}
+                            >
+                                {location ? t('note.locationSet') : t('attachGeo')}
+                            </Button>
+                            {location && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setLocation(null)}
+                                >
+                                    {t('note.clearLocation')}
+                                </Button>
+                            )}
+                        </div>
+                    </Surface>
+                </div>
+                <p className="text-muted-foreground text-xs">{t('note.editHint')}</p>
             </div>
-            <p className="text-muted-foreground text-xs">{t('note.editHint')}</p>
+
             <div className="flex justify-end gap-2">
                 <Button type="button" variant="subtle" onClick={onCancel}>
                     {t('note.cancel')}

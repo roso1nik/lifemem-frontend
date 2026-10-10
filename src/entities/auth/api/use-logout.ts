@@ -8,6 +8,7 @@ import { useRouter } from '@/i18n/navigation'
 import { ROUTES } from '@/shared/router'
 import { OptionalRefreshTokenRequest } from './use-refresh'
 import { useTranslations } from 'next-intl'
+import { useWorkspaceTabs } from '@/features/workspace-tabs'
 
 export const logout = async (data?: OptionalRefreshTokenRequest): AxiosPromise<void> => {
     const res = await apiClient.post('/auth/logout', data ?? {})
@@ -18,11 +19,13 @@ export const useLogout = () => {
     const router = useRouter()
     const queryClient = useQueryClient()
     const t = useTranslations('auth')
+    const bindUser = useWorkspaceTabs((s) => s.bindUser)
 
     return useMutation({
         mutationKey: [ApiQueryKeys.LOGOUT],
         mutationFn: (data?: OptionalRefreshTokenRequest) => logout(data),
         onSuccess: () => {
+            bindUser(null)
             Cookies.remove(GLOBAL_DICTIONARY.ACCESS_TOKEN)
             Cookies.remove(GLOBAL_DICTIONARY.REFRESH_TOKEN)
             queryClient.clear()

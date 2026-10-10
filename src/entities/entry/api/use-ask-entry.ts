@@ -1,6 +1,6 @@
 import z from 'zod'
 import { AxiosPromise } from 'axios'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import apiClient from '@/shared/api'
 import { getApiErrorMessage } from '@/shared/api/errors'
@@ -50,10 +50,14 @@ export const askEntry = async (data: AskEntryRequest): AxiosPromise<AskEntryResp
 
 export const useAskEntry = () => {
     const t = useTranslations('home')
+    const queryClient = useQueryClient()
 
     return useMutation({
         mutationKey: [ApiQueryKeys.ASK_ENTRY],
         mutationFn: (data: AskEntryRequest) => askEntry(data).then((res) => res.data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: [ApiQueryKeys.ASK_ENTRY_HISTORY] })
+        },
         onError: (error) => toast.error(getApiErrorMessage(error, t('ask.error')))
     })
 }

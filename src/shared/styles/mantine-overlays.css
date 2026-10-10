@@ -1,0 +1,105 @@
+/* Lifemem overlay chrome — Menu / Popover / Tooltip / Modal */
+
+.mantine-Menu-dropdown,
+.mantine-Popover-dropdown {
+    background: color-mix(in srgb, var(--card) 88%, transparent) !important;
+    backdrop-filter: blur(18px) saturate(1.1);
+    -webkit-backdrop-filter: blur(18px) saturate(1.1);
+    border: 1px solid var(--hairline) !important;
+    border-radius: 16px !important;
+    padding: 6px !important;
+    box-shadow:
+        0 18px 40px color-mix(in srgb, var(--foreground) 10%, transparent),
+        0 0 0 1px color-mix(in srgb, var(--primary) 6%, transparent) !important;
+}
+
+.mantine-Menu-item {
+    border-radius: 11px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.01em;
+    color: var(--foreground) !important;
+    padding: 8px 10px !important;
+    transition:
+        background-color 120ms ease,
+        color 120ms ease,
+        transform 100ms ease-out;
+}
+
+.mantine-Menu-item:hover:not([data-disabled]),
+.mantine-Menu-item[data-hovered]:not([data-disabled]) {
+    background: color-mix(in srgb, var(--muted) 85%, transparent) !important;
+}
+
+.mantine-Menu-item:active:not([data-disabled]) {
+    transform: scale(0.99);
+}
+
+.mantine-Menu-item[data-disabled] {
+    opacity: 0.45;
+}
+
+.mantine-Menu-item[data-danger],
+.mantine-Menu-item[data-color='red'] {
+    color: var(--destructive) !important;
+}
+
+.mantine-Menu-item[data-danger]:hover:not([data-disabled]),
+.mantine-Menu-item[data-color='red']:hover:not([data-disabled]),
+.mantine-Menu-item[data-danger][data-hovered]:not([data-disabled]),
+.mantine-Menu-item[data-color='red'][data-hovered]:not([data-disabled]) {
+    background: color-mix(in srgb, var(--destructive) 10%, transparent) !important;
+    color: var(--destructive) !important;
+}
+
+.mantine-Menu-label {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-foreground) !important;
+    padding: 6px 10px 4px !important;
+}
+
+.mantine-Menu-divider {
+    border-color: var(--hairline) !important;
+    margin: 4px 6px !important;
+}
+
+.mantine-Menu-itemSection {
+    color: inherit;
+    opacity: 0.85;
+}
+
+.mantine-Tooltip-tooltip {
+    background: color-mix(in srgb, var(--foreground) 92%, transparent) !important;
+    color: var(--background) !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    padding: 6px 9px !important;
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--foreground) 18%, transparent);
+}
+
+.mantine-Modal-content {
+    background: color-mix(in srgb, var(--card) 94%, transparent) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--hairline) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 24px 56px color-mix(in srgb, var(--foreground) 14%, transparent) !important;
+}
+
+.mantine-Modal-header {
+    background: transparent !important;
+}
+
+.mantine-Modal-title {
+    font-weight: 600 !important;
+    letter-spacing: -0.02em;
+}
+
+.mantine-Modal-overlay {
+    background: color-mix(in srgb, var(--foreground) 28%, transparent) !important;
+    backdrop-filter: blur(4px);
+}

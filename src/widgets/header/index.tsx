@@ -60,6 +60,16 @@ export const AppHeader = ({ menuOpened, onToggleMenu }: AppHeaderProps) => {
                                 key={tab.id}
                                 role="tab"
                                 aria-selected={active}
+                                onMouseDown={(e) => {
+                                    // Prevent middle-click autoscroll so auxclick can close the tab.
+                                    if (e.button === 1) e.preventDefault()
+                                }}
+                                onAuxClick={(e) => {
+                                    if (e.button !== 1 || pinned) return
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    closeTab(tab.id)
+                                }}
                                 className={cn(
                                     'group relative flex max-w-[200px] min-w-[120px] flex-1 items-center gap-1.5 rounded-t-lg px-2.5 py-1.5 text-left transition-colors sm:flex-none',
                                     active

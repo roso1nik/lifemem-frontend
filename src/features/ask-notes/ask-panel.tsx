@@ -3,10 +3,15 @@
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUp, FileIcon, MapPin, Mic, Sparkles, Users } from 'lucide-react'
+import { ArrowUp, ChevronDown, FileIcon, MapPin, Mic, Sparkles, Users } from 'lucide-react'
 import { useAskEntry, type EntryRagSource } from '@/entities/entry/api/use-ask-entry'
+import {
+    useSearchAskHistory,
+    type EntryAskHistoryItem
+} from '@/entities/entry/api/use-ask-history'
 import { useWorkspaceNavigation } from '@/features/workspace-tabs'
-import { IconButton, Surface } from '@/shared/ui'
+import { DEFAULT_PAGE_SIZE } from '@/shared/types'
+import { IconButton, Loader, Surface } from '@/shared/ui'
 import { cn, dayjsInstance } from '@/shared/utils'
 import { useAskNotesStore } from './store'
 
@@ -73,6 +78,72 @@ const SourceRow = ({
     )
 }
 
+const HistoryItem = ({
+    item,
+    expanded,
+    onToggle,
+    onSelectSource
+}: {
+    item: EntryAskHistoryItem
+    expanded: boolean
+    onToggle: () => void
+    onSelectSource: (source: EntryRagSource) => void
+}) => {
+    const t = useTranslations('home')
+    const question = item.question?.trim() || t('ask.historyUntitled')
+    const answer = item.answer?.trim()
+
+    return (
+        <li className="border-hairline border-b last:border-b-0">
+            <button
+                type="button"
+                onClick={onToggle}
+                className={cn(
+                    'hover:bg-muted/40 flex w-full items-start gap-2 px-2.5 py-2.5 text-left',
+                    'active:scale-[0.99] transition-[transform,background-color] duration-100'
+                )}
+            >
+                <span className="min-w-0 flex-1">
+                    <span className="text-foreground line-clamp-2 block text-[13px] font-medium leading-snug">
+                        {question}
+                    </span>
+                    {!expanded && answer && (
+                        <span className="text-muted-foreground mt-0.5 line-clamp-1 block text-xs">
+                            {answer}
+                        </span>
+                    )}
+                    <span className="text-muted-foreground mt-1 block text-[11px] tabular-nums">
+                        {dayjsInstance(item.createdAt).format('D MMM, HH:mm')}
+                    </span>
+                </span>
+                <ChevronDown
+                    size={16}
+                    className={cn(
+                        'text-muted-foreground mt-0.5 shrink-0 transition-transform duration-150',
+                        expanded && 'rotate-180'
+                    )}
+                />
+            </button>
+            {expanded && (
+                <div className="px-2.5 pb-3">
+                    {answer && (
+                        <p className="text-foreground text-[13px] leading-relaxed">{answer}</p>
+                    )}
+                    {item.sources.length > 0 && (
+                        <ul className="divide-hairline mt-2 flex flex-col divide-y rounded-xl">
+                            {item.sources.map((source) => (
+                                <li key={source.id}>
+                                    <SourceRow source={source} onSelect={onSelectSource} />
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            )}
+        </li>
+    )
+}
+
 export type AskNotesPanelProps = {
     onBusyChange?: (busy: boolean) => void
 }
@@ -84,11 +155,31 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
     const pendingQuestion = useAskNotesStore((s) => s.pendingQuestion)
     const [question, setQuestion] = useState('')
     const [lastQuestion, setLastQuestion] = useState('')
+    const [expandedId, setExpandedId] = useState<string | null>(null)
     const { mutate: ask, data, isPending, reset } = useAskEntry()
+    const {
+        mutate: searchHistory,
+        data: historyResponse,
+        isPending: historyPending,
+        isError: historyError
+    } = useSearchAskHistory()
 
     const busy = isPending
     const canSend = question.trim().length > 0 && !busy
     const showEmpty = !data && !busy
+    const history = historyResponse?.data.data ?? []
+
+    const loadHistory = () => {
+        searchHistory({
+            pagination: { page: 1, count: DEFAULT_PAGE_SIZE },
+            sorts: { createdAt: 'DESC' }
+        })
+    }
+
+    useEffect(() => {
+        loadHistory()
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- initial load only
+    }, [])
 
     useEffect(() => {
         onBusyChange?.(busy)
@@ -100,7 +191,13 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
         if (!pending) return
         setQuestion(pending)
         setLastQuestion(pending)
-        ask({ question: pending })
+        ask(
+            { question: pending },
+            {
+                onSuccess: () => loadHistory()
+            }
+        )
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pendingQuestion, ask, consumePendingQuestion])
 
     const onSubmit = (value?: string) => {
@@ -108,7 +205,12 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
         if (!next || busy) return
         setQuestion(next)
         setLastQuestion(next)
-        ask({ question: next })
+        ask(
+            { question: next },
+            {
+                onSuccess: () => loadHistory()
+            }
+        )
     }
 
     const onSelectSource = (source: EntryRagSource) => {
@@ -117,6 +219,36 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
             title: source.title.slice(0, 28) || t('tab.notes')
         })
     }
+
+    const historyBlock =
+        history.length > 0 || historyPending || historyError ? (
+            <div className="mt-7 flex flex-col gap-2">
+                <p className="text-muted-foreground px-0.5 text-[11px] font-medium tracking-wide uppercase">
+                    {t('ask.historyLabel')}
+                </p>
+                {historyPending && !history.length ? (
+                    <Loader variant="section" />
+                ) : historyError ? (
+                    <p className="text-destructive px-0.5 text-xs">{t('ask.historyError')}</p>
+                ) : (
+                    <Surface frost capsule className="overflow-hidden p-1">
+                        <ul className="flex flex-col">
+                            {history.map((item) => (
+                                <HistoryItem
+                                    key={item.id}
+                                    item={item}
+                                    expanded={expandedId === item.id}
+                                    onToggle={() =>
+                                        setExpandedId((prev) => (prev === item.id ? null : item.id))
+                                    }
+                                    onSelectSource={onSelectSource}
+                                />
+                            ))}
+                        </ul>
+                    </Surface>
+                )}
+            </div>
+        ) : null
 
     return (
         <div className="flex min-h-0 flex-1 flex-col gap-3">
@@ -165,6 +297,8 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
                                     ))}
                                 </div>
                             </div>
+
+                            {historyBlock}
                         </motion.div>
                     )}
 
@@ -231,6 +365,8 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
                                     </ul>
                                 </Surface>
                             )}
+
+                            {historyBlock}
                         </motion.div>
                     )}
                 </AnimatePresence>

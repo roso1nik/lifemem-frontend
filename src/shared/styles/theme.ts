@@ -89,7 +89,35 @@ export const theme = createTheme({
         Textarea: { defaultProps: { radius: 'md' } },
         ActionIcon: { defaultProps: { radius: 'md' } },
         Input: { defaultProps: { radius: 'md' } },
-        Avatar: { defaultProps: { radius: 'xl' } }
+        Avatar: { defaultProps: { radius: 'xl' } },
+        Menu: {
+            defaultProps: {
+                radius: 'lg',
+                shadow: 'md',
+                withinPortal: true
+            }
+        },
+        Popover: {
+            defaultProps: {
+                radius: 'lg',
+                shadow: 'md',
+                withinPortal: true
+            }
+        },
+        Tooltip: {
+            defaultProps: {
+                radius: 'md',
+                withArrow: false,
+                openDelay: 250
+            }
+        },
+        Modal: {
+            defaultProps: {
+                radius: 'lg',
+                centered: true,
+                overlayProps: { blur: 4 }
+            }
+        }
     }
 })
 

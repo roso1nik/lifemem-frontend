@@ -3,7 +3,14 @@ import Cookies from 'js-cookie'
 import { GLOBAL_DICTIONARY } from '../config'
 import { getAcceptLanguage } from '../utils'
 
-const AUTH_SKIP_REFRESH_PATHS = ['/auth/login', '/auth/refresh', '/auth/logout', '/auth/confirm-phone'] as const
+const AUTH_SKIP_REFRESH_PATHS = [
+    '/auth/login',
+    '/auth/refresh',
+    '/auth/logout',
+    '/auth/confirm-phone',
+    '/auth/password-reset/request',
+    '/auth/password-reset/confirm'
+] as const
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean }
 

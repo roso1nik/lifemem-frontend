@@ -46,9 +46,14 @@
         "submitRegister": "Create account",
         "forgotPassword": "Forgot password?",
         "forgotTitle": "Reset access",
-        "forgotHint": "Enter your account email — we'll send instructions.",
-        "forgotUnavailable": "Password reset is not available on the backend yet.",
-        "forgotSubmit": "Send",
+        "forgotHint": "Enter your account email — we'll send a reset code.",
+        "forgotSubmit": "Send code",
+        "forgotConfirmTitle": "New password",
+        "forgotConfirmHint": "Enter the code sent to {email} and choose a new password.",
+        "forgotConfirmSubmit": "Save password",
+        "forgotChangeEmail": "Use a different email",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm password",
         "backToLogin": "Back to sign in",
         "confirmTitle": "Confirm email",
         "confirmPhoneTitle": "Confirm phone",
@@ -73,14 +78,18 @@
             "login": "Signed in",
             "logout": "Signed out",
             "register": "Account created",
-            "confirmEmail": "Email confirmed"
+            "confirmEmail": "Email confirmed",
+            "passwordReset": "Password updated"
         },
         "errors": {
             "login": "Could not sign in",
             "logout": "Could not sign out",
             "register": "Could not register",
             "confirmCode": "Invalid code",
-            "oauthLogin": "Could not sign in with OAuth"
+            "oauthLogin": "Could not sign in with OAuth",
+            "passwordResetRequest": "Could not send reset code",
+            "passwordResetConfirm": "Could not reset password",
+            "passwordsMismatch": "Passwords do not match"
         }
     },
     "home": {
@@ -132,18 +141,30 @@
             "edit": "Edit",
             "editTitle": "Edit note",
             "editHint": "While the note is processing, you can adjust the title, people, places, and add a location. Text, voice, and media aren’t edited here.",
+            "editReadyHint": "You can edit the title, body, and links to people and places.",
+            "editRelationsLabel": "People and places",
+            "voiceTextNotEditable": "Voice note text can’t be edited — you can change the title and links.",
             "titleLabel": "Title",
             "titlePlaceholder": "Note title",
+            "bodyLabel": "Body",
+            "bodyPlaceholder": "Note text",
             "save": "Save",
             "cancel": "Cancel",
             "delete": "Delete",
             "deleteTitle": "Delete note?",
             "deleteConfirm": "The note will be hidden. This can’t be undone from the app.",
             "voice": "Voice",
+            "voicePlay": "Play",
+            "voicePause": "Pause",
+            "voiceSeek": "Seek",
             "photoAlt": "Photo {index}",
             "videoAlt": "Video {index}",
             "processing": "Processing {done}/{total}",
             "attachMedia": "Add photo or video",
+            "attachMediaShort": "Add",
+            "attachMediaHint": "Up to 5 photos or videos on a ready note.",
+            "editMediaLabel": "Media",
+            "mediaCount": "{count} of {max}",
             "detachMedia": "Remove media",
             "attachWhenReady": "Wait until processing finishes",
             "attachSuccess": "File attached",
@@ -210,7 +231,7 @@
             "searchPeople": "Find a person…",
             "searchPlaces": "Find a place…",
             "emptyPeople": "No people yet",
-            "emptyPeopleHint": "They’ll show up when you mention someone in your notes.",
+            "emptyPeopleHint": "Add someone manually or they’ll appear from your notes.",
             "emptyPlaces": "No places yet",
             "emptyPlacesHint": "Places appear from geo tags and mentions in your notes.",
             "loadMore": "Load more",
@@ -222,13 +243,23 @@
             "deletePersonTitle": "Delete person?",
             "deletePersonConfirm": "They will be unlinked from all notes.",
             "deletePlaceTitle": "Delete place?",
-            "deletePlaceConfirm": "It will be unlinked from all notes."
+            "deletePlaceConfirm": "It will be unlinked from all notes.",
+            "createPerson": "Add person",
+            "createPersonTitle": "New person",
+            "createPersonName": "Name",
+            "createPersonPlaceholder": "e.g. Alex",
+            "createPersonSubmit": "Add",
+            "createPersonSuccess": "Person added"
         },
         "searchLabel": "Search",
         "searchPlaceholder": "Search or ask AI…",
         "mode": {
             "write": "Write",
             "ask": "Ask"
+        },
+        "composer": {
+            "writeKicker": "New note",
+            "askKicker": "Ask your memory"
         },
         "ask": {
             "placeholder": "Ask about your notes…",
@@ -245,7 +276,10 @@
                 "places": "Which places showed up lately?"
             },
             "sourcesLabel": "{count, plural, one {# source} other {# sources}}",
-            "error": "Could not get an answer"
+            "error": "Could not get an answer",
+            "historyLabel": "Question history",
+            "historyUntitled": "Untitled question",
+            "historyError": "Could not load history"
         },
         "spotlight": {
             "empty": "Nothing found",

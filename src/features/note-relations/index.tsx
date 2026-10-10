@@ -18,9 +18,10 @@ type PeoplePickerProps = {
     value: RelationOption[]
     onChange: (next: RelationOption[]) => void
     max?: number
+    hideLabel?: boolean
 }
 
-export const PeoplePicker = ({ value, onChange, max = 10 }: PeoplePickerProps) => {
+export const PeoplePicker = ({ value, onChange, max = 10, hideLabel = false }: PeoplePickerProps) => {
     const t = useTranslations('home.relations')
     const [query, setQuery] = useState('')
     const [debounced] = useDebouncedValue(query.trim(), 250)
@@ -55,9 +56,11 @@ export const PeoplePicker = ({ value, onChange, max = 10 }: PeoplePickerProps) =
 
     return (
         <div className="flex flex-col gap-2">
-            <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-                {t('people')}
-            </p>
+            {!hideLabel && (
+                <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                    {t('people')}
+                </p>
+            )}
             {value.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                     {value.map((person) => (
@@ -131,9 +134,10 @@ type PlacesPickerProps = {
     value: RelationOption[]
     onChange: (next: RelationOption[]) => void
     max?: number
+    hideLabel?: boolean
 }
 
-export const PlacesPicker = ({ value, onChange, max = 3 }: PlacesPickerProps) => {
+export const PlacesPicker = ({ value, onChange, max = 3, hideLabel = false }: PlacesPickerProps) => {
     const t = useTranslations('home.relations')
     const [query, setQuery] = useState('')
     const [debounced] = useDebouncedValue(query.trim(), 250)
@@ -153,9 +157,11 @@ export const PlacesPicker = ({ value, onChange, max = 3 }: PlacesPickerProps) =>
 
     return (
         <div className="flex flex-col gap-2">
-            <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-                {t('places')}
-            </p>
+            {!hideLabel && (
+                <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                    {t('places')}
+                </p>
+            )}
             {value.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                     {value.map((place) => (

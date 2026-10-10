@@ -18,9 +18,17 @@ export type WorkspaceTab =
           href: string
       }
 
-type WorkspaceTabsState = {
+type UserTabsSnapshot = {
     tabs: WorkspaceTab[]
     activeId: string
+}
+
+type WorkspaceTabsState = {
+    userId: string | null
+    tabs: WorkspaceTab[]
+    activeId: string
+    byUser: Record<string, UserTabsSnapshot>
+    bindUser: (userId: string | null) => void
     openHome: () => string
     openNote: (note: { id: string; title: string }) => string
     openSection: (section: WorkspaceSection) => string
@@ -29,7 +37,13 @@ type WorkspaceTabsState = {
     syncFromPath: (path: string, noteTitle?: string) => void
 }
 
-type WorkspaceTabsPersisted = Pick<WorkspaceTabsState, 'tabs' | 'activeId'>
+type WorkspaceTabsPersisted = {
+    userId: string | null
+    byUser: Record<string, UserTabsSnapshot>
+    /** @deprecated legacy flat shape — migrated on load */
+    tabs?: WorkspaceTab[]
+    activeId?: string
+}
 
 const HOME_TAB: WorkspaceTab = {
     id: 'home',
@@ -37,6 +51,11 @@ const HOME_TAB: WorkspaceTab = {
     titleKey: 'tab.home',
     pinned: true,
     href: ROUTES.HOME_PAGE
+}
+
+const DEFAULT_SNAPSHOT: UserTabsSnapshot = {
+    tabs: [HOME_TAB],
+    activeId: 'home'
 }
 
 const sectionId = (section: WorkspaceSection) => `section:${section}`
@@ -51,6 +70,26 @@ const normalizePath = (path: string) => {
 const ensureHomeTab = (tabs: WorkspaceTab[]): WorkspaceTab[] => {
     if (tabs.some((t) => t.id === 'home')) return tabs
     return [HOME_TAB, ...tabs]
+}
+
+const normalizeSnapshot = (snapshot?: Partial<UserTabsSnapshot> | null): UserTabsSnapshot => {
+    const tabs = ensureHomeTab(snapshot?.tabs?.length ? snapshot.tabs : DEFAULT_SNAPSHOT.tabs)
+    const activeId =
+        snapshot?.activeId && tabs.some((t) => t.id === snapshot.activeId) ? snapshot.activeId : 'home'
+    return { tabs, activeId }
+}
+
+const saveCurrentToBucket = (
+    userId: string | null,
+    byUser: Record<string, UserTabsSnapshot>,
+    tabs: WorkspaceTab[],
+    activeId: string
+): Record<string, UserTabsSnapshot> => {
+    if (!userId) return byUser
+    return {
+        ...byUser,
+        [userId]: normalizeSnapshot({ tabs, activeId })
+    }
 }
 
 export const matchWorkspacePath = (
@@ -71,31 +110,69 @@ export const matchWorkspacePath = (
 export const useWorkspaceTabs = create<WorkspaceTabsState>()(
     persist(
         (set, get) => ({
+            userId: null,
             tabs: [HOME_TAB],
             activeId: 'home',
+            byUser: {},
+
+            bindUser: (nextUserId) => {
+                const { userId, byUser, tabs, activeId } = get()
+                if (userId === nextUserId) return
+
+                let nextByUser = saveCurrentToBucket(userId, byUser, tabs, activeId)
+
+                if (!nextUserId) {
+                    set({
+                        userId: null,
+                        byUser: nextByUser,
+                        tabs: [HOME_TAB],
+                        activeId: 'home'
+                    })
+                    return
+                }
+
+                const snapshot = normalizeSnapshot(nextByUser[nextUserId])
+                nextByUser = {
+                    ...nextByUser,
+                    [nextUserId]: snapshot
+                }
+
+                set({
+                    userId: nextUserId,
+                    byUser: nextByUser,
+                    tabs: snapshot.tabs,
+                    activeId: snapshot.activeId
+                })
+            },
 
             openHome: () => {
-                set({ activeId: 'home' })
+                const state = get()
+                const byUser = saveCurrentToBucket(state.userId, state.byUser, state.tabs, 'home')
+                set({ activeId: 'home', byUser })
                 return HOME_TAB.href
             },
 
             openNote: (note) => {
                 const id = noteTabId(note.id)
                 const href = ROUTES.NOTE(note.id)
-                const { tabs } = get()
+                const { tabs, userId, byUser } = get()
                 const exists = tabs.find((t) => t.id === id)
                 if (exists) {
+                    const nextTabs = tabs.map((t) =>
+                        t.id === id && t.kind === 'note' ? { ...t, title: note.title || t.title } : t
+                    )
                     set({
                         activeId: id,
-                        tabs: tabs.map((t) =>
-                            t.id === id && t.kind === 'note' ? { ...t, title: note.title || t.title } : t
-                        )
+                        tabs: nextTabs,
+                        byUser: saveCurrentToBucket(userId, byUser, nextTabs, id)
                     })
                     return href
                 }
+                const nextTabs = [...tabs, { id, kind: 'note' as const, noteId: note.id, title: note.title, href }]
                 set({
-                    tabs: [...tabs, { id, kind: 'note', noteId: note.id, title: note.title, href }],
-                    activeId: id
+                    tabs: nextTabs,
+                    activeId: id,
+                    byUser: saveCurrentToBucket(userId, byUser, nextTabs, id)
                 })
                 return href
             },
@@ -103,37 +180,46 @@ export const useWorkspaceTabs = create<WorkspaceTabsState>()(
             openSection: (section) => {
                 const id = sectionId(section)
                 const href = SECTION_ROUTES[section]
-                const { tabs } = get()
+                const { tabs, userId, byUser } = get()
                 const exists = tabs.some((t) => t.id === id)
                 if (exists) {
-                    set({ activeId: id })
+                    set({
+                        activeId: id,
+                        byUser: saveCurrentToBucket(userId, byUser, tabs, id)
+                    })
                     return href
                 }
+                const nextTabs: WorkspaceTab[] = [
+                    ...tabs,
+                    {
+                        id,
+                        kind: 'section',
+                        section,
+                        titleKey: `tab.${section}`,
+                        href
+                    }
+                ]
                 set({
-                    tabs: [
-                        ...tabs,
-                        {
-                            id,
-                            kind: 'section',
-                            section,
-                            titleKey: `tab.${section}`,
-                            href
-                        }
-                    ],
-                    activeId: id
+                    tabs: nextTabs,
+                    activeId: id,
+                    byUser: saveCurrentToBucket(userId, byUser, nextTabs, id)
                 })
                 return href
             },
 
             activate: (id) => {
-                const tab = get().tabs.find((t) => t.id === id)
+                const { tabs, userId, byUser } = get()
+                const tab = tabs.find((t) => t.id === id)
                 if (!tab) return null
-                set({ activeId: id })
+                set({
+                    activeId: id,
+                    byUser: saveCurrentToBucket(userId, byUser, tabs, id)
+                })
                 return tab.href
             },
 
             close: (id) => {
-                const { tabs, activeId } = get()
+                const { tabs, activeId, userId, byUser } = get()
                 const tab = tabs.find((t) => t.id === id)
                 if (!tab || (tab.kind === 'home' && tab.pinned)) return null
 
@@ -149,7 +235,11 @@ export const useWorkspaceTabs = create<WorkspaceTabsState>()(
                     shouldNavigate = true
                 }
 
-                set({ tabs: safeTabs, activeId: nextActive })
+                set({
+                    tabs: safeTabs,
+                    activeId: nextActive,
+                    byUser: saveCurrentToBucket(userId, byUser, safeTabs, nextActive)
+                })
                 if (!shouldNavigate) return null
                 return safeTabs.find((t) => t.id === nextActive)?.href ?? HOME_TAB.href
             },
@@ -158,10 +248,15 @@ export const useWorkspaceTabs = create<WorkspaceTabsState>()(
                 const matched = matchWorkspacePath(path)
                 if (!matched) return
 
-                const { tabs, activeId } = get()
+                const { tabs, activeId, userId, byUser } = get()
 
                 if (matched.kind === 'home') {
-                    if (activeId !== 'home') set({ activeId: 'home' })
+                    if (activeId !== 'home') {
+                        set({
+                            activeId: 'home',
+                            byUser: saveCurrentToBucket(userId, byUser, tabs, 'home')
+                        })
+                    }
                     return
                 }
 
@@ -174,27 +269,31 @@ export const useWorkspaceTabs = create<WorkspaceTabsState>()(
                         const nextTitle = noteTitle && noteTitle.length > 0 ? noteTitle : exists.title
                         const titleChanged = nextTitle !== exists.title
                         if (activeId === id && !titleChanged) return
+                        const nextTabs = titleChanged
+                            ? tabs.map((t) => (t.id === id && t.kind === 'note' ? { ...t, title: nextTitle } : t))
+                            : tabs
                         set({
                             activeId: id,
-                            tabs: titleChanged
-                                ? tabs.map((t) => (t.id === id && t.kind === 'note' ? { ...t, title: nextTitle } : t))
-                                : tabs
+                            tabs: nextTabs,
+                            byUser: saveCurrentToBucket(userId, byUser, nextTabs, id)
                         })
                         return
                     }
 
+                    const nextTabs: WorkspaceTab[] = [
+                        ...tabs,
+                        {
+                            id,
+                            kind: 'note',
+                            noteId: matched.noteId,
+                            title: noteTitle || matched.noteId,
+                            href
+                        }
+                    ]
                     set({
-                        tabs: [
-                            ...tabs,
-                            {
-                                id,
-                                kind: 'note',
-                                noteId: matched.noteId,
-                                title: noteTitle || matched.noteId,
-                                href
-                            }
-                        ],
-                        activeId: id
+                        tabs: nextTabs,
+                        activeId: id,
+                        byUser: saveCurrentToBucket(userId, byUser, nextTabs, id)
                     })
                     return
                 }
@@ -208,17 +307,36 @@ export const useWorkspaceTabs = create<WorkspaceTabsState>()(
             name: STORE_KEYS.WORKSPACE_TABS,
             storage: createJSONStorage(() => localStorage),
             partialize: (state): WorkspaceTabsPersisted => ({
-                tabs: state.tabs,
-                activeId: state.activeId
+                userId: state.userId,
+                byUser: saveCurrentToBucket(state.userId, state.byUser, state.tabs, state.activeId)
             }),
             merge: (persisted, current) => {
                 const saved = persisted as WorkspaceTabsPersisted | undefined
-                if (!saved?.tabs?.length) return current
+                if (!saved) return current
 
-                const tabs = ensureHomeTab(saved.tabs)
-                const activeId = saved.activeId && tabs.some((t) => t.id === saved.activeId) ? saved.activeId : 'home'
+                let byUser = { ...(saved.byUser ?? {}) }
 
-                return { ...current, tabs, activeId }
+                // Migrate legacy flat { tabs, activeId } into anonymous/guest bucket once.
+                if ((!saved.byUser || Object.keys(saved.byUser).length === 0) && saved.tabs?.length) {
+                    const legacyKey = saved.userId ?? '__legacy__'
+                    byUser = {
+                        ...byUser,
+                        [legacyKey]: normalizeSnapshot({ tabs: saved.tabs, activeId: saved.activeId })
+                    }
+                }
+
+                const userId = saved.userId ?? null
+                const snapshot = userId
+                    ? normalizeSnapshot(byUser[userId])
+                    : { tabs: [HOME_TAB], activeId: 'home' as const }
+
+                return {
+                    ...current,
+                    userId,
+                    byUser,
+                    tabs: snapshot.tabs,
+                    activeId: snapshot.activeId
+                }
             }
         }
     )

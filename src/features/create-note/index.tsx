@@ -323,7 +323,12 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
             <Surface
                 frost
                 capsule
-                className={cn('overflow-hidden', isWriting && 'flex min-h-0 flex-1 flex-col')}
+                className={cn(
+                    'overflow-hidden',
+                    isWriting
+                        ? 'flex min-h-0 flex-1 flex-col'
+                        : 'border-primary/10 shadow-[inset_0_1px_0_color-mix(in_srgb,var(--primary)_10%,transparent)]'
+                )}
             >
                 <AnimatePresence>
                     {(nonVoiceAttachments.length > 0 || (voiceAttachment && !voiceUiOpen)) && (

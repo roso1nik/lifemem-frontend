@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from 'react'
 import { Modal } from '@mantine/core'
-import { Trash2, Users } from 'lucide-react'
+import { Plus, Trash2, Users } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
-import { useDeletePerson, useListPersons } from '@/entities/person/api'
+import toast from 'react-hot-toast'
+import { useCreatePerson, useDeletePerson, useListPersons } from '@/entities/person/api'
 import { PersonCard } from '@/entities/person/ui/person-card'
-import { Button, IconButton, Loader, Surface } from '@/shared/ui'
+import { Button, IconButton, Loader, Surface, TextInput } from '@/shared/ui'
 
 type ArchiveUsersProps = {
     query: string
@@ -19,9 +20,70 @@ export const ArchiveUsers = ({ query }: ArchiveUsersProps) => {
         query: query || undefined
     })
     const { mutate: deletePerson, isPending } = useDeletePerson()
+    const { mutate: createPerson, isPending: isCreating } = useCreatePerson()
     const [pendingId, setPendingId] = useState<string | null>(null)
+    const [createOpen, setCreateOpen] = useState(false)
+    const [newName, setNewName] = useState('')
 
     const people = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data])
+
+    const onCreate = () => {
+        const name = newName.trim()
+        if (!name) return
+        createPerson(
+            { name },
+            {
+                onSuccess: () => {
+                    toast.success(t('createPersonSuccess'))
+                    setCreateOpen(false)
+                    setNewName('')
+                }
+            }
+        )
+    }
+
+    const createModal = (
+        <Modal
+            opened={createOpen}
+            onClose={() => {
+                setCreateOpen(false)
+                setNewName('')
+            }}
+            title={t('createPersonTitle')}
+            centered
+        >
+            <form
+                className="flex flex-col gap-4"
+                onSubmit={(event) => {
+                    event.preventDefault()
+                    onCreate()
+                }}
+            >
+                <TextInput
+                    label={t('createPersonName')}
+                    value={newName}
+                    onChange={(event) => setNewName(event.currentTarget.value)}
+                    placeholder={t('createPersonPlaceholder')}
+                    autoFocus
+                />
+                <div className="flex justify-end gap-2">
+                    <Button
+                        type="button"
+                        variant="subtle"
+                        onClick={() => {
+                            setCreateOpen(false)
+                            setNewName('')
+                        }}
+                    >
+                        {t('cancel')}
+                    </Button>
+                    <Button type="submit" loading={isCreating} disabled={!newName.trim()}>
+                        {t('createPersonSubmit')}
+                    </Button>
+                </div>
+            </form>
+        </Modal>
+    )
 
     if (isLoading) {
         return <Loader variant="section" />
@@ -37,18 +99,42 @@ export const ArchiveUsers = ({ query }: ArchiveUsersProps) => {
 
     if (people.length === 0) {
         return (
-            <Surface frost capsule className="flex flex-col items-center px-5 py-12 text-center">
-                <span className="bg-primary/12 text-primary mb-4 flex size-14 items-center justify-center rounded-[18px]">
-                    <Users size={24} strokeWidth={1.6} />
-                </span>
-                <p className="text-sm font-medium tracking-tight">{t('emptyPeople')}</p>
-                <p className="text-muted-foreground mt-1.5 max-w-xs text-xs leading-relaxed">{t('emptyPeopleHint')}</p>
-            </Surface>
+            <>
+                <Surface frost capsule className="flex flex-col items-center px-5 py-12 text-center">
+                    <span className="bg-primary/12 text-primary mb-4 flex size-14 items-center justify-center rounded-[18px]">
+                        <Users size={24} strokeWidth={1.6} />
+                    </span>
+                    <p className="text-sm font-medium tracking-tight">{t('emptyPeople')}</p>
+                    <p className="text-muted-foreground mt-1.5 max-w-xs text-xs leading-relaxed">
+                        {t('emptyPeopleHint')}
+                    </p>
+                    <Button
+                        className="mt-5"
+                        size="sm"
+                        leftSection={<Plus size={14} />}
+                        onClick={() => setCreateOpen(true)}
+                    >
+                        {t('createPerson')}
+                    </Button>
+                </Surface>
+                {createModal}
+            </>
         )
     }
 
     return (
         <div className="flex flex-col gap-3">
+            <div className="flex justify-end">
+                <Button
+                    variant="subtle"
+                    size="sm"
+                    leftSection={<Plus size={14} />}
+                    onClick={() => setCreateOpen(true)}
+                >
+                    {t('createPerson')}
+                </Button>
+            </div>
+
             <Surface frost capsule className="overflow-hidden p-1.5 sm:p-2">
                 <ul className="flex flex-col">
                     {people.map((person, index) => (
@@ -115,6 +201,8 @@ export const ArchiveUsers = ({ query }: ArchiveUsersProps) => {
                     </Button>
                 </div>
             </Modal>
+
+            {createModal}
         </div>
     )
 }

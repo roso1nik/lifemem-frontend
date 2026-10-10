@@ -46,9 +46,14 @@
         "submitRegister": "Создать аккаунт",
         "forgotPassword": "Забыли пароль?",
         "forgotTitle": "Восстановление доступа",
-        "forgotHint": "Укажите почту аккаунта — пришлём инструкции.",
-        "forgotUnavailable": "Восстановление пароля пока недоступно на бэкенде.",
-        "forgotSubmit": "Отправить",
+        "forgotHint": "Укажите почту аккаунта — пришлём код для сброса пароля.",
+        "forgotSubmit": "Отправить код",
+        "forgotConfirmTitle": "Новый пароль",
+        "forgotConfirmHint": "Введите код из письма на {email} и задайте новый пароль.",
+        "forgotConfirmSubmit": "Сохранить пароль",
+        "forgotChangeEmail": "Указать другую почту",
+        "newPassword": "Новый пароль",
+        "confirmPassword": "Повторите пароль",
         "backToLogin": "Вернуться к входу",
         "confirmTitle": "Подтверждение email",
         "confirmPhoneTitle": "Подтверждение телефона",
@@ -73,14 +78,18 @@
             "login": "Вход выполнен",
             "logout": "Вы вышли",
             "register": "Аккаунт создан",
-            "confirmEmail": "Email подтверждён"
+            "confirmEmail": "Email подтверждён",
+            "passwordReset": "Пароль обновлён"
         },
         "errors": {
             "login": "Не удалось войти",
             "logout": "Не удалось выйти",
             "register": "Не удалось зарегистрироваться",
             "confirmCode": "Неверный код",
-            "oauthLogin": "Не удалось войти через OAuth"
+            "oauthLogin": "Не удалось войти через OAuth",
+            "passwordResetRequest": "Не удалось отправить код",
+            "passwordResetConfirm": "Не удалось сбросить пароль",
+            "passwordsMismatch": "Пароли не совпадают"
         }
     },
     "home": {
@@ -132,18 +141,30 @@
             "edit": "Изменить",
             "editTitle": "Редактировать заметку",
             "editHint": "Пока идёт обработка, можно поправить заголовок, людей, места и добавить локацию. Текст, голос и медиа здесь не правятся.",
+            "editReadyHint": "Можно изменить заголовок, текст и связи с людьми и местами.",
+            "editRelationsLabel": "Люди и места",
+            "voiceTextNotEditable": "Текст голосовой заметки нельзя редактировать — можно изменить заголовок и связи.",
             "titleLabel": "Заголовок",
             "titlePlaceholder": "Название заметки",
+            "bodyLabel": "Текст",
+            "bodyPlaceholder": "Текст заметки",
             "save": "Сохранить",
             "cancel": "Отмена",
             "delete": "Удалить",
             "deleteTitle": "Удалить заметку?",
             "deleteConfirm": "Заметка будет скрыта. Это действие нельзя отменить из приложения.",
             "voice": "Голос",
+            "voicePlay": "Воспроизвести",
+            "voicePause": "Пауза",
+            "voiceSeek": "Перемотка",
             "photoAlt": "Фото {index}",
             "videoAlt": "Видео {index}",
             "processing": "Обработка {done}/{total}",
             "attachMedia": "Добавить фото или видео",
+            "attachMediaShort": "Добавить",
+            "attachMediaHint": "До 5 фото или видео к готовой заметке.",
+            "editMediaLabel": "Медиа",
+            "mediaCount": "{count} из {max}",
             "detachMedia": "Удалить медиа",
             "attachWhenReady": "Дождитесь окончания обработки",
             "attachSuccess": "Файл прикреплён",
@@ -210,7 +231,7 @@
             "searchPeople": "Найти человека…",
             "searchPlaces": "Найти место…",
             "emptyPeople": "Пока нет людей",
-            "emptyPeopleHint": "Они появятся, когда вы упомянете кого-то в заметках.",
+            "emptyPeopleHint": "Добавьте вручную или они появятся из заметок.",
             "emptyPlaces": "Пока нет мест",
             "emptyPlacesHint": "Места подтянутся из геометок и упоминаний в записях.",
             "loadMore": "Ещё",
@@ -222,13 +243,23 @@
             "deletePersonTitle": "Удалить человека?",
             "deletePersonConfirm": "Он будет отвязан от всех заметок.",
             "deletePlaceTitle": "Удалить место?",
-            "deletePlaceConfirm": "Оно будет отвязано от всех заметок."
+            "deletePlaceConfirm": "Оно будет отвязано от всех заметок.",
+            "createPerson": "Добавить человека",
+            "createPersonTitle": "Новый человек",
+            "createPersonName": "Имя",
+            "createPersonPlaceholder": "Например, Алексей",
+            "createPersonSubmit": "Добавить",
+            "createPersonSuccess": "Человек добавлен"
         },
         "searchLabel": "Поиск",
         "searchPlaceholder": "Найти или спросить ИИ…",
         "mode": {
             "write": "Записать",
             "ask": "Спросить"
+        },
+        "composer": {
+            "writeKicker": "Новая заметка",
+            "askKicker": "Спросить память"
         },
         "ask": {
             "placeholder": "Спросите о своих заметках…",
@@ -245,7 +276,10 @@
                 "places": "Какие места упоминались недавно?"
             },
             "sourcesLabel": "{count, plural, one {# источник} few {# источника} many {# источников} other {# источников}}",
-            "error": "Не удалось получить ответ"
+            "error": "Не удалось получить ответ",
+            "historyLabel": "История вопросов",
+            "historyUntitled": "Вопрос без текста",
+            "historyError": "Не удалось загрузить историю"
         },
         "spotlight": {
             "empty": "Ничего не найдено",
