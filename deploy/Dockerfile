@@ -3,7 +3,8 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm i
+# postinstall needs scripts/ + writes public/; builder runs prebuild instead
+RUN npm i --ignore-scripts
 
 FROM node:20-alpine AS builder
 
@@ -37,7 +38,8 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY package.json package-lock.json ./
-RUN npm i --omit=dev && npm cache clean --force
+# Worker is already in builder public/ via prebuild; no scripts/ in this stage
+RUN npm i --omit=dev --ignore-scripts && npm cache clean --force
 
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
