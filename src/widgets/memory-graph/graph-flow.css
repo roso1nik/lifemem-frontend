@@ -1,0 +1,57 @@
+.memory-graph-flow {
+    --xy-background-color: transparent;
+    --xy-node-border-default: transparent;
+    --xy-node-background-color-default: transparent;
+    --xy-node-boxshadow-default: none;
+    --xy-node-boxshadow-selected: none;
+    --xy-edge-stroke-default: color-mix(in srgb, var(--foreground) 22%, transparent);
+    --xy-edge-stroke-selected: var(--primary);
+    --xy-edge-stroke-width-default: 1.15;
+    --xy-selection-background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+    --xy-selection-border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+    --xy-controls-button-background-color: color-mix(in srgb, var(--card) 88%, transparent);
+    --xy-controls-button-background-color-hover: color-mix(in srgb, var(--muted) 80%, transparent);
+    --xy-controls-button-color: var(--foreground);
+    --xy-controls-button-border-color: var(--hairline, color-mix(in srgb, var(--foreground) 12%, transparent));
+    --xy-controls-box-shadow: 0 8px 24px color-mix(in srgb, var(--foreground) 6%, transparent);
+    --xy-minimap-background-color-props: color-mix(in srgb, var(--card) 70%, transparent);
+    --xy-minimap-mask-background-color-props: color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.memory-graph-flow .react-flow__node {
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+}
+
+.memory-graph-flow .react-flow__node.selectable:focus,
+.memory-graph-flow .react-flow__node.selectable:focus-visible,
+.memory-graph-flow .react-flow__node.selected {
+    outline: none;
+    box-shadow: none;
+}
+
+.memory-graph-flow .react-flow__controls {
+    border: 1px solid var(--hairline, color-mix(in srgb, var(--foreground) 12%, transparent));
+    border-radius: 14px;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+}
+
+.memory-graph-flow .react-flow__controls-button {
+    border-bottom-color: var(--hairline, color-mix(in srgb, var(--foreground) 12%, transparent));
+    width: 28px;
+    height: 28px;
+}
+
+.memory-graph-flow .react-flow__minimap {
+    border: 1px solid var(--hairline, color-mix(in srgb, var(--foreground) 12%, transparent));
+    border-radius: 14px;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+}
+
+.memory-graph-flow .react-flow__attribution {
+    display: none;
+}
