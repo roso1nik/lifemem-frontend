@@ -87,6 +87,7 @@ const putToStorage = async (url: string, blob: Blob, contentType?: string) => {
 
 export type UploadFileOptions = {
     allowedTypes: FileType[]
+    maxSizeByType?: Partial<Record<FileType, number>>
     onProgress?: (ratio: number) => void
 }
 
@@ -96,7 +97,10 @@ export const uploadFile = async (file: File, options: UploadFileOptions): Promis
         throw new UploadValidationError('Unsupported file type')
     }
 
-    const type = assertUploadableFile(file, options.allowedTypes, mimeType)
+    const type = assertUploadableFile(file, options.allowedTypes, {
+        mimeType,
+        maxSizeByType: options.maxSizeByType
+    })
     const filename = sanitizeUploadFilename(file.name)
 
     const sessionRes = await createUpload({

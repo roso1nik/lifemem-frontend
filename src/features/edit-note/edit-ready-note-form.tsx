@@ -13,6 +13,7 @@ import {
     useUnlinkEntryPlace
 } from '@/entities/entry/api/use-entry-relations'
 import type { FormattedTextFormat } from '@/entities/entry/model'
+import { useGetConstants } from '@/entities/constants/api'
 import { PRODUCT_MEDIA_TYPES, UploadValidationError, uploadFile } from '@/entities/upload'
 import { PeoplePicker, PlacesPicker, type RelationOption } from '@/features/note-relations'
 import { getApiErrorMessage } from '@/shared/api/errors'
@@ -97,13 +98,17 @@ export const EditReadyNoteForm = ({
     const { mutateAsync: unlinkPerson } = useUnlinkEntryPerson()
     const { mutateAsync: linkPlace } = useLinkEntryPlace()
     const { mutateAsync: unlinkPlace } = useUnlinkEntryPlace()
+    const { data: constants } = useGetConstants()
+    const maxMedia = constants?.entry.maxMediaPerEntry ?? 5
+    const maxPeople = constants?.entry.maxPeoplePerEntry ?? 10
+    const maxSizeByType = constants?.files.maxSizeByType
 
     const currentMediaCount = mediaCount + attachedExtra
-    const canAttachMedia = currentMediaCount < 5
+    const canAttachMedia = currentMediaCount < maxMedia
 
     const onAttachFiles = async (files: File[]) => {
         if (!files.length) return
-        const room = 5 - currentMediaCount
+        const room = maxMedia - currentMediaCount
         if (room <= 0) {
             toast.error(t('mediaLimit'))
             return
@@ -112,7 +117,10 @@ export const EditReadyNoteForm = ({
         setAttaching(true)
         try {
             for (const file of batch) {
-                const fileId = await uploadFile(file, { allowedTypes: PRODUCT_MEDIA_TYPES })
+                const fileId = await uploadFile(file, {
+                    allowedTypes: PRODUCT_MEDIA_TYPES,
+                    maxSizeByType
+                })
                 await attachMedia({ entryId, data: { fileId } })
                 setAttachedExtra((n) => n + 1)
             }
@@ -248,7 +256,7 @@ export const EditReadyNoteForm = ({
                         <div className="min-w-0">
                             <p className="text-sm font-medium tracking-tight">{t('note.attachMedia')}</p>
                             <p className="text-muted-foreground mt-0.5 text-xs">
-                                {t('note.mediaCount', { count: currentMediaCount, max: 5 })}
+                                {t('note.mediaCount', { count: currentMediaCount, max: maxMedia })}
                             </p>
                         </div>
                         <Button
@@ -288,7 +296,7 @@ export const EditReadyNoteForm = ({
                             <Users size={12} strokeWidth={1.75} />
                             {t('relations.people')}
                         </div>
-                        <PeoplePicker value={people} onChange={setPeople} hideLabel />
+                        <PeoplePicker value={people} onChange={setPeople} max={maxPeople} hideLabel />
                     </Surface>
                     <Surface frost capsule className="p-3.5">
                         <div className="text-muted-foreground mb-2 flex items-center gap-1.5 text-[11px] font-medium tracking-wide uppercase">

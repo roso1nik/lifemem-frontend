@@ -81,13 +81,27 @@ export class UploadValidationError extends Error {
     }
 }
 
-export const assertUploadableFile = (file: File, allowed: FileType[], mimeType?: string): FileType => {
-    const mime = mimeType ?? file.type
+export type AssertUploadableOptions = {
+    mimeType?: string
+    maxSizeByType?: Partial<Record<FileType, number>>
+}
+
+export const assertUploadableFile = (
+    file: File,
+    allowed: FileType[],
+    mimeTypeOrOptions?: string | AssertUploadableOptions
+): FileType => {
+    const options: AssertUploadableOptions =
+        typeof mimeTypeOrOptions === 'string' || mimeTypeOrOptions == null
+            ? { mimeType: mimeTypeOrOptions }
+            : mimeTypeOrOptions
+    const mime = options.mimeType ?? file.type
     const type = resolveFileType(mime)
     if (!type || type === 'OTHER' || !allowed.includes(type)) {
         throw new UploadValidationError('Unsupported file type')
     }
-    const max = UPLOAD_MAX_BYTES[type as Exclude<FileType, 'OTHER'>]
+    const max =
+        options.maxSizeByType?.[type] ?? UPLOAD_MAX_BYTES[type as Exclude<FileType, 'OTHER'>]
     if (file.size > max) {
         throw new UploadValidationError('File exceeds size limit')
     }

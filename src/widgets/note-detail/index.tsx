@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 import { useGetEntry } from '@/entities/entry/api/use-get-entry'
 import { useAttachEntryMedia, useDetachEntryMedia } from '@/entities/entry/api/use-entry-media'
 import { getEntryPreviewText } from '@/entities/entry/model'
+import { useGetConstants } from '@/entities/constants/api'
 import { PRODUCT_MEDIA_TYPES, UploadValidationError, uploadFile } from '@/entities/upload'
 import { DeleteNoteButton } from '@/features/delete-note'
 import { EditNoteForm, EditReadyNoteForm } from '@/features/edit-note'
@@ -36,6 +37,9 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
     const { goHome } = useWorkspaceNavigation()
     const { mutateAsync: attachMedia } = useAttachEntryMedia()
     const { mutate: detachMedia, isPending: detaching } = useDetachEntryMedia()
+    const { data: constants } = useGetConstants()
+    const maxMedia = constants?.entry.maxMediaPerEntry ?? 5
+    const maxSizeByType = constants?.files.maxSizeByType
 
     const galleryItems = useMemo(() => {
         if (!entry?.media.length) return []
@@ -63,7 +67,7 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
         }
         if (!files.length) return
         const current = entry.media?.length ?? 0
-        const room = 5 - current
+        const room = maxMedia - current
         if (room <= 0) {
             toast.error(t('mediaLimit'))
             return
@@ -72,7 +76,10 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
         setAttaching(true)
         try {
             for (const file of batch) {
-                const fileId = await uploadFile(file, { allowedTypes: PRODUCT_MEDIA_TYPES })
+                const fileId = await uploadFile(file, {
+                    allowedTypes: PRODUCT_MEDIA_TYPES,
+                    maxSizeByType
+                })
                 await attachMedia({ entryId: entry.id, data: { fileId } })
             }
             toast.success(t('note.attachSuccess'))
@@ -140,7 +147,7 @@ export const NoteDetail = ({ noteId }: NoteDetailProps) => {
                                 size="sm"
                                 aria-label={t('note.attachMedia')}
                                 loading={attaching}
-                                disabled={entry.media.length >= 5}
+                                disabled={entry.media.length >= maxMedia}
                                 onClick={() => fileRef.current?.click()}
                             >
                                 <ImagePlus size={16} />

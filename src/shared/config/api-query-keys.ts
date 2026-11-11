@@ -22,6 +22,7 @@ export const ApiQueryKeys = {
     CONFIRM_PHONE_LOGIN: 'confirm-phone-login',
     PASSWORD_RESET_REQUEST: 'password-reset-request',
     PASSWORD_RESET_CONFIRM: 'password-reset-confirm',
+    CHANGE_PASSWORD: 'change-password',
     GOOGLE_LOGIN: 'google-login',
     GOOGLE_LINK: 'google-link',
     GOOGLE_UNLINK: 'google-unlink',
@@ -37,6 +38,12 @@ export const ApiQueryKeys = {
     ADMIN_USER_UPDATE: 'admin-user-update',
     ADMIN_USER_SOFT_DELETE: 'admin-user-soft-delete',
     ADMIN_USER_HARD_DELETE: 'admin-user-hard-delete',
+
+    // Admin dashboard
+    ADMIN_DASHBOARD: 'admin-dashboard',
+
+    // Server constants
+    SERVER_CONSTANTS: 'server-constants',
 
     // Auth log
     AUTH_LOG_SEARCH: 'auth-log-search',
@@ -71,9 +78,14 @@ export const ApiQueryKeys = {
     UNLINK_ENTRY_PLACE: 'unlink-entry-place',
     ASK_ENTRY: 'ask-entry',
     ASK_ENTRY_HISTORY: 'ask-entry-history',
+    ENTRY_EXPORT: 'entry-export',
 
     // Upload
     UPLOAD_FILE: 'upload-file',
+
+    // Graph
+    GRAPH: 'graph',
+    CREATE_GRAPH_LINK: 'create-graph-link',
 
     // Person / Place
     PERSON_LIST: 'person-list',

@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Archive, MapPin, Search, Users } from 'lucide-react'
+import { Archive, Download, MapPin, Search, Users } from 'lucide-react'
 import { useDebouncedValue } from '@mantine/hooks'
 import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { SegmentedControl, Surface, TextInput } from '@/shared/ui'
+import { useExportEntries } from '@/entities/entry/api/use-export-entries'
+import { Button, SegmentedControl, Surface, TextInput } from '@/shared/ui'
 import { ArchiveUsers } from './archive-users'
 import { ArchivePlaces } from './archive-places'
 
@@ -18,6 +19,7 @@ export const ArchivePage = () => {
     const [tab, setTab] = useState<ArchiveTab>('people')
     const [search, setSearch] = useState('')
     const [debouncedSearch] = useDebouncedValue(search.trim(), 300)
+    const { mutate: exportEntries, isPending: isExporting } = useExportEntries()
 
     useEffect(() => {
         setSearch('')
@@ -91,13 +93,26 @@ export const ArchivePage = () => {
                             </span>
                         </div>
 
-                        <div className="hidden items-center gap-2 sm:flex">
-                            <span className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-[11px] font-medium tracking-wide">
-                                {t('people')}
-                            </span>
-                            <span className="bg-sage/15 text-sage rounded-full px-2.5 py-1 text-[11px] font-medium tracking-wide">
-                                {t('places')}
-                            </span>
+                        <div className="flex flex-col items-end gap-2">
+                            <Button
+                                type="button"
+                                variant="subtle"
+                                size="sm"
+                                loading={isExporting}
+                                onClick={() => exportEntries()}
+                                className="gap-1.5 rounded-full"
+                            >
+                                <Download size={14} />
+                                {t('export')}
+                            </Button>
+                            <div className="hidden items-center gap-2 sm:flex">
+                                <span className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-[11px] font-medium tracking-wide">
+                                    {t('people')}
+                                </span>
+                                <span className="bg-sage/15 text-sage rounded-full px-2.5 py-1 text-[11px] font-medium tracking-wide">
+                                    {t('places')}
+                                </span>
+                            </div>
                         </div>
                     </div>
 

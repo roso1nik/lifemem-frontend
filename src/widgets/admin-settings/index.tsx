@@ -10,17 +10,25 @@ import {
     useGetServiceSettings,
     useUpdateServiceSettings
 } from '@/entities/service-settings/api/use-service-settings'
-import type { AuthMethodsSettings, ModelProvider } from '@/entities/service-settings/model'
+import type { AuthMethodsSettings, ModelProvider, ModelTierSettings } from '@/entities/service-settings/model'
 import { useSearchAiModels } from '@/entities/ai-model/api/use-ai-model'
 import { Button, Loader, SegmentedControl, Surface, TextInput } from '@/shared/ui'
 import { AdminFilterCard } from '@/widgets/admin-shared/chrome'
 import { AppWindow, Cpu, KeyRound } from 'lucide-react'
 
 const AUTH_KEYS = ['email', 'freshCall', 'google', 'apple', 'telegram'] as const
+const MODEL_TIERS = ['analyze', 'vision', 'stt', 'sttRefine', 'rag'] as const
 
 const authMethodFormSchema = z.object({
     isLoginEnabled: z.boolean(),
-    isRegistrationEnabled: z.boolean()
+    isRegistrationEnabled: z.boolean(),
+    allowAllCountry: z.boolean(),
+    countriesWhitelist: z.string()
+})
+
+const tierSchema = z.object({
+    premium: z.string().nullable(),
+    lite: z.string().nullable()
 })
 
 const settingsFormSchema = z.object({
@@ -34,33 +42,65 @@ const settingsFormSchema = z.object({
     }),
     models: z.object({
         provider: z.enum(['Polza', 'Openrouter']),
-        analyze: z.object({
-            premium: z.string().nullable(),
-            lite: z.string().nullable()
-        }),
-        embedding: z.object({
-            premium: z.string().nullable(),
-            lite: z.string().nullable()
-        })
+        analyze: tierSchema,
+        vision: tierSchema,
+        stt: tierSchema,
+        sttRefine: tierSchema,
+        rag: tierSchema
     })
 })
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>
 
+const emptyTier = (): ModelTierSettings => ({ premium: null, lite: null })
+
+const parseCountries = (raw: string) =>
+    raw
+        .split(/[\s,;]+/)
+        .map((item) => item.trim().toUpperCase())
+        .filter(Boolean)
+
 const normalizeAuth = (raw?: Partial<AuthMethodsSettings> | null): SettingsFormValues['authMethods'] => {
     const next: SettingsFormValues['authMethods'] = {
-        email: { isLoginEnabled: false, isRegistrationEnabled: false },
-        freshCall: { isLoginEnabled: false, isRegistrationEnabled: false },
-        google: { isLoginEnabled: false, isRegistrationEnabled: false },
-        apple: { isLoginEnabled: false, isRegistrationEnabled: false },
-        telegram: { isLoginEnabled: false, isRegistrationEnabled: false }
+        email: {
+            isLoginEnabled: false,
+            isRegistrationEnabled: false,
+            allowAllCountry: true,
+            countriesWhitelist: ''
+        },
+        freshCall: {
+            isLoginEnabled: false,
+            isRegistrationEnabled: false,
+            allowAllCountry: true,
+            countriesWhitelist: ''
+        },
+        google: {
+            isLoginEnabled: false,
+            isRegistrationEnabled: false,
+            allowAllCountry: true,
+            countriesWhitelist: ''
+        },
+        apple: {
+            isLoginEnabled: false,
+            isRegistrationEnabled: false,
+            allowAllCountry: true,
+            countriesWhitelist: ''
+        },
+        telegram: {
+            isLoginEnabled: false,
+            isRegistrationEnabled: false,
+            allowAllCountry: true,
+            countriesWhitelist: ''
+        }
     }
     for (const key of AUTH_KEYS) {
         const method = raw?.[key]
         if (!method) continue
         next[key] = {
             isLoginEnabled: method.isLoginEnabled,
-            isRegistrationEnabled: method.isRegistrationEnabled
+            isRegistrationEnabled: method.isRegistrationEnabled,
+            allowAllCountry: method.allowAllCountry ?? true,
+            countriesWhitelist: (method.countriesWhitelist ?? []).join(', ')
         }
     }
     return next
@@ -109,8 +149,11 @@ export const AdminServiceSettings = () => {
             authMethods: normalizeAuth(null),
             models: {
                 provider: 'Polza',
-                analyze: { premium: null, lite: null },
-                embedding: { premium: null, lite: null }
+                analyze: emptyTier(),
+                vision: emptyTier(),
+                stt: emptyTier(),
+                sttRefine: emptyTier(),
+                rag: emptyTier()
             }
         }
     })
@@ -134,9 +177,21 @@ export const AdminServiceSettings = () => {
                     premium: json.models?.analyze?.premium ?? null,
                     lite: json.models?.analyze?.lite ?? null
                 },
-                embedding: {
-                    premium: json.models?.embedding?.premium ?? null,
-                    lite: json.models?.embedding?.lite ?? null
+                vision: {
+                    premium: json.models?.vision?.premium ?? null,
+                    lite: json.models?.vision?.lite ?? null
+                },
+                stt: {
+                    premium: json.models?.stt?.premium ?? null,
+                    lite: json.models?.stt?.lite ?? null
+                },
+                sttRefine: {
+                    premium: json.models?.sttRefine?.premium ?? null,
+                    lite: json.models?.sttRefine?.lite ?? null
+                },
+                rag: {
+                    premium: json.models?.rag?.premium ?? null,
+                    lite: json.models?.rag?.lite ?? null
                 }
             }
         })
@@ -148,16 +203,47 @@ export const AdminServiceSettings = () => {
             text: items
                 .filter((m) => m.type === 'TextToText' || m.type === 'ImageToText')
                 .map((m) => ({ value: m.id, label: `${m.name} (${m.type})` })),
-            embedding: items
-                .filter((m) => m.type === 'Embedding')
+            vision: items
+                .filter((m) => m.type === 'ImageToText')
+                .map((m) => ({ value: m.id, label: m.name })),
+            audio: items
+                .filter((m) => m.type === 'TextToText')
                 .map((m) => ({ value: m.id, label: m.name }))
         }
     }, [modelsData])
 
+    const tierOptions = (tier: (typeof MODEL_TIERS)[number]) => {
+        if (tier === 'vision') return modelOptions.vision
+        if (tier === 'stt' || tier === 'sttRefine') return modelOptions.audio
+        return modelOptions.text
+    }
+
     const onSubmit = (values: SettingsFormValues) => {
-        update(values, {
-            onSuccess: () => form.reset(values)
-        })
+        update(
+            {
+                appVersion: values.appVersion,
+                authMethods: Object.fromEntries(
+                    AUTH_KEYS.map((key) => {
+                        const method = values.authMethods[key]
+                        return [
+                            key,
+                            {
+                                isLoginEnabled: method.isLoginEnabled,
+                                isRegistrationEnabled: method.isRegistrationEnabled,
+                                allowAllCountry: method.allowAllCountry,
+                                countriesWhitelist: method.allowAllCountry
+                                    ? undefined
+                                    : parseCountries(method.countriesWhitelist)
+                            }
+                        ]
+                    })
+                ),
+                models: values.models
+            },
+            {
+                onSuccess: () => form.reset(values)
+            }
+        )
     }
 
     if (isLoading) return <Loader variant="section" size="sm" />
@@ -219,6 +305,30 @@ export const AdminServiceSettings = () => {
                                     />
                                 )}
                             />
+                            <Controller
+                                control={form.control}
+                                name={`authMethods.${key}.allowAllCountry`}
+                                render={({ field }) => (
+                                    <Switch
+                                        checked={field.value}
+                                        onChange={(e) => field.onChange(e.currentTarget.checked)}
+                                        label={t('settings.allowAllCountry')}
+                                    />
+                                )}
+                            />
+                            {!form.watch(`authMethods.${key}.allowAllCountry`) && (
+                                <Controller
+                                    control={form.control}
+                                    name={`authMethods.${key}.countriesWhitelist`}
+                                    render={({ field }) => (
+                                        <TextInput
+                                            {...field}
+                                            label={t('settings.countriesWhitelist')}
+                                            placeholder={t('settings.countriesPlaceholder')}
+                                        />
+                                    )}
+                                />
+                            )}
                         </div>
                     ))}
                 </div>
@@ -248,58 +358,36 @@ export const AdminServiceSettings = () => {
                         </div>
                     )}
                 />
-                <Controller
-                    control={form.control}
-                    name="models.analyze.premium"
-                    render={({ field }) => (
-                        <ModelSelect
-                            label={t('settings.analyzePremium')}
-                            value={field.value}
-                            onChange={field.onChange}
-                            options={modelOptions.text}
-                            emptyLabel={t('settings.modelNone')}
+                {MODEL_TIERS.map((tier) => (
+                    <div key={tier} className="grid gap-3 sm:grid-cols-2">
+                        <Controller
+                            control={form.control}
+                            name={`models.${tier}.premium`}
+                            render={({ field }) => (
+                                <ModelSelect
+                                    label={t(`settings.${tier}Premium`)}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    options={tierOptions(tier)}
+                                    emptyLabel={t('settings.modelNone')}
+                                />
+                            )}
                         />
-                    )}
-                />
-                <Controller
-                    control={form.control}
-                    name="models.analyze.lite"
-                    render={({ field }) => (
-                        <ModelSelect
-                            label={t('settings.analyzeLite')}
-                            value={field.value}
-                            onChange={field.onChange}
-                            options={modelOptions.text}
-                            emptyLabel={t('settings.modelNone')}
+                        <Controller
+                            control={form.control}
+                            name={`models.${tier}.lite`}
+                            render={({ field }) => (
+                                <ModelSelect
+                                    label={t(`settings.${tier}Lite`)}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    options={tierOptions(tier)}
+                                    emptyLabel={t('settings.modelNone')}
+                                />
+                            )}
                         />
-                    )}
-                />
-                <Controller
-                    control={form.control}
-                    name="models.embedding.premium"
-                    render={({ field }) => (
-                        <ModelSelect
-                            label={t('settings.embeddingPremium')}
-                            value={field.value}
-                            onChange={field.onChange}
-                            options={modelOptions.embedding}
-                            emptyLabel={t('settings.modelNone')}
-                        />
-                    )}
-                />
-                <Controller
-                    control={form.control}
-                    name="models.embedding.lite"
-                    render={({ field }) => (
-                        <ModelSelect
-                            label={t('settings.embeddingLite')}
-                            value={field.value}
-                            onChange={field.onChange}
-                            options={modelOptions.embedding}
-                            emptyLabel={t('settings.modelNone')}
-                        />
-                    )}
-                />
+                    </div>
+                ))}
             </Surface>
 
             <Button

@@ -6,6 +6,7 @@ export const ROUTES = {
     CONFIRM_PAGE: '/confirm',
     FORGOT_PASSWORD: '/forgotpassword',
     ADMIN: '/admin',
+    ADMIN_DASHBOARD: '/admin/dashboard',
     ADMIN_USERS: '/admin/users',
     ADMIN_SETTINGS: '/admin/settings',
     ADMIN_MODELS: '/admin/models',
@@ -37,6 +38,7 @@ export const ROUTES_NAMES = {
     [ROUTES.CONFIRM_PAGE]: 'Confirm',
     [ROUTES.FORGOT_PASSWORD]: 'Forgot password',
     [ROUTES.ADMIN]: 'Admin',
+    [ROUTES.ADMIN_DASHBOARD]: 'Admin dashboard',
     [ROUTES.ADMIN_USERS]: 'Admin users',
     [ROUTES.ADMIN_SETTINGS]: 'Admin settings',
     [ROUTES.ADMIN_MODELS]: 'Admin models',
@@ -52,6 +54,7 @@ export const ROUTES_NAMES = {
 
 export const ADMIN_ROUTES = [
     ROUTES.ADMIN,
+    ROUTES.ADMIN_DASHBOARD,
     ROUTES.ADMIN_USERS,
     ROUTES.ADMIN_SETTINGS,
     ROUTES.ADMIN_MODELS,

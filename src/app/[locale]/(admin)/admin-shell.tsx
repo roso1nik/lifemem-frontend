@@ -11,6 +11,7 @@ import {
     ArrowLeft,
     Cpu,
     HeartPulse,
+    LayoutDashboard,
     ScrollText,
     Settings,
     Shield,
@@ -22,16 +23,24 @@ import { AdminAtmosphere, AdminSectionIcon } from '@/widgets/admin-shared/chrome
 
 const NAV: {
     href: string
-    key: 'nav.users' | 'nav.settings' | 'nav.models' | 'nav.logs' | 'nav.authLogs' | 'nav.health'
+    key:
+        | 'nav.dashboard'
+        | 'nav.users'
+        | 'nav.settings'
+        | 'nav.models'
+        | 'nav.logs'
+        | 'nav.authLogs'
+        | 'nav.health'
     Icon: LucideIcon
     tone: 'aqua' | 'sage'
 }[] = [
-    { href: ROUTES.ADMIN_USERS, key: 'nav.users', Icon: Users, tone: 'aqua' },
-    { href: ROUTES.ADMIN_SETTINGS, key: 'nav.settings', Icon: Settings, tone: 'sage' },
-    { href: ROUTES.ADMIN_MODELS, key: 'nav.models', Icon: Cpu, tone: 'aqua' },
-    { href: ROUTES.ADMIN_LOGS, key: 'nav.logs', Icon: ScrollText, tone: 'sage' },
-    { href: ROUTES.ADMIN_AUTH_LOGS, key: 'nav.authLogs', Icon: Shield, tone: 'aqua' },
-    { href: ROUTES.ADMIN_HEALTH, key: 'nav.health', Icon: HeartPulse, tone: 'sage' }
+    { href: ROUTES.ADMIN_DASHBOARD, key: 'nav.dashboard', Icon: LayoutDashboard, tone: 'aqua' },
+    { href: ROUTES.ADMIN_USERS, key: 'nav.users', Icon: Users, tone: 'sage' },
+    { href: ROUTES.ADMIN_SETTINGS, key: 'nav.settings', Icon: Settings, tone: 'aqua' },
+    { href: ROUTES.ADMIN_MODELS, key: 'nav.models', Icon: Cpu, tone: 'sage' },
+    { href: ROUTES.ADMIN_LOGS, key: 'nav.logs', Icon: ScrollText, tone: 'aqua' },
+    { href: ROUTES.ADMIN_AUTH_LOGS, key: 'nav.authLogs', Icon: Shield, tone: 'sage' },
+    { href: ROUTES.ADMIN_HEALTH, key: 'nav.health', Icon: HeartPulse, tone: 'aqua' }
 ]
 
 const sectionSubtitleKey = (path: string): string => {

@@ -35,13 +35,14 @@ export const AppHeader = ({ menuOpened, onToggleMenu }: AppHeaderProps) => {
 
     return (
         <>
-            <div className="flex gap-1 bg-[color-mix(in_srgb,var(--muted)_55%,transparent)] px-2 pt-1 sm:px-3">
+            <div className="flex items-end gap-1 bg-[color-mix(in_srgb,var(--muted)_55%,transparent)] px-2 sm:px-3">
                 <IconButton
                     size="sm"
                     onClick={onToggleMenu}
                     aria-label={t('openNotes')}
                     aria-expanded={menuOpened}
-                    className="mb-1.5 shrink-0 sm:hidden"
+                    hiddenFrom="sm"
+                    className="mb-0.5 shrink-0"
                 >
                     {menuOpened ? <X size={18} strokeWidth={1.75} /> : <Menu size={18} strokeWidth={1.75} />}
                 </IconButton>

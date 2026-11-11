@@ -1,6 +1,7 @@
 'use client'
 
 import { useCreateEntry, type EntryLocationInput } from '@/entities/entry/api/use-create-entry'
+import { useGetConstants } from '@/entities/constants/api'
 import {
     PRODUCT_MEDIA_TYPES,
     PRODUCT_VOICE_TYPES,
@@ -55,6 +56,10 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
     const audioRef = useRef<HTMLInputElement>(null)
     const shellRef = useRef<HTMLDivElement>(null)
     const { mutateAsync: createEntry, isPending } = useCreateEntry()
+    const { data: constants } = useGetConstants()
+    const maxMedia = constants?.entry.maxMediaPerEntry ?? 5
+    const maxPeople = constants?.entry.maxPeoplePerEntry ?? 10
+    const maxSizeByType = constants?.files.maxSizeByType
 
     const hasText = !isEmptyHtml(content)
     const hasVoice = attachments.some((item) => item.kind === 'voice')
@@ -197,13 +202,19 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
         try {
             const mediaIds: { id: string }[] = []
             for (const item of mediaFiles) {
-                const fileId = await uploadFile(item.file, { allowedTypes: PRODUCT_MEDIA_TYPES })
+                const fileId = await uploadFile(item.file, {
+                    allowedTypes: PRODUCT_MEDIA_TYPES,
+                    maxSizeByType
+                })
                 mediaIds.push({ id: fileId })
             }
 
             let audioId: string | undefined
             if (voiceItem) {
-                audioId = await uploadFile(voiceItem.file, { allowedTypes: PRODUCT_VOICE_TYPES })
+                audioId = await uploadFile(voiceItem.file, {
+                    allowedTypes: PRODUCT_VOICE_TYPES,
+                    maxSizeByType
+                })
             }
 
             // Voice notes never send text; media-only still needs a plain placeholder.
@@ -397,7 +408,7 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                                         <X size={14} strokeWidth={2} />
                                     </button>
                                 </div>
-                                <PeoplePicker value={people} onChange={setPeople} />
+                                <PeoplePicker value={people} onChange={setPeople} max={maxPeople} />
                                 <PlacesPicker
                                     value={places}
                                     onChange={setPlaces}
@@ -567,7 +578,7 @@ export const CreateNoteForm = ({ onWritingChange }: CreateNoteFormProps) => {
                     onChange={(e) => {
                         const files = Array.from(e.target.files ?? [])
                         e.target.value = ''
-                        const room = 5 - mediaCount
+                        const room = maxMedia - mediaCount
                         if (room <= 0) {
                             toast.error(t('mediaLimit'))
                             return

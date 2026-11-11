@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import { useUpdateEntry } from '@/entities/entry/api/use-update-entry'
 import type { EntryLocationInput } from '@/entities/entry/api/use-create-entry'
 import { PlaceMapPicker, type PlaceMapSelection } from '@/features/place-map'
+import { useGetConstants } from '@/entities/constants/api'
 import { PeoplePicker, PlacesPicker, type RelationOption } from '@/features/note-relations'
 import { Button, Surface, TextInput } from '@/shared/ui'
 
@@ -44,6 +45,8 @@ export const EditNoteForm = ({
     const [locations, setLocations] = useState<PlaceMapSelection[]>([])
     const [mapPickerOpen, setMapPickerOpen] = useState(false)
     const { mutateAsync, isPending } = useUpdateEntry()
+    const { data: constants } = useGetConstants()
+    const maxPeople = constants?.entry.maxPeoplePerEntry ?? 10
 
     const placeSlots = places.length + locations.length
 
@@ -103,7 +106,7 @@ export const EditNoteForm = ({
                             <Users size={12} strokeWidth={1.75} />
                             {t('relations.people')}
                         </div>
-                        <PeoplePicker value={people} onChange={setPeople} hideLabel />
+                        <PeoplePicker value={people} onChange={setPeople} max={maxPeople} hideLabel />
                     </Surface>
                     <Surface frost capsule className="p-3.5">
                         <div className="text-muted-foreground mb-2 flex items-center gap-1.5 text-[11px] font-medium tracking-wide uppercase">

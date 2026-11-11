@@ -22,7 +22,10 @@ export type ModelProvider = 'Polza' | 'Openrouter'
 
 export interface ModelsSettings {
     analyze: ModelTierSettings
-    embedding: ModelTierSettings
+    vision: ModelTierSettings
+    stt: ModelTierSettings
+    sttRefine: ModelTierSettings
+    rag: ModelTierSettings
     provider: ModelProvider
 }
 

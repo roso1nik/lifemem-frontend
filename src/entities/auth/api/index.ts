@@ -1,6 +1,7 @@
 export * from './use-login'
 export * from './use-confirm-phone-login'
 export * from './use-password-reset'
+export * from './use-change-password'
 export * from './log-login'
 export * from './use-refresh'
 export * from './use-logout'

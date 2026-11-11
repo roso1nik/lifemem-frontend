@@ -1,4 +1,4 @@
-import { SectionPlaceholder } from '@/widgets/section-placeholder'
+import { MemoryGraphPage } from '@/widgets/memory-graph'
 import { getAppSectionMetadata } from '@/shared/config/seo'
 
 type PageProps = {
@@ -11,5 +11,5 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default function GraphPage() {
-    return <SectionPlaceholder section="graph" />
+    return <MemoryGraphPage />
 }

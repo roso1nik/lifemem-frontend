@@ -30,7 +30,10 @@ export const modelTierSettingsUpdateSchema = z.object({
 
 export const modelsSettingsUpdateSchema = z.object({
     analyze: modelTierSettingsUpdateSchema.optional(),
-    embedding: modelTierSettingsUpdateSchema.optional(),
+    vision: modelTierSettingsUpdateSchema.optional(),
+    stt: modelTierSettingsUpdateSchema.optional(),
+    sttRefine: modelTierSettingsUpdateSchema.optional(),
+    rag: modelTierSettingsUpdateSchema.optional(),
     provider: z.enum(['Polza', 'Openrouter']).optional()
 })
 
@@ -54,7 +57,9 @@ export const useGetServiceSettings = () =>
         retry: false
     })
 
-export const updateServiceSettings = async (data: ServiceSettingsUpdateRequest): AxiosPromise<ServiceSettings> => {
+export const updateServiceSettings = async (
+    data: ServiceSettingsUpdateRequest
+): AxiosPromise<ServiceSettings> => {
     const res = await apiClient.patch('/settings/set', data)
     return res
 }

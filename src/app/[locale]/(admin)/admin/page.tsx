@@ -4,5 +4,5 @@ import { getLocale } from 'next-intl/server'
 
 export default async function AdminIndexPage() {
     const locale = await getLocale()
-    redirect({ href: ROUTES.ADMIN_USERS, locale })
+    redirect({ href: ROUTES.ADMIN_DASHBOARD, locale })
 }

@@ -4,9 +4,11 @@ import { UpdateNicknameForm } from '@/features/profile/update-nickname'
 import { ProfileUserSettings } from '@/features/profile/user-settings'
 import { ProfileContacts } from '@/features/profile/contacts'
 import { ProfileBindings } from '@/features/profile/bindings'
+import { ChangePasswordForm } from '@/features/profile/change-password'
 import { ProfileDangerZone } from '@/features/profile/danger-zone'
+import { useSelf } from '@/entities/user/api/use-self'
 import { Surface } from '@/shared/ui'
-import { Bell, Link2, Mail, User, UserRound } from 'lucide-react'
+import { Bell, KeyRound, Link2, Mail, User, UserRound } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
 import type { LucideIcon } from 'lucide-react'
@@ -43,6 +45,8 @@ const SectionHead = ({
 
 export const ProfilePage = () => {
     const t = useTranslations('profile')
+    const { data: self } = useSelf()
+    const hasPassword = Boolean(self?.info.passwordId)
 
     return (
         <div className="mx-auto flex w-full flex-1 flex-col px-4 py-6 md:w-4/5 md:px-6 md:py-8">
@@ -92,6 +96,19 @@ export const ProfilePage = () => {
                     <SectionHead Icon={Bell} title={t('settings')} hint={t('settingsHint')} tone="sage" />
                     <ProfileUserSettings />
                 </motion.section>
+
+                {hasPassword && (
+                    <motion.section
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ type: 'spring', bounce: 0, duration: 0.4, delay: 0.1 }}
+                    >
+                        <SectionHead Icon={KeyRound} title={t('passwordSection')} hint={t('passwordSectionHint')} />
+                        <Surface frost capsule className="p-5">
+                            <ChangePasswordForm />
+                        </Surface>
+                    </motion.section>
+                )}
 
                 <motion.section
                     initial={{ opacity: 0, y: 10 }}
