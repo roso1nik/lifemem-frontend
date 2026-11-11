@@ -98,48 +98,68 @@ const HistoryItem = ({
             <button
                 type="button"
                 onClick={onToggle}
+                aria-expanded={expanded}
                 className={cn(
-                    'hover:bg-muted/40 flex w-full items-start gap-2 px-2.5 py-2.5 text-left',
-                    'active:scale-[0.99] transition-[transform,background-color] duration-100'
+                    'hover:bg-muted/40 flex w-full items-start gap-2.5 px-3 py-3 text-left',
+                    'transition-[background-color,transform] duration-100 active:scale-[0.99]'
                 )}
             >
+                <span className="bg-primary/10 text-primary mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg">
+                    <Sparkles size={13} strokeWidth={1.75} />
+                </span>
                 <span className="min-w-0 flex-1">
-                    <span className="text-foreground line-clamp-2 block text-[13px] font-medium leading-snug">
+                    <span className="text-foreground line-clamp-2 block text-[13px] font-medium leading-snug tracking-tight">
                         {question}
                     </span>
                     {!expanded && answer && (
-                        <span className="text-muted-foreground mt-0.5 line-clamp-1 block text-xs">
+                        <span className="text-muted-foreground mt-1 line-clamp-2 block text-xs leading-snug">
                             {answer}
                         </span>
                     )}
-                    <span className="text-muted-foreground mt-1 block text-[11px] tabular-nums">
-                        {dayjsInstance(item.createdAt).format('D MMM, HH:mm')}
+                    <span className="text-muted-foreground mt-1.5 flex items-center gap-2 text-[11px] tabular-nums">
+                        <span>{dayjsInstance(item.createdAt).format('D MMM, HH:mm')}</span>
+                        {item.sources.length > 0 && (
+                            <span className="text-sage">
+                                {t('ask.sourcesLabel', { count: item.sources.length })}
+                            </span>
+                        )}
                     </span>
                 </span>
                 <ChevronDown
                     size={16}
                     className={cn(
-                        'text-muted-foreground mt-0.5 shrink-0 transition-transform duration-150',
+                        'text-muted-foreground mt-1 shrink-0 transition-transform duration-150',
                         expanded && 'rotate-180'
                     )}
                 />
             </button>
-            {expanded && (
-                <div className="px-2.5 pb-3">
-                    {answer && (
-                        <p className="text-foreground text-[13px] leading-relaxed">{answer}</p>
-                    )}
-                    {item.sources.length > 0 && (
-                        <ul className="divide-hairline mt-2 flex flex-col divide-y rounded-xl">
-                            {item.sources.map((source) => (
-                                <li key={source.id}>
-                                    <SourceRow source={source} onSelect={onSelectSource} />
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-            )}
+
+            <AnimatePresence initial={false}>
+                {expanded && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ type: 'spring', bounce: 0, duration: 0.32 }}
+                        className="overflow-hidden"
+                    >
+                        <div className="px-3 pb-3 pl-[3.25rem]">
+                            {answer && (
+                                <p className="text-foreground text-[13px] leading-relaxed">{answer}</p>
+                            )}
+                            {item.sources.length > 0 && (
+                                <ul className="divide-hairline bg-muted/25 mt-2.5 flex flex-col divide-y rounded-xl p-1">
+                                    {item.sources.map((source) => (
+                                        <li key={source.id}>
+                                            <SourceRow source={source} onSelect={onSelectSource} />
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </li>
     )
 }
@@ -220,9 +240,9 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
         })
     }
 
-    const historyBlock =
+    const historyList =
         history.length > 0 || historyPending || historyError ? (
-            <div className="mt-7 flex flex-col gap-2">
+            <section className="flex flex-col gap-2">
                 <p className="text-muted-foreground px-0.5 text-[11px] font-medium tracking-wide uppercase">
                     {t('ask.historyLabel')}
                 </p>
@@ -231,7 +251,7 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
                 ) : historyError ? (
                     <p className="text-destructive px-0.5 text-xs">{t('ask.historyError')}</p>
                 ) : (
-                    <Surface frost capsule className="overflow-hidden p-1">
+                    <Surface frost capsule className="overflow-hidden p-0.5">
                         <ul className="flex flex-col">
                             {history.map((item) => (
                                 <HistoryItem
@@ -247,132 +267,18 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
                         </ul>
                     </Surface>
                 )}
-            </div>
+            </section>
         ) : null
 
-    return (
-        <div className="flex min-h-0 flex-1 flex-col gap-3">
-            <div className="min-h-0 flex-1 overflow-y-auto px-0.5">
-                <AnimatePresence mode="wait" initial={false}>
-                    {showEmpty && (
-                        <motion.div
-                            key="empty"
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -6 }}
-                            transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
-                            className="flex flex-col px-1 py-6"
-                        >
-                            <div className="flex flex-col items-center gap-3 text-center">
-                                <span className="bg-primary/12 text-primary shadow-[0_10px_28px_color-mix(in_srgb,var(--primary)_14%,transparent)] flex size-14 items-center justify-center rounded-[18px]">
-                                    <Sparkles size={22} strokeWidth={1.6} />
-                                </span>
-                                <div>
-                                    <p className="text-foreground text-lg font-semibold tracking-tight">
-                                        {t('ask.emptyTitle')}
-                                    </p>
-                                    <p className="text-muted-foreground mt-1.5 max-w-sm text-sm leading-relaxed">
-                                        {t('ask.emptyHint')}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="mt-7 flex flex-col gap-2">
-                                <p className="text-muted-foreground px-0.5 text-[11px] font-medium tracking-wide uppercase">
-                                    {t('ask.suggestionsLabel')}
-                                </p>
-                                <div className="flex flex-col gap-2">
-                                    {SUGGESTION_KEYS.map((key) => (
-                                        <button
-                                            key={key}
-                                            type="button"
-                                            onClick={() => onSubmit(t(`ask.suggestions.${key}`))}
-                                            className={cn(
-                                                'border-hairline bg-surface-frost/50 hover:bg-muted/50 w-full rounded-2xl border px-3.5 py-3 text-left text-[13px] leading-snug',
-                                                'active:scale-[0.98] transition-[transform,background-color] duration-100'
-                                            )}
-                                        >
-                                            {t(`ask.suggestions.${key}`)}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {historyBlock}
-                        </motion.div>
-                    )}
-
-                    {busy && (
-                        <motion.div
-                            key="loading"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="flex flex-col gap-3 px-1 py-4"
-                        >
-                            {lastQuestion && (
-                                <p className="text-muted-foreground text-sm leading-snug">{lastQuestion}</p>
-                            )}
-                            <Surface frost capsule className="animate-pulse p-4">
-                                <div className="bg-muted/60 h-3 w-20 rounded" />
-                                <div className="bg-muted/50 mt-3 h-4 w-full rounded" />
-                                <div className="bg-muted/40 mt-2 h-4 w-4/5 rounded" />
-                                <div className="bg-muted/40 mt-2 h-4 w-2/3 rounded" />
-                            </Surface>
-                        </motion.div>
-                    )}
-
-                    {data && !busy && (
-                        <motion.div
-                            key="result"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
-                            className="flex flex-col gap-4 pb-2"
-                        >
-                            {lastQuestion && (
-                                <div className="px-1">
-                                    <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-                                        {t('ask.questionLabel')}
-                                    </p>
-                                    <p className="text-foreground mt-1 text-sm font-medium leading-snug">
-                                        {lastQuestion}
-                                    </p>
-                                </div>
-                            )}
-
-                            <Surface frost capsule className="border-primary/15 border-l-[3px] px-4 py-4 sm:px-5">
-                                <p className="text-primary text-[11px] font-semibold tracking-wide uppercase">
-                                    {t('ask.answerLabel')}
-                                </p>
-                                <p className="text-foreground mt-2 text-[15px] leading-relaxed tracking-tight sm:text-base">
-                                    {data.answer}
-                                </p>
-                            </Surface>
-
-                            {data.sources.length > 0 && (
-                                <Surface frost capsule className="overflow-hidden p-1.5">
-                                    <p className="text-muted-foreground px-2.5 pt-2 pb-1 text-[11px] font-medium tracking-wide uppercase">
-                                        {t('ask.sourcesLabel', { count: data.sources.length })}
-                                    </p>
-                                    <ul className="divide-hairline flex flex-col divide-y">
-                                        {data.sources.map((source) => (
-                                            <li key={source.id}>
-                                                <SourceRow source={source} onSelect={onSelectSource} />
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </Surface>
-                            )}
-
-                            {historyBlock}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
-
-            <Surface frost capsule borderless className="bg-muted/40 shrink-0 overflow-hidden">
+    const composer = (
+        <div
+            className={cn(
+                'sticky bottom-0 z-20 mt-auto shrink-0',
+                'border-hairline bg-background/90 border-t pt-2 backdrop-blur-xl',
+                'pb-[max(0.5rem,env(safe-area-inset-bottom))]'
+            )}
+        >
+            <Surface frost capsule borderless className="bg-muted/45 overflow-hidden">
                 <div className="flex items-end gap-2 px-2 py-2">
                     <textarea
                         value={question}
@@ -408,6 +314,144 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
                     </IconButton>
                 </div>
             </Surface>
+        </div>
+    )
+
+    return (
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
+            <div className="flex min-h-full flex-col px-0.5">
+                <div className="flex flex-1 flex-col">
+                    <AnimatePresence mode="wait" initial={false}>
+                        {showEmpty && (
+                            <motion.div
+                                key="empty"
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -6 }}
+                                transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+                                className="flex flex-col gap-6 px-1 py-4"
+                            >
+                                <div className="flex flex-col items-center gap-3 text-center">
+                                    <span className="bg-primary/12 text-primary flex size-14 items-center justify-center rounded-[18px]">
+                                        <Sparkles size={22} strokeWidth={1.6} />
+                                    </span>
+                                    <div>
+                                        <p className="text-foreground text-lg font-semibold tracking-tight">
+                                            {t('ask.emptyTitle')}
+                                        </p>
+                                        <p className="text-muted-foreground mt-1.5 max-w-sm text-sm leading-relaxed">
+                                            {t('ask.emptyHint')}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-muted-foreground px-0.5 text-[11px] font-medium tracking-wide uppercase">
+                                        {t('ask.suggestionsLabel')}
+                                    </p>
+                                    <div className="flex flex-col gap-2">
+                                        {SUGGESTION_KEYS.map((key) => (
+                                            <button
+                                                key={key}
+                                                type="button"
+                                                onClick={() => onSubmit(t(`ask.suggestions.${key}`))}
+                                                className={cn(
+                                                    'border-hairline bg-surface-frost/50 hover:bg-muted/50 w-full rounded-2xl border px-3.5 py-3 text-left text-[13px] leading-snug',
+                                                    'active:scale-[0.98] transition-[transform,background-color] duration-100'
+                                                )}
+                                            >
+                                                {t(`ask.suggestions.${key}`)}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {historyList}
+                            </motion.div>
+                        )}
+
+                        {busy && (
+                            <motion.div
+                                key="loading"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="flex flex-col gap-4 px-1 py-4"
+                            >
+                                {lastQuestion && (
+                                    <div>
+                                        <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                                            {t('ask.questionLabel')}
+                                        </p>
+                                        <p className="text-foreground mt-1 text-sm font-medium leading-snug">
+                                            {lastQuestion}
+                                        </p>
+                                    </div>
+                                )}
+                                <Surface frost capsule className="animate-pulse p-4">
+                                    <div className="bg-muted/60 h-3 w-20 rounded" />
+                                    <div className="bg-muted/50 mt-3 h-4 w-full rounded" />
+                                    <div className="bg-muted/40 mt-2 h-4 w-4/5 rounded" />
+                                    <div className="bg-muted/40 mt-2 h-4 w-2/3 rounded" />
+                                </Surface>
+                            </motion.div>
+                        )}
+
+                        {data && !busy && (
+                            <motion.div
+                                key="result"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+                                className="flex flex-col gap-5 px-1 py-3"
+                            >
+                                {lastQuestion && (
+                                    <div>
+                                        <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                                            {t('ask.questionLabel')}
+                                        </p>
+                                        <p className="text-foreground mt-1 text-sm font-medium leading-snug">
+                                            {lastQuestion}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <Surface frost capsule className="border-primary/15 border-l-[3px] px-4 py-4 sm:px-5">
+                                    <p className="text-primary text-[11px] font-semibold tracking-wide uppercase">
+                                        {t('ask.answerLabel')}
+                                    </p>
+                                    <p className="text-foreground mt-2 text-[15px] leading-relaxed tracking-tight sm:text-base">
+                                        {data.answer}
+                                    </p>
+                                </Surface>
+
+                                {data.sources.length > 0 && (
+                                    <Surface frost capsule className="overflow-hidden p-1.5">
+                                        <p className="text-muted-foreground px-2.5 pt-2 pb-1 text-[11px] font-medium tracking-wide uppercase">
+                                            {t('ask.sourcesLabel', { count: data.sources.length })}
+                                        </p>
+                                        <ul className="divide-hairline flex flex-col divide-y">
+                                            {data.sources.map((source) => (
+                                                <li key={source.id}>
+                                                    <SourceRow
+                                                        source={source}
+                                                        onSelect={onSelectSource}
+                                                    />
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </Surface>
+                                )}
+
+                                {historyList}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {composer}
+            </div>
         </div>
     )
 }

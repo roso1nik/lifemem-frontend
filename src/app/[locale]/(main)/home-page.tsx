@@ -23,7 +23,8 @@ const HomePage = () => {
         <div
             className={cn(
                 'mx-auto flex w-full flex-1 flex-col px-2 pt-2 pb-0 md:w-4/5 md:px-6 md:pt-8 md:pb-4',
-                expanded && 'min-h-0'
+                mode === 'ask' &&
+                    'h-[calc(100dvh-3.25rem)] max-h-[calc(100dvh-3.25rem)] min-h-0 overflow-hidden md:h-[calc(100dvh-3.75rem)] md:max-h-[calc(100dvh-3.75rem)] md:pb-2'
             )}
         >
             <AnimatePresence initial={false}>
@@ -45,10 +46,11 @@ const HomePage = () => {
 
             <div
                 className={cn(
-                    'pb-[env(safe-area-inset-bottom)]',
-                    expanded
+                    mode === 'ask'
                         ? 'flex min-h-0 flex-1 flex-col pt-1 md:pt-2'
-                        : 'mt-auto md:sticky md:bottom-5 md:mt-5'
+                        : expanded
+                          ? 'flex min-h-0 flex-1 flex-col pt-1 pb-[env(safe-area-inset-bottom)] md:pt-2'
+                          : 'mt-auto pb-[env(safe-area-inset-bottom)] md:sticky md:bottom-5 md:mt-5'
                 )}
             >
                 <div
