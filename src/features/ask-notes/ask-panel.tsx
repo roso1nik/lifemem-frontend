@@ -270,187 +270,178 @@ export const AskNotesPanel = ({ onBusyChange }: AskNotesPanelProps) => {
             </section>
         ) : null
 
-    const composer = (
-        <div
-            className={cn(
-                'sticky bottom-0 z-20 mt-auto shrink-0',
-                'border-hairline bg-background/90 border-t pt-2 backdrop-blur-xl',
-                'pb-[max(0.5rem,env(safe-area-inset-bottom))]'
-            )}
-        >
-            <Surface frost capsule borderless className="bg-muted/45 overflow-hidden">
-                <div className="flex items-end gap-2 px-2 py-2">
-                    <textarea
-                        value={question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        placeholder={t('ask.placeholder')}
-                        rows={1}
-                        disabled={busy}
-                        className={cn(
-                            'text-foreground placeholder:text-muted-foreground max-h-32 min-h-11 flex-1 resize-none bg-transparent px-2 py-2.5 text-[15px] leading-snug outline-none',
-                            'disabled:opacity-60'
-                        )}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault()
-                                onSubmit()
-                            }
-                            if (e.key === 'Escape' && data) {
-                                reset()
-                                setLastQuestion('')
-                            }
-                        }}
-                    />
-                    <IconButton
-                        type="button"
-                        tone="primary"
-                        aria-label={t('ask.submit')}
-                        disabled={!canSend}
-                        loading={busy}
-                        onClick={() => onSubmit()}
-                        className="mb-0.5 shrink-0 rounded-full!"
-                    >
-                        <ArrowUp size={18} strokeWidth={2} />
-                    </IconButton>
-                </div>
-            </Surface>
-        </div>
-    )
-
     return (
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
-            <div className="flex min-h-full flex-col px-0.5">
-                <div className="flex flex-1 flex-col">
-                    <AnimatePresence mode="wait" initial={false}>
-                        {showEmpty && (
-                            <motion.div
-                                key="empty"
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -6 }}
-                                transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
-                                className="flex flex-col gap-6 px-1 py-4"
-                            >
-                                <div className="flex flex-col items-center gap-3 text-center">
-                                    <span className="bg-primary/12 text-primary flex size-14 items-center justify-center rounded-[18px]">
-                                        <Sparkles size={22} strokeWidth={1.6} />
-                                    </span>
-                                    <div>
-                                        <p className="text-foreground text-lg font-semibold tracking-tight">
-                                            {t('ask.emptyTitle')}
-                                        </p>
-                                        <p className="text-muted-foreground mt-1.5 max-w-sm text-sm leading-relaxed">
-                                            {t('ask.emptyHint')}
-                                        </p>
-                                    </div>
+        <div className="flex min-h-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-0.5 [-webkit-overflow-scrolling:touch]">
+                <AnimatePresence mode="wait" initial={false}>
+                    {showEmpty && (
+                        <motion.div
+                            key="empty"
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
+                            transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+                            className="flex flex-col gap-6 px-1 py-4"
+                        >
+                            <div className="flex flex-col items-center gap-3 text-center">
+                                <span className="bg-primary/12 text-primary flex size-14 items-center justify-center rounded-[18px]">
+                                    <Sparkles size={22} strokeWidth={1.6} />
+                                </span>
+                                <div>
+                                    <p className="text-foreground text-lg font-semibold tracking-tight">
+                                        {t('ask.emptyTitle')}
+                                    </p>
+                                    <p className="text-muted-foreground mt-1.5 max-w-sm text-sm leading-relaxed">
+                                        {t('ask.emptyHint')}
+                                    </p>
                                 </div>
+                            </div>
 
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground px-0.5 text-[11px] font-medium tracking-wide uppercase">
+                                    {t('ask.suggestionsLabel')}
+                                </p>
                                 <div className="flex flex-col gap-2">
-                                    <p className="text-muted-foreground px-0.5 text-[11px] font-medium tracking-wide uppercase">
-                                        {t('ask.suggestionsLabel')}
-                                    </p>
-                                    <div className="flex flex-col gap-2">
-                                        {SUGGESTION_KEYS.map((key) => (
-                                            <button
-                                                key={key}
-                                                type="button"
-                                                onClick={() => onSubmit(t(`ask.suggestions.${key}`))}
-                                                className={cn(
-                                                    'border-hairline bg-surface-frost/50 hover:bg-muted/50 w-full rounded-2xl border px-3.5 py-3 text-left text-[13px] leading-snug',
-                                                    'active:scale-[0.98] transition-[transform,background-color] duration-100'
-                                                )}
-                                            >
-                                                {t(`ask.suggestions.${key}`)}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    {SUGGESTION_KEYS.map((key) => (
+                                        <button
+                                            key={key}
+                                            type="button"
+                                            onClick={() => onSubmit(t(`ask.suggestions.${key}`))}
+                                            className={cn(
+                                                'border-hairline bg-surface-frost/50 hover:bg-muted/50 w-full rounded-2xl border px-3.5 py-3 text-left text-[13px] leading-snug',
+                                                'active:scale-[0.98] transition-[transform,background-color] duration-100'
+                                            )}
+                                        >
+                                            {t(`ask.suggestions.${key}`)}
+                                        </button>
+                                    ))}
                                 </div>
+                            </div>
 
-                                {historyList}
-                            </motion.div>
-                        )}
+                            {historyList}
+                        </motion.div>
+                    )}
 
-                        {busy && (
-                            <motion.div
-                                key="loading"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="flex flex-col gap-4 px-1 py-4"
-                            >
-                                {lastQuestion && (
-                                    <div>
-                                        <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-                                            {t('ask.questionLabel')}
-                                        </p>
-                                        <p className="text-foreground mt-1 text-sm font-medium leading-snug">
-                                            {lastQuestion}
-                                        </p>
-                                    </div>
-                                )}
-                                <Surface frost capsule className="animate-pulse p-4">
-                                    <div className="bg-muted/60 h-3 w-20 rounded" />
-                                    <div className="bg-muted/50 mt-3 h-4 w-full rounded" />
-                                    <div className="bg-muted/40 mt-2 h-4 w-4/5 rounded" />
-                                    <div className="bg-muted/40 mt-2 h-4 w-2/3 rounded" />
-                                </Surface>
-                            </motion.div>
-                        )}
-
-                        {data && !busy && (
-                            <motion.div
-                                key="result"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
-                                className="flex flex-col gap-5 px-1 py-3"
-                            >
-                                {lastQuestion && (
-                                    <div>
-                                        <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-                                            {t('ask.questionLabel')}
-                                        </p>
-                                        <p className="text-foreground mt-1 text-sm font-medium leading-snug">
-                                            {lastQuestion}
-                                        </p>
-                                    </div>
-                                )}
-
-                                <Surface frost capsule className="border-primary/15 border-l-[3px] px-4 py-4 sm:px-5">
-                                    <p className="text-primary text-[11px] font-semibold tracking-wide uppercase">
-                                        {t('ask.answerLabel')}
+                    {busy && (
+                        <motion.div
+                            key="loading"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="flex flex-col gap-4 px-1 py-4"
+                        >
+                            {lastQuestion && (
+                                <div>
+                                    <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                                        {t('ask.questionLabel')}
                                     </p>
-                                    <p className="text-foreground mt-2 text-[15px] leading-relaxed tracking-tight sm:text-base">
-                                        {data.answer}
+                                    <p className="text-foreground mt-1 text-sm font-medium leading-snug">
+                                        {lastQuestion}
                                     </p>
+                                </div>
+                            )}
+                            <Surface frost capsule className="animate-pulse p-4">
+                                <div className="bg-muted/60 h-3 w-20 rounded" />
+                                <div className="bg-muted/50 mt-3 h-4 w-full rounded" />
+                                <div className="bg-muted/40 mt-2 h-4 w-4/5 rounded" />
+                                <div className="bg-muted/40 mt-2 h-4 w-2/3 rounded" />
+                            </Surface>
+                        </motion.div>
+                    )}
+
+                    {data && !busy && (
+                        <motion.div
+                            key="result"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+                            className="flex flex-col gap-5 px-1 py-3"
+                        >
+                            {lastQuestion && (
+                                <div>
+                                    <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+                                        {t('ask.questionLabel')}
+                                    </p>
+                                    <p className="text-foreground mt-1 text-sm font-medium leading-snug">
+                                        {lastQuestion}
+                                    </p>
+                                </div>
+                            )}
+
+                            <Surface frost capsule className="border-primary/15 border-l-[3px] px-4 py-4 sm:px-5">
+                                <p className="text-primary text-[11px] font-semibold tracking-wide uppercase">
+                                    {t('ask.answerLabel')}
+                                </p>
+                                <p className="text-foreground mt-2 text-[15px] leading-relaxed tracking-tight sm:text-base">
+                                    {data.answer}
+                                </p>
+                            </Surface>
+
+                            {data.sources.length > 0 && (
+                                <Surface frost capsule className="overflow-hidden p-1.5">
+                                    <p className="text-muted-foreground px-2.5 pt-2 pb-1 text-[11px] font-medium tracking-wide uppercase">
+                                        {t('ask.sourcesLabel', { count: data.sources.length })}
+                                    </p>
+                                    <ul className="divide-hairline flex flex-col divide-y">
+                                        {data.sources.map((source) => (
+                                            <li key={source.id}>
+                                                <SourceRow source={source} onSelect={onSelectSource} />
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </Surface>
+                            )}
 
-                                {data.sources.length > 0 && (
-                                    <Surface frost capsule className="overflow-hidden p-1.5">
-                                        <p className="text-muted-foreground px-2.5 pt-2 pb-1 text-[11px] font-medium tracking-wide uppercase">
-                                            {t('ask.sourcesLabel', { count: data.sources.length })}
-                                        </p>
-                                        <ul className="divide-hairline flex flex-col divide-y">
-                                            {data.sources.map((source) => (
-                                                <li key={source.id}>
-                                                    <SourceRow
-                                                        source={source}
-                                                        onSelect={onSelectSource}
-                                                    />
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </Surface>
-                                )}
+                            {historyList}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
 
-                                {historyList}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-
-                {composer}
+            <div
+                className={cn(
+                    'sticky bottom-0 z-20 shrink-0',
+                    'border-hairline bg-background/90 border-t pt-2 backdrop-blur-xl',
+                    'pb-[max(0.5rem,env(safe-area-inset-bottom))]'
+                )}
+            >
+                <Surface frost capsule borderless className="bg-muted/45 overflow-hidden">
+                    <div className="flex items-end gap-2 px-2 py-2">
+                        <textarea
+                            value={question}
+                            onChange={(e) => setQuestion(e.target.value)}
+                            placeholder={t('ask.placeholder')}
+                            rows={1}
+                            disabled={busy}
+                            className={cn(
+                                'text-foreground placeholder:text-muted-foreground max-h-32 min-h-11 flex-1 resize-none bg-transparent px-2 py-2.5 text-[15px] leading-snug outline-none',
+                                'disabled:opacity-60'
+                            )}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault()
+                                    onSubmit()
+                                }
+                                if (e.key === 'Escape' && data) {
+                                    reset()
+                                    setLastQuestion('')
+                                }
+                            }}
+                        />
+                        <IconButton
+                            type="button"
+                            tone="primary"
+                            aria-label={t('ask.submit')}
+                            disabled={!canSend}
+                            loading={busy}
+                            onClick={() => onSubmit()}
+                            className="mb-0.5 shrink-0 rounded-full!"
+                        >
+                            <ArrowUp size={18} strokeWidth={2} />
+                        </IconButton>
+                    </div>
+                </Surface>
             </div>
         </div>
     )

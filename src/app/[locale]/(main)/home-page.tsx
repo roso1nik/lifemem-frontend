@@ -24,7 +24,7 @@ const HomePage = () => {
             className={cn(
                 'mx-auto flex w-full flex-1 flex-col px-2 pt-2 pb-0 md:w-4/5 md:px-6 md:pt-8 md:pb-4',
                 mode === 'ask' &&
-                    'h-[calc(100dvh-3.25rem)] max-h-[calc(100dvh-3.25rem)] min-h-0 overflow-hidden md:h-[calc(100dvh-3.75rem)] md:max-h-[calc(100dvh-3.75rem)] md:pb-2'
+                    'h-[calc(100dvh-3.25rem)] max-h-[calc(100dvh-3.25rem)] min-h-0 overflow-hidden pt-2 pb-0 md:h-[calc(100dvh-3.25rem)] md:max-h-[calc(100dvh-3.25rem)] md:pt-3 md:pb-2'
             )}
         >
             <AnimatePresence initial={false}>
@@ -137,7 +137,11 @@ const HomePage = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -4 }}
                                 transition={{ type: 'spring', bounce: 0, duration: 0.32 }}
-                                className={cn(expanded ? 'flex min-h-0 flex-1 flex-col' : undefined)}
+                                className={cn(
+                                    mode === 'ask' || expanded
+                                        ? 'flex h-full min-h-0 flex-1 flex-col'
+                                        : undefined
+                                )}
                             >
                                 {mode === 'write' ? (
                                     <CreateNoteForm onWritingChange={setIsWriting} />
