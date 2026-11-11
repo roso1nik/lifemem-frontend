@@ -49,6 +49,7 @@
     "next-intl": "^4.7.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-force-graph-2d": "^1.29.2",
     "react-hook-form": "^7.69.0",
     "react-hot-toast": "^2.6.0",
     "tailwind-merge": "^3.4.0",

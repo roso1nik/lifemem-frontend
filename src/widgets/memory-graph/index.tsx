@@ -1,22 +1,44 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    type MouseEvent as ReactMouseEvent
+} from 'react'
 import { useDebouncedValue } from '@mantine/hooks'
 import { Switch } from '@mantine/core'
 import { useTranslations } from 'next-intl'
-import { GitBranch, Link2, Search, X } from 'lucide-react'
+import { ArrowLeft, GitBranch, Link2, Search, X } from 'lucide-react'
 import { motion, useReducedMotion } from 'framer-motion'
 import type { EdgeMouseHandler, NodeMouseHandler } from '@xyflow/react'
+import type { ForceGraphMethods } from 'react-force-graph-2d'
 import {
     useCreateGraphLink,
     useGraph,
     type GraphNodeType
 } from '@/entities/graph/api'
 import { useWorkspaceNavigation } from '@/features/workspace-tabs'
-import { Button, IconButton, Loader, Surface, TextInput } from '@/shared/ui'
+import { Button, IconButton, Loader, SegmentedControl, Surface, TextInput } from '@/shared/ui'
 import { cn } from '@/shared/utils'
+import { ForceGraphCanvas } from './force-graph-canvas'
 import { GraphCanvas } from './graph-canvas'
-import { edgeKey, type MemoryEdge, type MemoryNode } from './map-graph'
+import { GraphControls } from './graph-controls'
+import { GraphHint } from './graph-hint'
+import { GraphHoverTooltip } from './graph-hover-tooltip'
+import { GraphSettingsPanel } from './graph-settings-panel'
+import {
+    buildLocalSubgraph,
+    edgeKey,
+    toGraphData,
+    type ForceGraphLink,
+    type ForceGraphNode,
+    type MemoryEdge,
+    type MemoryNode
+} from './map-graph'
+import { useGraphSettings, type GraphRendererMode } from './model/graph-settings'
 
 const ALL_TYPES: GraphNodeType[] = ['entry', 'person', 'place']
 
@@ -32,6 +54,22 @@ export const MemoryGraphPage = () => {
     const [orphans, setOrphans] = useState(true)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [selectedEdgeKey, setSelectedEdgeKey] = useState<string | null>(null)
+    const [focusId, setFocusId] = useState<string | null>(null)
+    const [settingsOpen, setSettingsOpen] = useState(false)
+    const [hoverNode, setHoverNode] = useState<ForceGraphNode | null>(null)
+    const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(null)
+
+    const localDepth = useGraphSettings((s) => s.display.localDepth)
+    const rendererMode = useGraphSettings((s) => s.rendererMode)
+    const setRendererMode = useGraphSettings((s) => s.setRendererMode)
+    const graphApiRef = useRef<ForceGraphMethods<ForceGraphNode, ForceGraphLink> | undefined>(undefined)
+    const isPhysics = rendererMode === 'physics'
+
+    useEffect(() => {
+        setHoverNode(null)
+        setHoverPos(null)
+        setSettingsOpen(false)
+    }, [rendererMode])
 
     const graphQuery = useGraph({
         query: debouncedSearch || undefined,
@@ -40,10 +78,22 @@ export const MemoryGraphPage = () => {
     })
     const { mutate: createLink, isPending: linking } = useCreateGraphLink()
 
-    const nodes = graphQuery.data?.nodes ?? []
-    const edges = graphQuery.data?.edges ?? []
+    const nodes = useMemo(() => graphQuery.data?.nodes ?? [], [graphQuery.data?.nodes])
+    const edges = useMemo(() => graphQuery.data?.edges ?? [], [graphQuery.data?.edges])
 
     const nodeById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [nodes])
+
+    const focusNode = focusId ? (nodeById.get(focusId) ?? null) : null
+
+    const viewNodesEdges = useMemo(() => {
+        if (!focusId) return { nodes, edges }
+        return buildLocalSubgraph(nodes, edges, focusId, localDepth)
+    }, [nodes, edges, focusId, localDepth])
+
+    const graphData = useMemo(
+        () => toGraphData(viewNodesEdges.nodes, viewNodesEdges.edges),
+        [viewNodesEdges]
+    )
 
     const selectedEdge = useMemo(
         () => edges.find((edge) => edgeKey(edge) === selectedEdgeKey) ?? null,
@@ -72,6 +122,19 @@ export const MemoryGraphPage = () => {
         }
     }, [edges, selectedEdgeKey])
 
+    useEffect(() => {
+        if (focusId && !nodeById.has(focusId)) setFocusId(null)
+    }, [focusId, nodeById])
+
+    useEffect(() => {
+        if (!focusId) return
+        const onKey = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setFocusId(null)
+        }
+        window.addEventListener('keydown', onKey)
+        return () => window.removeEventListener('keydown', onKey)
+    }, [focusId])
+
     const toggleType = (type: GraphNodeType) => {
         setTypes((prev) => {
             if (prev.includes(type)) {
@@ -82,28 +145,83 @@ export const MemoryGraphPage = () => {
         })
     }
 
-    const onNodeClick: NodeMouseHandler<MemoryNode> = (_event, node) => {
+    const onNodeClick = useCallback((node: ForceGraphNode, event?: MouseEvent | ReactMouseEvent) => {
         setSelectedEdgeKey(null)
-        if (node.data.graphType !== 'entry') {
-            setSelectedIds([])
+        const multi = Boolean(event && (event.metaKey || event.ctrlKey))
+        if (multi && node.type === 'entry') {
+            setSelectedIds((prev) => {
+                if (prev.includes(node.id)) return prev.filter((id) => id !== node.id)
+                if (prev.length >= 2) return [prev[1], node.id]
+                return [...prev, node.id]
+            })
             return
         }
-        setSelectedIds((prev) => {
-            if (prev.includes(node.id)) return prev.filter((id) => id !== node.id)
-            if (prev.length >= 2) return [prev[1], node.id]
-            return [...prev, node.id]
-        })
-    }
+        setFocusId(node.id)
+    }, [])
 
-    const onNodeDoubleClick: NodeMouseHandler<MemoryNode> = (_event, node) => {
-        if (node.data.graphType !== 'entry') return
-        goNote({ id: node.id, title: node.data.name.slice(0, 28) || tHome('tab.notes') })
-    }
+    const onNodeDoubleClick = useCallback(
+        (node: ForceGraphNode) => {
+            if (node.type !== 'entry') return
+            goNote({ id: node.id, title: node.name.slice(0, 28) || tHome('tab.notes') })
+        },
+        [goNote, tHome]
+    )
 
-    const onEdgeClick: EdgeMouseHandler<MemoryEdge> = (_event, edge) => {
-        setSelectedEdgeKey(edge.id)
+    const onEdgeClick = useCallback((link: ForceGraphLink) => {
+        setSelectedEdgeKey(link.id)
         setSelectedIds([])
-    }
+    }, [])
+
+    const onFlowNodeClick: NodeMouseHandler<MemoryNode> = useCallback(
+        (event, node) => {
+            onNodeClick(
+                {
+                    id: node.id,
+                    name: node.data.name,
+                    type: node.data.graphType,
+                    degree: node.data.degree
+                },
+                event
+            )
+        },
+        [onNodeClick]
+    )
+
+    const onFlowNodeDoubleClick: NodeMouseHandler<MemoryNode> = useCallback(
+        (_event, node) => {
+            onNodeDoubleClick({
+                id: node.id,
+                name: node.data.name,
+                type: node.data.graphType,
+                degree: node.data.degree
+            })
+        },
+        [onNodeDoubleClick]
+    )
+
+    const onFlowEdgeClick: EdgeMouseHandler<MemoryEdge> = useCallback(
+        (_event, edge) => {
+            onEdgeClick({
+                id: edge.id,
+                source: String(edge.source),
+                target: String(edge.target),
+                type: edge.data?.edgeType ?? 'entry_entry',
+                weight: edge.data?.weight ?? 1,
+                reason: edge.data?.reason,
+                manual: Boolean(edge.data?.manual)
+            })
+        },
+        [onEdgeClick]
+    )
+
+    const modeOptions = useMemo(
+        () =>
+            [
+                { value: 'physics' as const, label: t('modePhysics') },
+                { value: 'flow' as const, label: t('modeFlow') }
+            ] satisfies { value: GraphRendererMode; label: string }[],
+        [t]
+    )
 
     const canLink = selectedEntries.length === 2
 
@@ -135,8 +253,8 @@ export const MemoryGraphPage = () => {
                         {t('subtitle')}
                     </p>
                     <p className="text-muted-foreground mt-3 text-xs">
-                        {t('nodesCount', { count: nodes.length })} ·{' '}
-                        {t('edgesCount', { count: edges.length })}
+                        {t('nodesCount', { count: viewNodesEdges.nodes.length })} ·{' '}
+                        {t('edgesCount', { count: viewNodesEdges.edges.length })}
                     </p>
                 </div>
             </motion.div>
@@ -176,7 +294,13 @@ export const MemoryGraphPage = () => {
                             </button>
                         )
                     })}
-                    <div className="ml-auto">
+                    <div className="ml-auto flex flex-wrap items-center gap-3">
+                        <SegmentedControl
+                            value={rendererMode}
+                            options={modeOptions}
+                            onChange={setRendererMode}
+                            className="w-auto min-w-[200px]"
+                        />
                         <Switch
                             checked={orphans}
                             onChange={(e) => setOrphans(e.currentTarget.checked)}
@@ -185,6 +309,27 @@ export const MemoryGraphPage = () => {
                     </div>
                 </div>
             </Surface>
+
+            {focusNode && (
+                <Surface frost capsule className="mb-3 flex items-center gap-2 px-3 py-2">
+                    <IconButton
+                        size="sm"
+                        aria-label={t('backToFull')}
+                        className="rounded-full"
+                        onClick={() => setFocusId(null)}
+                    >
+                        <ArrowLeft size={14} />
+                    </IconButton>
+                    <p className="text-sm">
+                        <span className="text-muted-foreground">{t('fullGraph')}</span>
+                        <span className="text-muted-foreground mx-1.5">/</span>
+                        <span className="font-medium">{focusNode.name}</span>
+                    </p>
+                    <span className="bg-sage/15 text-sage ml-auto rounded-full px-2 py-0.5 text-[11px] font-medium">
+                        {t('localGraph')}
+                    </span>
+                </Surface>
+            )}
 
             <Surface frost capsule className="border-hairline relative overflow-hidden p-0">
                 {graphQuery.isLoading && (
@@ -201,20 +346,44 @@ export const MemoryGraphPage = () => {
                         </p>
                     </div>
                 )}
-                {nodes.length > 0 && (
-                    <GraphCanvas
-                        apiNodes={nodes}
-                        apiEdges={edges}
-                        selectedIds={selectedIds}
-                        selectedEdgeKey={selectedEdgeKey}
-                        reducedMotion={reduceMotion}
-                        onNodeClick={onNodeClick}
-                        onNodeDoubleClick={onNodeDoubleClick}
-                        onEdgeClick={onEdgeClick}
-                        onPaneClick={() => {
-                            setSelectedEdgeKey(null)
-                        }}
-                    />
+                {viewNodesEdges.nodes.length > 0 && (
+                    <div className="relative h-[min(70vh,640px)] w-full">
+                        {isPhysics ? (
+                            <>
+                                <ForceGraphCanvas
+                                    data={graphData}
+                                    selectedIds={selectedIds}
+                                    selectedEdgeKey={selectedEdgeKey}
+                                    reducedMotion={reduceMotion}
+                                    graphRef={graphApiRef}
+                                    onNodeClick={onNodeClick}
+                                    onNodeDoubleClick={onNodeDoubleClick}
+                                    onEdgeClick={onEdgeClick}
+                                    onPaneClick={() => setSelectedEdgeKey(null)}
+                                    onHoverNodeChange={(node, screen) => {
+                                        setHoverNode(node)
+                                        setHoverPos(screen)
+                                    }}
+                                />
+                                <GraphHoverTooltip node={hoverNode} position={hoverPos} />
+                                <GraphControls graphRef={graphApiRef} reducedMotion={reduceMotion} />
+                            </>
+                        ) : (
+                            <GraphCanvas
+                                apiNodes={viewNodesEdges.nodes}
+                                apiEdges={viewNodesEdges.edges}
+                                selectedIds={selectedIds}
+                                selectedEdgeKey={selectedEdgeKey}
+                                reducedMotion={reduceMotion}
+                                onNodeClick={onFlowNodeClick}
+                                onNodeDoubleClick={onFlowNodeDoubleClick}
+                                onEdgeClick={onFlowEdgeClick}
+                                onPaneClick={() => setSelectedEdgeKey(null)}
+                            />
+                        )}
+                        <GraphHint />
+                        <GraphSettingsPanel open={settingsOpen} onOpenChange={setSettingsOpen} />
+                    </div>
                 )}
             </Surface>
 
@@ -279,14 +448,14 @@ export const MemoryGraphPage = () => {
                         {Boolean(selectedEdge.reason?.sharedPeopleIds?.length) && (
                             <p className="text-xs">
                                 {t('sharedPeople', {
-                                    count: selectedEdge.reason!.sharedPeopleIds!.length
+                                    count: selectedEdge.reason?.sharedPeopleIds?.length ?? 0
                                 })}
                             </p>
                         )}
                         {Boolean(selectedEdge.reason?.sharedPlaceIds?.length) && (
                             <p className="text-xs">
                                 {t('sharedPlaces', {
-                                    count: selectedEdge.reason!.sharedPlaceIds!.length
+                                    count: selectedEdge.reason?.sharedPlaceIds?.length ?? 0
                                 })}
                             </p>
                         )}
