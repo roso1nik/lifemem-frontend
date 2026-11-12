@@ -13,3 +13,4 @@ docker run -d --name lifemem-frontend -p 3004:3004 lifemem-frontend
 docker stop lifemem-frontend
 
 docker rm lifemem-frontend
+ 
